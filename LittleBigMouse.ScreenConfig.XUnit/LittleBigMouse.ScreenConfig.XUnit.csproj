@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LittleBigMouse\ScreenConfig\LittleBigMouse.ScreenConfig.csproj" />
+    <ProjectReference Include="..\LittleBigMouse\ScreenConfig\LittleBigMouse.ScreenConfig.NetFramework.csproj" />
   </ItemGroup>
 
 </Project>

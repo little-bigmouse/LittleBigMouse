@@ -1,0 +1,75 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Platforms>AnyCPU;x64</Platforms>
+    <StartupObject>LittleBigMouse.Control.Loader.App</StartupObject>
+    <ApplicationIcon>MainIcon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="MainIcon.ico" />
+    <None Remove="setup\LittleBigMouse.iss" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Remove="App.xaml" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Content Include="setup\LittleBigMouse.iss" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\HLab.Sys\HLab.Sys.Argyll\HLab.Sys.Argyll.csproj" />
+    <ProjectReference Include="..\..\HLab\HLab.Core.Annotations\HLab.Core.Annotations.csproj">
+      <Private>true</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\HLab\HLab.Mvvm.Wpf\HLab.Mvvm.Wpf.csproj">
+      <Private>true</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\HLab\HLab.Notify.Wpf\HLab.Notify.Wpf.csproj">
+      <Private>true</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\LittleBigMouse.Control.Core\LittleBigMouse.Control.Core.csproj">
+      <Private>true</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\LittleBigMouse.Plugin.Location\LittleBigMouse.Plugin.Location.csproj">
+      <Private>true</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\LittleBigMouse.Plugin.Vcp\LittleBigMouse.Plugin.Vcp.csproj" />
+    <ProjectReference Include="..\LittleBigMouse.ScreenConfig\LittleBigMouse.ScreenConfig.csproj">
+      <Private>true</Private>
+    </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Xceed.Wpf.AvalonDock">
+      <HintPath>C:\Users\mathieu.AD\.nuget\packages\extended.wpf.toolkit\3.8.1\lib\net40\Xceed.Wpf.AvalonDock.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="MainIcon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="App.xaml.cs">
+      <SubType>Code</SubType>
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Converters.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Icons.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+
+</Project>

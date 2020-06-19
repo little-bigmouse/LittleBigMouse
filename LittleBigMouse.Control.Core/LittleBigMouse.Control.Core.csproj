@@ -1,0 +1,106 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Platforms>AnyCPU;x64</Platforms>
+    <ApplicationIcon>MainIcon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Icons\colors.xml" />
+    <None Remove="Icons\IconClose.svg" />
+    <None Remove="Icons\IconDebug.svg" />
+    <None Remove="Icons\IconFullscreen.svg" />
+    <None Remove="Icons\IconPinned.svg" />
+    <None Remove="Icons\IconUnfullscreen.svg" />
+    <None Remove="MainIcon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Icons\colors.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JKang.IpcServiceFramework.Client.NamedPipe" Version="3.0.3" />
+    <PackageReference Include="Microsoft.NETCore.App" Version="2.2.8" />
+    <PackageReference Include="System.Runtime" Version="4.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\HLab\HLab.DependencyInjection.Annotations\HLab.DependencyInjection.Annotations.csproj" />
+    <ProjectReference Include="..\..\HLab\HLab.Mvvm.Annotations\HLab.Mvvm.Annotations.csproj" />
+    <ProjectReference Include="..\..\HLab\HLab.Mvvm.Wpf\HLab.Mvvm.Wpf.csproj" />
+    <ProjectReference Include="..\..\HLab\HLab.Mvvm\HLab.Mvvm.csproj" />
+    <ProjectReference Include="..\..\HLab\HLab.Notify.PropertyChanged\HLab.Notify.PropertyChanged.csproj" />
+    <ProjectReference Include="..\LittleBigMouse.ScreenConfig\LittleBigMouse.ScreenConfig.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Icons\IconClose.svg" />
+    <Resource Include="Icons\IconDebug.svg">
+      <Generator>XamlIntelliSenseFileGenerator</Generator>
+    </Resource>
+    <Resource Include="Icons\IconFullscreen.svg" />
+    <Resource Include="Icons\IconPinned.svg" />
+    <Resource Include="Icons\IconUnfullscreen.svg" />
+    <Resource Include="MainIcon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="ColorsWindow.xaml.cs">
+      <DependentUpon>ColorsWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Devices\DevicesView.xaml.cs">
+      <DependentUpon>DevicesView.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Devices\DeviceView.xaml.cs">
+      <DependentUpon>DeviceView.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="MainView.xaml.cs">
+      <DependentUpon>MainView.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="MultiScreensView.xaml.cs">
+      <DependentUpon>MultiScreensView.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Plugins\Debug\DebugScreenView.xaml.cs">
+      <DependentUpon>DebugScreenView.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Plugins\Default\DefaultScreenView.xaml.cs">
+      <DependentUpon>DefaultScreenView.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="ScreenFrameView.xaml.cs">
+      <DependentUpon>ScreenFrameView.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="ColorsWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Devices\DevicesView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Devices\DeviceView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="MainView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="MultiScreensView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Plugins\Debug\DebugScreenView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Plugins\Default\DefaultScreenView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="ScreenFrameView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+
+</Project>
