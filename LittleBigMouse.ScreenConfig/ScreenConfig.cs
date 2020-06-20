@@ -858,11 +858,10 @@ namespace LittleBigMouse.ScreenConfig
 
         private string ServiceName { get; } = "LittleBigMouse_" + System.Security.Principal.WindowsIdentity.GetCurrent().Name.Replace('\\', '_');
 
-        public void Schedule()
+        public bool Schedule()
         {
-            using (TaskService ts = new TaskService())
+            using (var ts = new TaskService())
             {
-                ts.RootFolder.DeleteTask("LittleBigMouse", false); //TODO : remove this in one or two releases
                 ts.RootFolder.DeleteTask(ServiceName, false);
 
                 var td = ts.NewTask();
@@ -886,8 +885,16 @@ namespace LittleBigMouse.ScreenConfig
                 td.Settings.DisallowStartOnRemoteAppSession = true;
                 td.Settings.StopIfGoingOnBatteries = false;
                 td.Settings.ExecutionTimeLimit = TimeSpan.Zero;
-
-                ts.RootFolder.RegisterTaskDefinition(ServiceName, td);
+                try
+                {
+                    ts.RootFolder.RegisterTaskDefinition(ServiceName, td);
+                    return true;
+                }
+                catch (UnauthorizedAccessException  e)
+                {
+                    MessageBox.Show("Unable to register startup task");
+                    return false;
+                }
             }
         }
 

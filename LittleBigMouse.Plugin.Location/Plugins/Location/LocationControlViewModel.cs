@@ -140,15 +140,13 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
 
         public bool LoadAtStartup
         {
-            get => Config.LoadAtStartup; set
+            get => Config.LoadAtStartup; 
+            set
             {
-                Config.LoadAtStartup = value;
                 if(value)
-                    Config.Schedule();
+                    Config.LoadAtStartup = Config.Schedule();
                 else
                     Config.Unschedule();
-
-                //LittleBigMouseClient.Client.LoadAtStartup(value);
             }
         }
 
