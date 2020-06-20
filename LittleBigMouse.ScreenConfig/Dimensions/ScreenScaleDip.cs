@@ -52,8 +52,8 @@ namespace LittleBigMouse.ScreenConfigs
         private readonly IProperty<IScreenRatio> _mainRatio 
             = H.Property<IScreenRatio>(c => c
             .Set(e => (IScreenRatio)new ScreenRatioValue(
-                96 / e.Screen.Config.PrimaryScreen.EffectiveDpi.X,
-                96 / e.Screen.Config.PrimaryScreen.EffectiveDpi.Y))
+                96 / (e.Screen.Config.PrimaryScreen?.EffectiveDpi.X??96),
+                96 / (e.Screen.Config.PrimaryScreen?.EffectiveDpi.Y??96)))
             .On( e => e.Screen.Config.PrimaryScreen.EffectiveDpi.X)
             .On( e => e.Screen.Config.PrimaryScreen.EffectiveDpi.Y)
             .Update()
