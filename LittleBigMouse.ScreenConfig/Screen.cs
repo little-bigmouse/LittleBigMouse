@@ -48,7 +48,7 @@ namespace LittleBigMouse.ScreenConfig
         [JsonIgnore] public ScreenConfig Config { get; }
         public Monitor Monitor { get; }
 
-        internal Screen(ScreenConfig config, Monitor monitor):base(false)
+        public Screen(ScreenConfig config, Monitor monitor):base(false)
         {
             Config = config;
             Monitor = monitor;
@@ -265,8 +265,6 @@ namespace LittleBigMouse.ScreenConfig
             .On(e => e.PhysicalRotated.Height)
             .On(e => e.InPixel.Width)
             .On(e => e.InPixel.Height)
-            .NotNull(e => e.PhysicalRotated)
-            .NotNull(e => e.InPixel)
             .Update()
         );
 

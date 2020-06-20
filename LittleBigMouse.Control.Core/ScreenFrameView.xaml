@@ -19,7 +19,7 @@
              Foreground="White"
              x:Name="UserControl"
              Margin="{Binding Margin}"
-             d:DataContext="{d:DesignInstance Type=core:ScreenFrameViewModel, IsDesignTimeCreatable=True}"
+             d:DataContext="{d:DesignInstance Type=core:ScreenFrameViewModel, IsDesignTimeCreatable=False}"
              >
     <UserControl.ContextMenu>
         <ContextMenu>
