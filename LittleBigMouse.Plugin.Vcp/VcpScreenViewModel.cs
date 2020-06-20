@@ -88,7 +88,7 @@ namespace LittleBigMouse.Plugin.Vcp
             .Set(e => (e.Vcp.Brightness==null || e.Vcp.Contrast==null)?Visibility.Visible:Visibility.Collapsed)
         );
 
-        public ICommand AnywayCommand  = H.Command( c => c
+        public ICommand AnywayCommand { get; } = H.Command( c => c
             .CanExecute(e => true)
             .Action(e => e.Vcp.ActivateAnyway())
         );
