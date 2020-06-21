@@ -102,7 +102,7 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
         public override double LeftBorder
         {
             get => _leftBorder.Get();
-            set => Source.RightBorder = value;
+            set => Source.LeftBorder = value;
         }
         private readonly IProperty<double> _leftBorder = H.Property<double>(c => c
             .Set(e => e.Source.LeftBorder)

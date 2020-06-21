@@ -30,7 +30,6 @@ using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 using System.Windows;
-using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
 using HLab.Sys.Windows.API;
 using HLab.Sys.Windows.Monitors;
@@ -211,12 +210,11 @@ namespace LittleBigMouse.ScreenConfig
             .Update()
         );
 
-        [TriggerOn(nameof(InMm), "X")]
-        [TriggerOn(nameof(InMm), "Y")]
-        public void SetSaved()
-        {
-            Config.Saved = false;
-        }
+        private ITrigger _setUnsaved = H.Trigger(c => c
+            .On(e => e.InMm.OutsideBounds)
+            .On(e => e.InMm.Bounds)
+            .Do(e => e.Config.Saved=false)
+        );
 
 
         [DataMember]

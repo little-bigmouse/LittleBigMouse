@@ -22,9 +22,9 @@
 */
 
 using HLab.Notify.PropertyChanged;
-using LittleBigMouse.ScreenConfig;
+using LittleBigMouse.ScreenConfigs;
 
-namespace LittleBigMouse.ScreenConfigs
+namespace LittleBigMouse.ScreenConfig.Dimensions
 {
     public class ScreenScaleDip : ScreenSize<ScreenScaleDip>
     {

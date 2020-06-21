@@ -24,12 +24,11 @@
 using System;
 using System.Runtime.Serialization;
 using System.Windows;
-using HLab.Base;
 using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
 using Newtonsoft.Json;
 
-namespace LittleBigMouse.ScreenConfigs
+namespace LittleBigMouse.ScreenConfig.Dimensions
 {
     public interface IScreenSize : IEquatable<IScreenSize>
     {
@@ -106,16 +105,12 @@ namespace LittleBigMouse.ScreenConfigs
         [DataMember]
         public Thickness Borders => _borders.Get();
         private readonly IProperty<Thickness> _borders = H.Property<Thickness>(c => c
+            .Set(e => new Thickness(e.LeftBorder, e.TopBorder, e.RightBorder, e.BottomBorder))
             .On(nameof(LeftBorder))
             .On(nameof(RightBorder))
             .On(nameof(TopBorder))
             .On(nameof(BottomBorder))
-            .Set(e => new Thickness(e.LeftBorder, e.TopBorder, e.RightBorder, e.BottomBorder))
-        );
-        private readonly IProperty<Point> _location = H.Property<Point>(c=>c
-            .On(nameof(X))
-            .On(nameof(Y))
-            .Set(e => new Point(e.X, e.Y))
+            .Update()
         );
         //[DataMember]
         public Point Location
@@ -127,13 +122,13 @@ namespace LittleBigMouse.ScreenConfigs
                     Y = value.Y;
             }
         }
-
-
-        private readonly IProperty<Size> _size = H.Property<Size>(c => c
-            .On(nameof(Width))
-            .On(nameof(Height))
-            .Set(e => new Size(e.Width,e.Height))            
+        private readonly IProperty<Point> _location = H.Property<Point>(c=>c
+            .Set(e => new Point(e.X, e.Y))
+            .On(nameof(X))
+            .On(nameof(Y))
+            .Update()
         );
+
         public Size Size
         {
             get => _size.Get();
@@ -143,40 +138,56 @@ namespace LittleBigMouse.ScreenConfigs
                     Width = value.Width;
             }
         }
+        private readonly IProperty<Size> _size = H.Property<Size>(c => c
+            .Set(e => new Size(e.Width,e.Height))            
+            .On(nameof(Width))
+            .On(nameof(Height))
+            .Update()
+        );
 
-        [TriggerOn(nameof(Location))]
-        [TriggerOn(nameof(Size))]
-        public Point Center => Location + new Vector(Width / 2, Height / 2);
+        public Point Center => _center.Get();
+        private readonly IProperty<Point> _center = H.Property<Point>(c => c
+            .Set(e => e.Location + new Vector(e.Width / 2, e.Height / 2) )            
+            .On(e => e.Location)
+            .On(e => e.Size)
+            .Update()
+        );
 
-
-        [DataMember]
-        [TriggerOn(nameof(Size))]
-        [TriggerOn(nameof(Location))]
-        public Rect Bounds => new Rect(
-            Location,
-            Size);
 
         //[DataMember]
-
-
+        [DataMember] public Rect Bounds => _bounds.Get();
+        private readonly IProperty<Rect> _bounds = H.Property<Rect>(c => c
+            .Set(e => new Rect(e.Location,e.Size) )            
+            .On(e => e.Location)
+            .On(e => e.Size)
+            .Update()
+        );
 
         //[DataMember]
-        [TriggerOn(nameof(X))]
-        [TriggerOn(nameof(LeftBorder))]
         public double OutsideX
         {
             get => X - LeftBorder;
             set => X = value + LeftBorder;
         }
+        private readonly IProperty<double> _outsideX = H.Property<double>(c => c
+            .Set(e => e.X - e.LeftBorder )            
+            .On(e => e.X)
+            .On(e => e.LeftBorder)
+            .Update()
+        );
 
         //[DataMember]
-        [TriggerOn(nameof(Y))]
-        [TriggerOn(nameof(TopBorder))]
        public double OutsideY
         {
             get => Y - TopBorder;
             set => Y = value + TopBorder;
         }
+        private readonly IProperty<double> _outsideY = H.Property<double>(c => c
+            .Set(e => e.Y - e.TopBorder )            
+            .On(e => e.Y)
+            .On(e => e.TopBorder)
+            .Update()
+        );
 
        public double OutsideWidth
        {
@@ -184,9 +195,12 @@ namespace LittleBigMouse.ScreenConfigs
            set => throw new NotImplementedException();
        }
        private readonly IProperty<double> _outsideWidth = H.Property<double>(c => c
-            //.TriggerOn(n => n.Width).TriggerOn(n => n.LeftBorder).TriggerOn(n => n.LeftBorder)
-           .On(e => e.Width).On(e=>e.LeftBorder).On(e => e.LeftBorder)
-           .Set(e => e.Width + e.LeftBorder + e.RightBorder));
+           .Set(e => e.Width + e.LeftBorder + e.RightBorder)
+           .On(e => e.Width)
+           .On(e=>e.LeftBorder)
+           .On(e => e.RightBorder)
+           .Update()
+       );
 
 
        public double OutsideHeight
@@ -195,21 +209,27 @@ namespace LittleBigMouse.ScreenConfigs
            set => throw new NotImplementedException();
        }
        private readonly IProperty<double> _outsideHeight = H.Property<double>(c => c
-            //.TriggerOn(n => n.Height).TriggerOn(n => n.TopBorder).TriggerOn(n => n.BottomBorder)
-            .On(e => e.Height).On(e => e.TopBorder).On(e => e.BottomBorder)
-           .Set(e => e.Height + e.TopBorder + e.BottomBorder));
+           .Set(e => e.Height + e.TopBorder + e.BottomBorder)
+           .On(e => e.Height)
+           .On(e => e.TopBorder)
+           .On(e => e.BottomBorder)
+           .Update()
+       );
 
 
+
+        [DataMember]
+        public Rect OutsideBounds => _outsideBounds.Get();
+        private readonly IProperty<Rect> _outsideBounds = H.Property<Rect>(c => c
+           .Set(e => new Rect(new Point(e.OutsideX, e.OutsideY), new Size(e.OutsideWidth, e.OutsideHeight)))
+           .On(e => e.OutsideX)
+           .On(e => e.OutsideY)
+           .On(e => e.OutsideWidth)
+           .Update()
+       );
         public bool Equals(IScreenSize other)
         {
             throw new NotImplementedException();
         }
-
-        [DataMember]
-        [TriggerOn(nameof(OutsideX))]
-        [TriggerOn(nameof(OutsideY))]
-        [TriggerOn(nameof(OutsideWidth))]
-        [TriggerOn(nameof(OutsideHeight))]
-        public Rect OutsideBounds => new Rect(new Point(OutsideX, OutsideY), new Size(OutsideWidth, OutsideHeight));
     }
 }

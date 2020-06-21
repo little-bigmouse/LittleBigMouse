@@ -21,11 +21,11 @@
 	  http://www.mgth.fr
 */
 
+using System.Windows;
 using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
-using System.Windows;
 
-namespace LittleBigMouse.ScreenConfigs
+namespace LittleBigMouse.ScreenConfig.Dimensions
 {
     public static class ScreenTranslateExt
     {

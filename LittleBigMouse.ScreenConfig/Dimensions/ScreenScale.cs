@@ -23,8 +23,9 @@
 
 
 using HLab.Notify.PropertyChanged;
+using LittleBigMouse.ScreenConfigs;
 
-namespace LittleBigMouse.ScreenConfigs
+namespace LittleBigMouse.ScreenConfig.Dimensions
 {
     public class ScreenScale : ScreenSize<ScreenScale>
     {
