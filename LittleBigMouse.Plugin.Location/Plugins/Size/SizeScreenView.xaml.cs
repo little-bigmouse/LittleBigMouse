@@ -22,13 +22,17 @@
 */
 
 using System;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Threading;
 using HLab.Mvvm;
 using HLab.Mvvm.Annotations;
 using HLab.Sys.Windows.API;
 using LittleBigMouse.Control.Core;
+using LittleBigMouse.Control.Core.ScreenFrame;
 
 namespace LittleBigMouse.Plugin.Location.Plugins.Size
 {
@@ -44,67 +48,9 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Size
         public SizeScreenView()
         {
             InitializeComponent();
-
-            SizeChanged += SizeScreenView_SizeChanged;
-            LayoutUpdated += SizeScreenView_LayoutUpdated;
-        }
-
-        private void SizeScreenView_LayoutUpdated(object sender, EventArgs e)
-        {
-            if (_staticPoint != null)
-            {
-                 Point p2 = PointToScreen(
-                     new Point(
-                         ActualWidth * _staticPoint.Value.X, 
-                         ActualHeight * _staticPoint.Value.Y
-                         ));
-                    NativeMethods.SetCursorPos((int)p2.X, (int)p2.Y);
-
-                _staticPoint = null;
-            }
-        }
-
-        private void SizeScreenView_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
         }
 
         ScreenSizeViewModel ViewModel => (DataContext as ScreenSizeViewModel);
-
-
-        private void Height_MouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            SetStaticPoint();
-            ViewModel.OutsideHeight += WheelDelta(e);
-        }
-        private void Width_MouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            SetStaticPoint();
-            ViewModel.OutsideWidth += WheelDelta(e);
-        }
-
-        private void Bottom_MouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            SetStaticPoint();
-            ViewModel.Model.InMm.BottomBorder += WheelDelta(e);
-        }
-
-        private void Right_MouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            SetStaticPoint();
-            ViewModel.Model.InMm.RightBorder += WheelDelta(e);
-        }
-
-        private void Left_MouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            SetStaticPoint();
-            ViewModel.Model.InMm.LeftBorder += WheelDelta(e);
-        }
-
-        private void Top_MouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            SetStaticPoint();
-            ViewModel.Model.InMm.TopBorder += WheelDelta(e);
-        }
 
         private void OnKeyEnterUpdate(object sender, KeyEventArgs e)
         {
@@ -115,29 +61,41 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Size
         {
             double delta = (e.Delta > 0) ? 1 : -1;
             if ((Keyboard.Modifiers & ModifierKeys.Control) != 0) delta /= 10;
+            if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0) delta *= 10;
             return delta;
         }
 
-        private Point? _staticPoint = null;
-
-        private void SetStaticPoint()
+        private void OnMouseWheel(object sender,MouseWheelEventArgs e)
         {
-            Point p = Mouse.GetPosition(this);
-            _staticPoint = new Point(
-                p.X/ActualWidth,
-                p.Y/ActualHeight);
-        }
+             if (sender is TextBox tb)
+             {
+                 var p = e.GetPosition(tb);
+                 var rx = p.X / tb.ActualWidth;
+                 var ry = p.Y / tb.ActualHeight;
 
-        private void InsideHeight_MouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            SetStaticPoint();
-            ViewModel.Height += WheelDelta(e);
-        }
+                 var delta = WheelDelta(e);
 
-        private void InsideWidth_MouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            SetStaticPoint();
-            ViewModel.Width += WheelDelta(e);
+                 var prop = TextBox.TextProperty;
+
+                 var binding = BindingOperations.GetBindingExpression(tb, prop);
+
+                 var val = binding?.Target.GetValue(prop);
+                 if (val is string s)
+                 {
+                     if (double.TryParse(s, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture,  out var d))
+                     {
+                         binding?.Target.SetValue(prop, (d + delta).ToString(CultureInfo.InvariantCulture) );
+                         binding?.UpdateSource();
+                     }
+                 }
+
+                 Dispatcher.BeginInvoke(() =>
+                 {
+                    var p2 = new Point(rx * tb.ActualWidth,ry*tb.ActualHeight);
+                    var l = tb.PointToScreen(p2);
+                    NativeMethods.SetCursorPos((int)l.X, (int)l.Y);
+                 },DispatcherPriority.Loaded);
+             }
         }
     }
 }

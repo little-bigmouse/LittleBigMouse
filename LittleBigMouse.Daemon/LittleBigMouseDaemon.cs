@@ -34,6 +34,7 @@ using System.Windows;
 using HLab.Notify;
 using HLab.Notify.PropertyChanged;
 using HLab.Sys.Windows.Monitors;
+using LittleBigMouse.Daemon.Updater;
 using LittleBigMouse.ScreenConfig;
 using LittleBigMouse.ScreenConfigs;
 using LittleBigMouse_Daemon;

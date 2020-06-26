@@ -23,15 +23,14 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using HLab.Notify;
 using HLab.Notify.PropertyChanged;
-using LittleBigMouse.ScreenConfig;
 using Microsoft.Win32;
 
-namespace LittleBigMouse.ScreenConfigs
+namespace LittleBigMouse.ScreenConfig.Dimensions
 {
+    using H = NotifyHelper<ScreenRatioRegistry>;
 
-    public class ScreenRatioRegistry : ScreenRatio<ScreenRatioRegistry>
+    public class ScreenRatioRegistry : ScreenRatio
     {
         private readonly string _prefix;
         public Screen Screen { get; }
@@ -40,7 +39,7 @@ namespace LittleBigMouse.ScreenConfigs
         {
             Screen = screen;
             _prefix = prefix;
-            Initialize();
+            H.Initialize(this);
         }
 
         public override double X

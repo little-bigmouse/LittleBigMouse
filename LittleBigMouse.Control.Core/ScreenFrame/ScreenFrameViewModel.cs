@@ -21,26 +21,29 @@
 	  http://www.mgth.fr
 */
 
+//#define uglyfix
+
 using System;
-using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using ControlzEx.Standard;
 using HLab.Mvvm;
-using HLab.Notify;
-using HLab.Notify.Annotations;
+using HLab.Mvvm.Annotations;
 using HLab.Notify.PropertyChanged;
+using LittleBigMouse.Control.Core.Plugins.Debug;
 using LittleBigMouse.ScreenConfig;
-using LittleBigMouse.ScreenConfigs;
+using LittleBigMouse.ScreenConfig.Dimensions;
 
-namespace LittleBigMouse.Control.Core
+namespace LittleBigMouse.Control.Core.ScreenFrame
 {
-    public class ScreenFrameViewModel : ViewModel<ScreenFrameViewModel,Screen>
+    using H = NotifyHelper<ScreenFrameViewModel>;
+    public class ScreenFrameViewModel : ViewModel<Screen>, IMvvmContextProvider
     {
         public ScreenFrameViewModel()
         {
-            Initialize();
+            H.Initialize(this);
         }
 
         public MultiScreensViewModel Presenter
@@ -50,191 +53,131 @@ namespace LittleBigMouse.Control.Core
         }
         private readonly IProperty<MultiScreensViewModel> _presenter = H.Property<MultiScreensViewModel>();
 
+
+
         public TransformGroup Rotation => _rotation.Get();
-        private readonly IProperty<TransformGroup> _rotation = H.Property<TransformGroup>(nameof(Rotation), c => c
+        private readonly IProperty<TransformGroup> _rotation = H.Property<TransformGroup>(c => c
         
             .Set( e => 
             {
-                var t = new TransformGroup();
                 if (e.Model.Orientation > 0)
-                    t.Children.Add(new RotateTransform(90 * e.Model.Orientation));
-
-                switch (e.Model.Orientation)
                 {
-                    case 1:
-                        t.Children.Add(new TranslateTransform(e.Width, 0));
-                        break;
-                    case 2:
-                        t.Children.Add(new TranslateTransform(e.Width, e.Height));
-                        break;
-                    case 3:
-                        t.Children.Add(new TranslateTransform(0, e.Height));
-                        break;
+                    var t = new TransformGroup();
+                    t.Children.Add(new RotateTransform(90 * e.Model.Orientation));
+                    switch (e.Model.Orientation)
+                    {
+                        case 1:
+                            t.Children.Add(new TranslateTransform(e.Rotated.Width, 0));
+                            break;
+                        case 2:
+                            t.Children.Add(new TranslateTransform(e.Rotated.Width, e.Rotated.Height));
+                            break;
+                        case 3:
+                            t.Children.Add(new TranslateTransform(0, e.Rotated.Height));
+                            break;
+                    }
+                    return t;
                 }
 
-                return t;
+                return null;
             }
                 )            
             .On(e => e.Model.Orientation)
-            .On(e => e.Height)
-            .On(e => e.Width)
+            .On(e => e.Rotated.Height)
+            .On(e => e.Rotated.Width)
             .Update()
-);
+        );
 
 
 
-        public double Ratio
-        {
-            get => _ratio.Get();
-            set => _ratio.Set(value);
-        }
-        private readonly IProperty<double> _ratio = H.Property<double>(nameof(Ratio), c=> c
-            .Set(e => 1.0));
 
 
         public Thickness LogoPadding => _logoPadding.Get();
-        private readonly IProperty<Thickness> _logoPadding = H.Property<Thickness>(nameof(LogoPadding), c => c
-                .Set(e => new Thickness(4 * e.Ratio))
-                .On(e => e.Ratio)
+        private readonly IProperty<Thickness> _logoPadding = H.Property<Thickness>(c => c
+                .Set(e => new Thickness(4 * e.Presenter.VisualRatio.X,4*e.Presenter.VisualRatio.Y,4 * e.Presenter.VisualRatio.X,4*e.Presenter.VisualRatio.Y))
+                .On(e => e.Presenter.VisualRatio.X)
+                .On(e => e.Presenter.VisualRatio.Y)
                 .Update()
         );
 
 
-        private GridLength GetLength(double l) => new GridLength(GetSize(l));
-        private double GetSize(double l) => l * Ratio;
-
         public Thickness Margin => _margin.Get();
-        private readonly IProperty<Thickness> _margin 
-            = H.Property<Thickness>(nameof(Margin), c => c
-                .Set(e => new Thickness(
-                    e.GetSize(e.Model.XMoving - e.Model.InMm.LeftBorder - e.Model.Config.PhysicalOutsideBounds.Left - e.Model.Config.PhysicalOutsideBounds.Width/2),
-                    e.GetSize(e.Model.YMoving - e.Model.InMm.TopBorder - e.Model.Config.PhysicalOutsideBounds.Top - e.Model.Config.PhysicalOutsideBounds.Height/2),0,0))
-                .On(e => e.Ratio)
+
+        private readonly IProperty<Thickness> _margin = H.Property<Thickness>(c => c
+            .Set(e => new Thickness(e.Left,e.Top,0,0))
+            .On(e => e.Left)
+            .On(e => e.Top)
+            .Update()
+        );
+
+
+        public double Left => _left.Get();
+        private readonly IProperty<double> _left
+            = H.Property<double>(c => c
+                .Set(e =>
+                {
+                    if (e.Presenter == null) return 0.0;
+
+                    return e.Presenter.VisualRatio.X *
+                           (e.Model.Config.X0 + e.Model.XMoving - e.Model.InMm.LeftBorder);
+                })
+                .On(e => e.Presenter.VisualRatio.X)
                 .On(e => e.Model.XMoving)
-                .On(e => e.Model.YMoving)
-                .On(e => e.Model.Config.PhysicalOutsideBounds.Left)
-                .On(e => e.Model.Config.PhysicalOutsideBounds.Top)
-                .On(e => e.Model.Config.PhysicalOutsideBounds.Height)
-                .On(e => e.Model.Config.PhysicalOutsideBounds.Width)
+                .On(e => e.Model.Config.X0)
                 .On(e => e.Model.InMm.LeftBorder)
+                .Update()
+            );
+
+        public double Top => _top.Get();
+        private readonly IProperty<double> _top 
+            = H.Property<double>(c => c
+                .Set(e =>
+                {
+                    if (e.Presenter == null) return 0.0;
+
+                    return e.Presenter.VisualRatio.Y *
+                           (e.Model.Config.Y0 + e.Model.YMoving - e.Model.InMm.TopBorder);
+                })
+                .On(e => e.Presenter.VisualRatio.Y)
+                .On(e => e.Model.YMoving)
+                .On(e => e.Model.Config.Y0)
                 .On(e => e.Model.InMm.TopBorder)
                 .Update()
             );
 
-        // Height
-        public double Height => _height.Get();
-        private readonly IProperty<double> _height = H.Property<double>(nameof(Height), c => c
-            .Set(e => e.GetSize(e.Model.InMm.OutsideHeight))
-            .On(e => e.Ratio)
-            .On(e => e.Model.InMm.OutsideHeight)
-            .Update()
-        );
 
-        // Width
-        public double Width => _width.Get();
-        private readonly IProperty<double> _width = H.Property<double>(nameof(Width), c => c
-            .Set(e => e.GetSize(e.Model.InMm.OutsideWidth))
-            .On(e => e.Ratio)
-            .On(e => e.Model.InMm.OutsideWidth)
-            .Update()
-        );
-
-        // TopBorder
-        public GridLength TopBorder => _topBorder.Get();
-        private readonly IProperty<GridLength> _topBorder = H.Property<GridLength>(c=>c
-            .Set(e => e.GetLength(e.Model.InMm.TopBorder))
-            .On(e => e.Ratio)
-            .On(e => e.Model.InMm.TopBorder)
-            .Update()
-        );
-
-        // RightBorder
-        public GridLength RightBorder => _rightBorder.Get();
-        private readonly IProperty<GridLength> _rightBorder = H.Property<GridLength>(nameof(RightBorder), c => c
-            .Set(e => e.GetLength(e.Model.InMm.RightBorder))
-            .On(e => e.Ratio)
-            .On(e => e.Model.InMm.RightBorder)
-            .Update()
-        );
-
-        // BottomBorder
-        public GridLength BottomBorder => _bottomBorder.Get();
-        private readonly IProperty<GridLength> _bottomBorder = H.Property<GridLength>(nameof(BottomBorder), c => c
-            .Set(e => e.GetLength(e.Model.InMm.BottomBorder))        
-            .On(e => e.Ratio)
-            .On(e => e.Model.InMm.BottomBorder)
-            .Update()
-        );
-
-        // LeftBorder
-        public GridLength LeftBorder => _leftBorder.Get();
-        private readonly IProperty<GridLength> _leftBorder = H.Property<GridLength>(nameof(LeftBorder), c => c
-            .Set(e => e.GetLength(e.Model.InMm.LeftBorder))
-            .On(e => e.Ratio)
-            .On(e => e.Model.InMm.LeftBorder)   
+        public IScreenSize Rotated => _rotated.Get();
+        private readonly IProperty<IScreenSize> _rotated = H.Property<IScreenSize>(c => c
+            .Set(e =>
+            {
+                if (e.Presenter == null) return e.Model.InMm;
+                return e.Model.InMm.ScaleWithLocation(e.Presenter.VisualRatio);
+            })
+            .On(e => e.Presenter.VisualRatio)
+            .On(e => e.Model.InMm)
             .Update()
         );
 
 
-        // UnrotatedHeight
-        public double UnrotatedHeight => _unrotatedHeight.Get();
-        private readonly IProperty<double> _unrotatedHeight = H.Property<double>(nameof(UnrotatedHeight), c => c
-            .Set(e => e.GetSize(e.Model.InMmUnrotated.OutsideHeight))
-            .On(e => e.Ratio)
-            .On(e => e.Model.InMmUnrotated.OutsideHeight)
+        public IScreenSize Unrotated => _unrotated.Get();
+        private readonly IProperty<IScreenSize> _unrotated = H.Property<IScreenSize>(c => c
+            .Set(e =>
+            {
+                if (e.Presenter == null) return e.Model.InMmU;
+                return e.Model.InMmU.ScaleWithLocation(e.Presenter.VisualRatio);
+            })
+            .On(e => e.Presenter.VisualRatio)
+            .On(e => e.Model.InMmU)
+            .On(e => e.Model.Orientation)
             .Update()
         );
 
-        // UnrotatedWidth
-        public double UnrotatedWidth => _unrotatedWidth.Get();
-        private readonly IProperty<double> _unrotatedWidth = H.Property<double>(nameof(UnrotatedWidth), c => c
-            .Set(e => e.GetSize(e.Model.InMmUnrotated.OutsideWidth))
-            .On(e => e.Ratio)
-            .On(e => e.Model.InMmUnrotated.OutsideWidth)
-            .Update()
-            );
 
-
-        // UnrotatedTopBorder
-        public GridLength UnrotatedTopBorder => _unrotatedTopBorder.Get();
-        private readonly IProperty<GridLength> _unrotatedTopBorder = H.Property<GridLength>(nameof(UnrotatedTopBorder),c=>c
-            .Set(e => e.GetLength(e.Model.InMmUnrotated.TopBorder))
-            .On(e => e.Ratio)
-            .On(e => e.Model.InMmUnrotated.TopBorder)
-            .Update()
-            );
-
-        // UnrotatedRightBorder
-        public GridLength UnrotatedRightBorder => _unrotatedRightBorder.Get();
-        private readonly IProperty<GridLength> _unrotatedRightBorder = H.Property<GridLength>(nameof(UnrotatedRightBorder),c=>c
-            .Set(e => e.GetLength(e.Model.InMmUnrotated.RightBorder))
-            .On(e => e.Ratio)
-            .On(e => e.Model.InMmUnrotated.RightBorder)
-            .Update()
-        );
-
-        // UnrotatedBottomBorder
-        public GridLength UnrotatedBottomBorder => _unrotatedBottomBorder.Get();
-        private readonly IProperty<GridLength> _unrotatedBottomBorder = H.Property<GridLength>(nameof(UnrotatedBottomBorder),c=>c
-            .Set(e => e.GetLength(e.Model.InMmUnrotated.BottomBorder))           
-            .On(e => e.Ratio)
-            .On(e => e.Model.InMmUnrotated.BottomBorder)
-            .Update()
-        );
-
-        // UnrotatedLeftBorder
-        public GridLength UnrotatedLeftBorder => _unrotatedLeftBorder.Get();
-        private readonly IProperty<GridLength> _unrotatedLeftBorder = H.Property<GridLength>(nameof(UnrotatedLeftBorder),c=>c
-            .Set(e => e.GetLength(e.Model.InMmUnrotated.LeftBorder))                   
-            .On(e => e.Ratio)
-            .On(e => e.Model.InMmUnrotated.LeftBorder)
-            .Update()
-        );
 
 
 
         public Stretch WallPaperStretch => _wallPaperStretch.Get();
-        private readonly IProperty<Stretch> _wallPaperStretch = H.Property<Stretch>(nameof(WallPaperStretch), c => c
+        private readonly IProperty<Stretch> _wallPaperStretch = H.Property<Stretch>(c => c
             .Set(e =>
             {
                 switch (e.Model.Config.WallpaperStyle)
@@ -258,7 +201,7 @@ namespace LittleBigMouse.Control.Core
 
 
         public Image WallPaper => _wallPaper.Get();
-        private readonly IProperty<Image> _wallPaper = H.Property<Image>(nameof(WallPaper),c => c
+        private readonly IProperty<Image> _wallPaper = H.Property<Image>(c => c
             .Set(e =>
             {
                 try
@@ -281,7 +224,7 @@ namespace LittleBigMouse.Control.Core
         );
 
         public Brush BackgroundColor => _backgroundColor.Get();
-        private readonly IProperty<Brush> _backgroundColor = H.Property<Brush>(nameof(BackgroundColor),c=>c
+        private readonly IProperty<Brush> _backgroundColor = H.Property<Brush>(c=>c
             .Set(e => (Brush)new SolidColorBrush(
                 Color.FromRgb(
                     (byte)e.Model.Config.BackGroundColor[0],
@@ -426,6 +369,10 @@ namespace LittleBigMouse.Control.Core
             }
             }
 
+        public void ConfigureMvvmContext(IMvvmContext ctx)
+        {
+           ctx.AddCreator<IScreenContentViewModel>(e => e.ScreenFrameViewModel = this);
+        }
     }
 
     

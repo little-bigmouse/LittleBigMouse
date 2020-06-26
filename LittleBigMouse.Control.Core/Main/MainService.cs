@@ -21,46 +21,10 @@
 	  http://www.mgth.fr
 */
 
-using System;
-using System.Windows;
-using HLab.Core.Annotations;
 using HLab.DependencyInjection.Annotations;
-using HLab.Mvvm;
-using HLab.Mvvm.Annotations;
-using HLab.Sys.Windows.Monitors;
-using LittleBigMouse.ScreenConfigs;
 
-namespace LittleBigMouse.Control.Core
+namespace LittleBigMouse.Control.Core.Main
 {
-    public class MainBootloader : IBootloader
-    {
-        [Import]
-        public MainBootloader(MainService mainService, IMvvmService mvvmService)
-        {
-            _mainService = mainService;
-            _mvvmService = mvvmService;
-        }
-
-        private readonly MainService _mainService;
-        private readonly IMvvmService _mvvmService;
-
-        [Import] private Func<ScreenConfig.ScreenConfig,MultiScreensViewModel> _getViewModel;
-
-        public void Load(IBootContext bootstrapper)
-        {
-            var viewModel = _mainService.MainViewModel;
-
-            viewModel.Config = _mainService.Config;
-
-            viewModel.Presenter = _getViewModel(_mainService.Config);
-
-            var view = (Window)_mvvmService.MainContext.GetView<ViewModeDefault>(viewModel, typeof(IViewClassDefault));
-
-            view.Show();
-        }
-
-    }
-
     [Export(typeof(MainService)),Singleton]
     public class MainService
     {
@@ -68,7 +32,7 @@ namespace LittleBigMouse.Control.Core
         public MainViewModel MainViewModel { get; }
 
         [Import]
-        public MainService(MainViewModel mainViewModel, IMvvmService mvvmService, IMonitorsService monitorsService, ScreenConfig.ScreenConfig config)
+        public MainService(MainViewModel mainViewModel, ScreenConfig.ScreenConfig config)
         {
            MainViewModel = mainViewModel;
            Config = config;

@@ -27,12 +27,14 @@ using HLab.Notify.PropertyChanged;
 
 namespace LittleBigMouse.ScreenConfig.Dimensions
 {
+    using H = NotifyHelper<ScreenTranslate>;
+
     public static class ScreenTranslateExt
     {
         public static IScreenSize Translate(this IScreenSize source, Vector translation) => new ScreenTranslate(source, translation);
     }
 
-    public class ScreenTranslate : ScreenSize<ScreenTranslate>
+    public class ScreenTranslate : ScreenSize
     {
         public ScreenTranslate(IScreenSize source, Vector? translation = null):base(source)
         {

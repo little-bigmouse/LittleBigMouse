@@ -1,16 +1,17 @@
 ﻿using System;
 using HLab.Notify.PropertyChanged;
-using LittleBigMouse.ScreenConfigs;
 
 namespace LittleBigMouse.ScreenConfig.Dimensions
 {
-    public class ScreenRatioRatio : ScreenRatio<ScreenRatioRatio>
+    using H = NotifyHelper<ScreenRatioRatio>;
+
+    public class ScreenRatioRatio : ScreenRatio
     {
         public ScreenRatioRatio(IScreenRatio ratioA, IScreenRatio ratioB)
         {
             SourceA = ratioA;
             SourceB = ratioB;
-            Initialize();
+            H.Initialize(this);
         }
 
         public IScreenRatio SourceA { get; }

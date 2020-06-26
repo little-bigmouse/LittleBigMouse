@@ -25,9 +25,10 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
 using HLab.Mvvm;
-using HLab.Notify;
 using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
+using LittleBigMouse.Control.Core.Plugins.Debug;
+using LittleBigMouse.Control.Core.ScreenFrame;
 using LittleBigMouse.Plugin.Location.Plugins.Location.Rulers;
 using LittleBigMouse.ScreenConfig;
 using RulerPanelView = LittleBigMouse.Plugin.Location.Plugins.Location.Rulers.RulerPanelView;
@@ -35,10 +36,13 @@ using RulerView = LittleBigMouse.Plugin.Location.Plugins.Location.Rulers.RulerVi
 
 namespace LittleBigMouse.Plugin.Location.Plugins.Location
 {
-    class LocationScreenViewModel : ViewModel<LocationScreenViewModel,Screen>
+    using H = NotifyHelper<LocationScreenViewModel>;
+
+    class LocationScreenViewModel : ViewModel<Screen>, IScreenContentViewModel
     {
         public LocationScreenViewModel()
         {
+            H.Initialize(this);
         }
 
         public ScreenLocationPlugin Plugin
@@ -111,16 +115,18 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
 
         public Brush RulerForegroundColor => _rulerForegroundColor.Get();
         private readonly IProperty<Brush> _rulerForegroundColor = H.Property<Brush>(c => c
+            .Set(e => (Brush)(e.Ruler ? new SolidColorBrush(Colors.White) : e.RulerMouseOver ? new SolidColorBrush(Colors.Black) : new SolidColorBrush(Colors.Black)))
             .On(e => e.Ruler)
             .On(e => e.RulerMouseOver)
-            .Set(e => (Brush)(e.Ruler ? new SolidColorBrush(Colors.White) : e.RulerMouseOver ? new SolidColorBrush(Colors.Black) : new SolidColorBrush(Colors.Black)))
+            .Update()
         );
 
         public Brush RulerBackgroundColor => _rulerBackgroundColor.Get();
         private readonly IProperty<Brush> _rulerBackgroundColor = H.Property<Brush>(c => c
+            .Set(e => (Brush)(e.RulerMouseOver ? new SolidColorBrush(Colors.DarkBlue) : e.Ruler ? new SolidColorBrush(Colors.Black) : new SolidColorBrush(Colors.White)))
             .On(e => e.Ruler)
             .On(e => e.RulerMouseOver)
-            .Set(e => (Brush)(e.RulerMouseOver ? new SolidColorBrush(Colors.DarkBlue) : e.Ruler ? new SolidColorBrush(Colors.Black) : new SolidColorBrush(Colors.White)))
+            .Update()
         );
 
 
@@ -134,8 +140,9 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
             }
         }
         private readonly IProperty<double> _ratioX = H.Property<double>(c => c
-            .On(e => e.Model.PhysicalRatio.X)
             .Set(e => e.Model.PhysicalRatio.X * 100)
+            .On(e => e.Model.PhysicalRatio.X)
+            .Update()
         );
 
         public double RatioY
@@ -148,21 +155,31 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
             }
         }
         private readonly IProperty<double> _ratioY = H.Property<double>(c => c
-            .On(e => e.Model.PhysicalRatio.Y)
             .Set(e => e.Model.PhysicalRatio.Y * 100)
+            .On(e => e.Model.PhysicalRatio.Y)
+            .Update()
         );
 
         public VerticalAlignment DpiVerticalAlignment => _dpiVerticalAlignment.Get();
         private readonly IProperty<VerticalAlignment> _dpiVerticalAlignment = H.Property<VerticalAlignment>(c => c
-            .On(e => e.Model.Orientation)
             .Set(e => e.Model.Orientation == 3 ? VerticalAlignment.Bottom : VerticalAlignment.Top)
+            .On(e => e.Model.Orientation)
+            .Update()
         );
 
         public VerticalAlignment PnpNameVerticalAlignment => _pnpNameVerticalAlignment.Get();
         private readonly IProperty<VerticalAlignment> _pnpNameVerticalAlignment = H.Property<VerticalAlignment>(c => c
-            .On(e => e.Model.Orientation)
             .Set(e => e.Model.Orientation == 2 ? VerticalAlignment.Bottom : VerticalAlignment.Top)
+            .On(e => e.Model.Orientation)
+            .Update()
         );
+
+        public ScreenFrameViewModel ScreenFrameViewModel
+        {
+            get => _screenFrameViewModel.Get();
+            set => _screenFrameViewModel.Set(value);
+        }
+        private readonly IProperty<ScreenFrameViewModel> _screenFrameViewModel = H.Property<ScreenFrameViewModel>();
 
     }
 }

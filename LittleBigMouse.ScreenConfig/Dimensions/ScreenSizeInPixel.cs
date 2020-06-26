@@ -24,19 +24,20 @@
 using System;
 using System.Runtime.CompilerServices;
 using HLab.Notify.PropertyChanged;
-using LittleBigMouse.ScreenConfigs;
 using Microsoft.Win32;
 
 namespace LittleBigMouse.ScreenConfig.Dimensions
 {
-    public class ScreenSizeInPixels : ScreenSize<ScreenSizeInPixels>
+    using H = NotifyHelper<ScreenSizeInPixels>;
+
+    public class ScreenSizeInPixels : ScreenSize
     {
         public Screen Screen { get; }
 
         public ScreenSizeInPixels(Screen screen):base(null)
         {
             Screen = screen;
-            Initialize();
+            H.Initialize(this);
         }
 
         public override double Width
@@ -47,24 +48,19 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
 
         private IProperty<double> _width = H.Property<double>(c => c
             .Set(e => e.Screen.Monitor.MonitorArea.Width)
-            .On(e => e.Screen.Monitor.MonitorArea).Update()
-            //.On(e => e.Screen.Monitor.DisplayOrientation)
-            //.Set(e => e.Screen.Monitor.DisplayOrientation % 2 == 0 ? e.Screen.Monitor.MonitorArea.Width : e.Screen.Monitor.MonitorArea.Height)
+            .On(e => e.Screen.Monitor.MonitorArea)
+            .Update()
         );
 
-//        [TriggerOn("Screen.Monitor.DisplayOrientation")]
         public override double Height
         {
             get => _height.Get();
-            //get => this.Get(() => Screen.Monitor.DisplayOrientation % 2 == 0 ? Screen.Monitor.MonitorArea.Height : Screen.Monitor.MonitorArea.Width);
             set => throw new NotImplementedException();
         }
         private IProperty<double> _height = H.Property<double>(c => c
-                .Set(e => e.Screen.Monitor.MonitorArea.Height)
-                .On(e => e.Screen.Monitor.MonitorArea)
-                .Update()
-                //.On(e => e.Screen.Monitor.DisplayOrientation)
-            //.Set(e => e.Screen.Monitor.DisplayOrientation % 2 == 0 ? e.Screen.Monitor.MonitorArea.Height : e.Screen.Monitor.MonitorArea.Width)
+            .Set(e => e.Screen.Monitor.MonitorArea.Height)
+            .On(e => e.Screen.Monitor.MonitorArea)
+            .Update()
         );
 
         public override double X

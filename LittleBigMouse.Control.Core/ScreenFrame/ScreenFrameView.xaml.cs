@@ -20,15 +20,13 @@
 	  mailto:mathieu@mgth.fr
 	  http://www.mgth.fr
 */
+
 using System;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Input;
 using HLab.Mvvm.Annotations;
-using HLab.Mvvm.Extensions;
 
-namespace LittleBigMouse.Control.Core
+namespace LittleBigMouse.Control.Core.ScreenFrame
 {
     public partial class ScreenFrameView : UserControl , IView<ViewModeDefault, ScreenFrameViewModel>, IViewClassDefault
     {
@@ -36,32 +34,10 @@ namespace LittleBigMouse.Control.Core
 
         public ScreenFrameView()
         {
-            LayoutUpdated += ScreenFrameView_LayoutUpdated;
             InitializeComponent();
         }
 
-        private void ScreenFrameView_LayoutUpdated(object sender, EventArgs e)
-        {
-            if (ViewModel == null) return;
-            if (Presenter==null) return;
-            ViewModel.Ratio = Presenter.GetRatio();
-        }
-
-        public MultiScreensView Presenter => this.FindParent<MultiScreensView>();
-
-        private void TextBox_MouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            TextBox tBox = (TextBox)sender;
-
-            double delta = (e.Delta > 0) ? 1 : -1;
-
-            DependencyProperty prop = TextBox.TextProperty;
-
-            BindingExpression binding = BindingOperations.GetBindingExpression(tBox, prop);
-            binding?.Target.SetValue(prop, (double.Parse(binding?.Target.GetValue(prop).ToString()) + delta).ToString() );
-            binding?.UpdateSource();
-        }
-
+        //TODO : replace with commands
         private void ResetPlace_Click(object sender, RoutedEventArgs e)
         {
             ViewModel.Model.Config.SetPhysicalAuto();
@@ -71,22 +47,7 @@ namespace LittleBigMouse.Control.Core
         {
             ViewModel.Model.ScreenModel.InitSize(ViewModel.Model.Monitor);
         }
-        public double GetRatio()
-        {
-            if (ViewModel.Model.Config == null) return 1;
 
-            Rect all = ViewModel.Model.Config.PhysicalOutsideBounds;
-
-            if (all.Width * all.Height > 0)
-            {
-                return Math.Min(
-                    this.FindParent<MultiScreensView>().Canvas.ActualWidth / all.Width,
-                    this.FindParent<MultiScreensView>().Canvas.ActualHeight / all.Height
-                );
-            }
-            return 1;
-
-        }
     }
 }
 

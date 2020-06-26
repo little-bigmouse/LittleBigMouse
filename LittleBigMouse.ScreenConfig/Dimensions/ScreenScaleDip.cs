@@ -26,14 +26,16 @@ using LittleBigMouse.ScreenConfigs;
 
 namespace LittleBigMouse.ScreenConfig.Dimensions
 {
-    public class ScreenScaleDip : ScreenSize<ScreenScaleDip>
+    using H = NotifyHelper<ScreenScaleDip>;
+
+    public class ScreenScaleDip : ScreenSize
     {
         public Screen Screen { get; }
 
         public ScreenScaleDip(IScreenSize source, Screen screen):base(source)
         {
             Screen = screen;
-            Initialize();
+            H.Initialize(this);
         }
 
         public IScreenRatio Ratio => _ratio.Get();

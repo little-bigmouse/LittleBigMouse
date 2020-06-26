@@ -22,21 +22,23 @@
 */
 
 using HLab.Mvvm;
-using HLab.Notify.Annotations;
+using HLab.Notify.PropertyChanged;
 using LittleBigMouse.ScreenConfig;
-using LittleBigMouse.ScreenConfigs;
 
 namespace LittleBigMouse.Control.Core.Plugins.Default
 {
-    class DefaultScreenViewModel : ViewModel<DefaultScreenViewModel,Screen>
-    {
-        public DefaultScreenViewModel()
-        {
-            Initialize();
-        }
+    using H = NotifyHelper<DefaultScreenViewModel>;
 
-        [TriggerOn(nameof(Model),"Diagonal")]
-        public string Inches => (Model.Diagonal / 25.4).ToString("##.#") +"\"";
+    class DefaultScreenViewModel : ViewModel<Screen>
+    {
+        public DefaultScreenViewModel() => H.Initialize(this);
+
+        public string Inches => _inches.Get();
+        private readonly IProperty<string> _inches = H.Property<string>(c => c
+            .Set(e => (e.Model.Diagonal / 25.4).ToString("##.#") +"\"")
+            .On(e => e.Model.Diagonal)
+            .Update()
+        );
 
     }
 }

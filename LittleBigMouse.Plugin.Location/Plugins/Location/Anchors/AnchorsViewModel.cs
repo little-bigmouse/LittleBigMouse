@@ -25,7 +25,7 @@ using HLab.Mvvm;
 
 namespace LittleBigMouse.Plugin.Location.Plugins.Location.Anchors
 {
-    class AnchorsViewModel : ViewModel<AnchorsViewModel,ScreenConfig.ScreenConfig>
+    class AnchorsViewModel : ViewModel<ScreenConfig.ScreenConfig>
     {
     }
 }

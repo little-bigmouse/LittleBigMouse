@@ -35,7 +35,6 @@ using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
 using HLab.Sys.Windows.API;
 using HLab.Sys.Windows.Monitors;
-using LittleBigMouse.ScreenConfigs;
 using Microsoft.Win32;
 using Microsoft.Win32.TaskScheduler;
 
@@ -47,7 +46,7 @@ namespace LittleBigMouse.ScreenConfig
     public class ScreenConfig : N<ScreenConfig>
     {
         [Import]
-        public ScreenConfig(IMonitorsService monitorsService)
+        public ScreenConfig(IMonitorsService monitorsService):base(false)
         {
             MonitorsService = monitorsService;
 
@@ -434,8 +433,8 @@ namespace LittleBigMouse.ScreenConfig
 
 
         [DataMember]
-        public Rect PhysicalOutsideBounds => _physicalOutsideBounds.Get();
-        private readonly IProperty<Rect> _physicalOutsideBounds = H.Property<Rect>(nameof(PhysicalOutsideBounds), c => c
+        public Rect InMmOutsideBounds => _inMmOutsideBounds.Get();
+        private readonly IProperty<Rect> _inMmOutsideBounds = H.Property<Rect>(c => c
            .Set(e =>
                {
                    var outside = new Rect();
@@ -468,7 +467,7 @@ namespace LittleBigMouse.ScreenConfig
         /// </summary>
         [DataMember]
         public Rect PhysicalBounds => _physicalBounds.Get();
-        private readonly IProperty<Rect> _physicalBounds = H.Property<Rect>(nameof(PhysicalBounds), c => c
+        private readonly IProperty<Rect> _physicalBounds = H.Property<Rect>(c => c
            .Set(e =>
                {
                    var inside = new Rect();
@@ -494,7 +493,13 @@ namespace LittleBigMouse.ScreenConfig
            .Update()
         );
 
+        public double X0 => _x0.Get();
+        private readonly IProperty<double> _x0 =
+            H.Property<double>(c => c.Set(e => -e.InMmOutsideBounds.Left).On(e => e.InMmOutsideBounds).Update());
 
+        public double Y0 => _y0.Get();
+        private readonly IProperty<double> _y0 =
+            H.Property<double>(c => c.Set(e => -e.InMmOutsideBounds.Top).On(e => e.InMmOutsideBounds).Update());
 
         /// <summary>
         /// 

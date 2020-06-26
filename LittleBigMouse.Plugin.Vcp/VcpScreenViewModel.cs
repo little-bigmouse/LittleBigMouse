@@ -38,14 +38,16 @@ using LittleBigMouse.ScreenConfig;
 
 namespace LittleBigMouse.Plugin.Vcp
 {
-    class VcpScreenViewModel : ViewModel<VcpScreenViewModel,Screen>
+    using H = NotifyHelper<VcpScreenViewModel>;
+
+    class VcpScreenViewModel : ViewModel<Screen>
     {
 
         [Import]
         public Func<VcpScreenViewModel, TestPatternButtonViewModel> _getButtonPattern;
         public VcpScreenViewModel()
         {
-            Initialize();
+            H.Initialize(this);
 
             TestPatterns.Add(_getButtonPattern(this).Set(TestPatternType.Circles).Set(Colors.White, Colors.Black));
             TestPatterns.Add(_getButtonPattern(this).Set(TestPatternType.Circle).Set(Color.FromRgb(0xFF,0x80,0x00),Colors.Black) );

@@ -182,8 +182,8 @@ namespace LittleBigMouse.Daemon
                 foreach (var screen in Config.AllScreens)
                 {
                     var main = _zones.Main.FirstOrDefault(e => ReferenceEquals(e.Screen, screen));
-                    _zones.Add(new Zone(screen, main, -Config.PhysicalOutsideBounds.Width, 0));
-                    _zones.Add(new Zone(screen, main, Config.PhysicalOutsideBounds.Width, 0));
+                    _zones.Add(new Zone(screen, main, -Config.InMmOutsideBounds.Width, 0));
+                    _zones.Add(new Zone(screen, main, Config.InMmOutsideBounds.Width, 0));
                 }
             }
 
@@ -192,8 +192,8 @@ namespace LittleBigMouse.Daemon
                 foreach (var screen in Config.AllScreens)
                 {
                     var main = _zones.Main.FirstOrDefault(e => ReferenceEquals(e.Screen, screen));
-                    _zones.Add(new Zone(screen, main, 0, -Config.PhysicalOutsideBounds.Height));
-                    _zones.Add(new Zone(screen, main, 0, Config.PhysicalOutsideBounds.Height));
+                    _zones.Add(new Zone(screen, main, 0, -Config.InMmOutsideBounds.Height));
+                    _zones.Add(new Zone(screen, main, 0, Config.InMmOutsideBounds.Height));
                 }
             }
         }

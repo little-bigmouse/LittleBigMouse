@@ -22,19 +22,19 @@
 */
 
 using System.Windows;
-using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
-using LittleBigMouse.ScreenConfigs;
 
 namespace LittleBigMouse.ScreenConfig.Dimensions
 {
-    public class ScreenRotate : ScreenSize<ScreenRotate>
+    using H = NotifyHelper<ScreenRotate>;
+
+    public class ScreenRotate : ScreenSize
     {
         public int Rotation { get; }
         public ScreenRotate(IScreenSize source, int rotation = 0) : base(source)
         {
             Rotation = rotation;
-            Initialize();
+            H.Initialize(this);
         }
 
         public Vector Translation
@@ -90,7 +90,6 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
             .Update()
         );
 
-        [TriggerOn(nameof(Source),"X")]
         public override double X
         {
             get => _x.Get();
@@ -102,7 +101,6 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
             .Update()
         );
 
-        [TriggerOn(nameof(Source),"Y")]
         public override double Y
         {
             get => _y.Get();
@@ -116,15 +114,14 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
 
         private double GetBorder(int border)
         {
-            switch ((border+Rotation)%4)
+            return ((border + Rotation) % 4) switch
             {
-                case 0: return Source.TopBorder;
-                case 1: return Source.RightBorder;
-                case 2: return Source.BottomBorder;
-                case 3: return Source.LeftBorder;
-            }
-            return -1;
-            
+                0 => Source.TopBorder,
+                1 => Source.RightBorder,
+                2 => Source.BottomBorder,
+                3 => Source.LeftBorder,
+                _ => -1,
+            };
         }
         private void SetBorder(int border, double value)
         {

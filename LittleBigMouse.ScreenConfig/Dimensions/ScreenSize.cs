@@ -24,60 +24,20 @@
 using System;
 using System.Runtime.Serialization;
 using System.Windows;
-using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
 using Newtonsoft.Json;
 
 namespace LittleBigMouse.ScreenConfig.Dimensions
 {
-    public interface IScreenSize : IEquatable<IScreenSize>
-    {
-        double Width { get; set; }
-        double Height { get; set; }
-        double X { get; set; }
-        double Y { get; set; }
-        double TopBorder { get; set; }
-        double BottomBorder { get; set; }
-        double LeftBorder { get; set; }
-        double RightBorder { get; set; }
-
-        Rect Bounds { get; }
-        Point Center { get; }
-
-        Rect OutsideBounds { get; }
-        double OutsideWidth { get; }
-        double OutsideHeight { get; }
-        double OutsideX { get; }
-        double OutsideY { get; }
-
-        Point Location { get; }
-    }
-
-    public static class ScreenSizeExtensions
-    {
-        public static Point GetPoint(this IScreenSize sz, IScreenSize source, Point point)
-        {
-            var x = (point.X - source.X) / source.Width;
-            var y = (point.Y - source.Y) / source.Height;
-
-            return new Point(sz.X + x * sz.Width, sz.Y + y * sz.Height);
-        }
-        public static Point Inside(this IScreenSize sz, Point p)
-        {
-            var x = p.X < sz.X ? sz.X : (p.X > sz.Bounds.Right - 1) ? (sz.Bounds.Right - 1) : p.X;
-            var y = p.Y < sz.Y ? sz.Y : (p.Y > sz.Bounds.Bottom - 1) ? (sz.Bounds.Bottom - 1) : p.Y;
-
-            return new Point(x, y);
-        }
-    }
-
+    using H = NotifyHelper<ScreenSize>;
+    
     [DataContract]
-    public abstract class ScreenSize<TClass> : N<TClass>, IScreenSize
-    where TClass : ScreenSize<TClass>
+    public abstract class ScreenSize : NotifierBase, IScreenSize
     {
-        protected ScreenSize(IScreenSize source):base(false)
+        protected ScreenSize(IScreenSize source)
         {
             Source = source;
+            H.Initialize(this);
         }
 
         [JsonIgnore]
@@ -106,10 +66,10 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
         public Thickness Borders => _borders.Get();
         private readonly IProperty<Thickness> _borders = H.Property<Thickness>(c => c
             .Set(e => new Thickness(e.LeftBorder, e.TopBorder, e.RightBorder, e.BottomBorder))
-            .On(nameof(LeftBorder))
-            .On(nameof(RightBorder))
-            .On(nameof(TopBorder))
-            .On(nameof(BottomBorder))
+            .On(e => e.LeftBorder)
+            .On(e => e.RightBorder)
+            .On(e => e.TopBorder)
+            .On(e => e.BottomBorder)
             .Update()
         );
         //[DataMember]
@@ -124,8 +84,8 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
         }
         private readonly IProperty<Point> _location = H.Property<Point>(c=>c
             .Set(e => new Point(e.X, e.Y))
-            .On(nameof(X))
-            .On(nameof(Y))
+            .On(e => e.X)
+            .On(e => e.Y)
             .Update()
         );
 
@@ -140,8 +100,8 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
         }
         private readonly IProperty<Size> _size = H.Property<Size>(c => c
             .Set(e => new Size(e.Width,e.Height))            
-            .On(nameof(Width))
-            .On(nameof(Height))
+            .On(e => e.Width)
+            .On(e => e.Height)
             .Update()
         );
 
@@ -197,7 +157,7 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
        private readonly IProperty<double> _outsideWidth = H.Property<double>(c => c
            .Set(e => e.Width + e.LeftBorder + e.RightBorder)
            .On(e => e.Width)
-           .On(e=>e.LeftBorder)
+           .On(e => e.LeftBorder)
            .On(e => e.RightBorder)
            .Update()
        );
@@ -225,6 +185,7 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
            .On(e => e.OutsideX)
            .On(e => e.OutsideY)
            .On(e => e.OutsideWidth)
+           .On(e => e.OutsideHeight)
            .Update()
        );
         public bool Equals(IScreenSize other)

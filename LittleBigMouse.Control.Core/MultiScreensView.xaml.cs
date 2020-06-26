@@ -27,6 +27,7 @@ using System.Windows;
 using System.Windows.Controls;
 using HLab.Mvvm;
 using HLab.Mvvm.Annotations;
+using LittleBigMouse.Control.Core.ScreenFrame;
 using LittleBigMouse.ScreenConfig;
 using LittleBigMouse.ScreenConfigs;
 
@@ -67,8 +68,13 @@ namespace LittleBigMouse.Control.Core
                     {
                         foreach (var s in e.NewItems.OfType<Screen>())
                         {
-                            var view = ViewModel.MvvmContext.GetView<ViewModeDefault>(s, typeof(IViewClassDefault));
-                            Canvas.Children.Add((UIElement)view);
+                            var view = new ViewLocator {Model = s};
+                            //var view = ViewModel.MvvmContext.GetView<ViewModeDefault>(s, typeof(IViewClassDefault));
+                            ContentGrid.Children.Add((UIElement)view);
+                            //if (view.Content is ScreenFrameView sfw)
+                            //{
+                            //    sfw.ViewModel.Presenter = ContentGrid;
+                            //}
                         }
                     }
                     break;
@@ -77,10 +83,12 @@ namespace LittleBigMouse.Control.Core
                     {
                         foreach (var s in e.OldItems.OfType<Screen>())
                         {
-                            foreach (var element in Canvas.Children.OfType<FrameworkElement>().ToList())
+                            foreach (var element in ContentGrid.Children.OfType<FrameworkElement>().ToList())
                             {
                                 if (element is ScreenFrameView view && ReferenceEquals(view.ViewModel.Model, s))
-                                    Canvas.Children.Remove(element);
+                                {
+                                    ContentGrid.Children.Remove(element);
+                                }
                             }
                         }
                     }
@@ -109,28 +117,31 @@ namespace LittleBigMouse.Control.Core
 
         private ScreenConfig.ScreenConfig Config => ViewModel.Config;
 
-        public double GetRatio()
+        private double GetRatio()
         {
             if (Config == null) return 1;
 
-            Rect all = Config.PhysicalOutsideBounds;
+            var all = Config.InMmOutsideBounds;
 
             if (all.Width * all.Height > 0)
             {
                 return Math.Min(
-                    BackgoundGrid.ActualWidth / all.Width,
-                    BackgoundGrid.ActualHeight / all.Height
+                    ReferenceGrid.ActualWidth / all.Width,
+                    ReferenceGrid.ActualHeight / all.Height
                 );
             }
             return 1;
         }
 
-        public double PhysicalToUiX(double x)
-            => (x - Config.PhysicalOutsideBounds.Left - Config.PhysicalOutsideBounds.Width / 2) * GetRatio();
 
+        public Panel GetMainPanel() => ContentGrid;
 
-        public double PhysicalToUiY(double y)
-            => (y - Config.PhysicalOutsideBounds.Top - Config.PhysicalOutsideBounds.Height / 2) * GetRatio();
+        private void MultiScreensView_OnLayoutUpdated(object sender, EventArgs e)
+        {
+            var r = GetRatio();
 
+            ViewModel.VisualRatio.X = r;
+            ViewModel.VisualRatio.Y = r;
+        }
     }
 }

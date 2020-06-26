@@ -43,10 +43,10 @@
                 <RowDefinition/>
             </Grid.RowDefinitions>
 
-            <Border Background="Transparent" Grid.Row="0" Grid.ColumnSpan="6" MouseWheel="Top_MouseWheel"/>
-            <Border Background="Transparent" Grid.Row="5" Grid.ColumnSpan="6" MouseWheel="Bottom_MouseWheel"/>
-            <Border Background="Transparent" Grid.Column="0" Grid.RowSpan="6" MouseWheel="Left_MouseWheel"/>
-            <Border Background="Transparent" Grid.Column="5" Grid.RowSpan="6" MouseWheel="Right_MouseWheel"/>
+            <Border Background="Transparent" Grid.Row="0" Grid.ColumnSpan="6" MouseWheel="OnMouseWheel"/>
+            <Border Background="Transparent" Grid.Row="5" Grid.ColumnSpan="6" MouseWheel="OnMouseWheel"/>
+            <Border Background="Transparent" Grid.Column="0" Grid.RowSpan="6" MouseWheel="OnMouseWheel"/>
+            <Border Background="Transparent" Grid.Column="5" Grid.RowSpan="6" MouseWheel="OnMouseWheel"/>
             
             <Grid Grid.Row="2" Grid.ColumnSpan="6">
                 <Grid.RowDefinitions>
@@ -55,9 +55,9 @@
                     <RowDefinition/>
                 </Grid.RowDefinitions>
 
-                <Border Background="Transparent" Grid.Row="2" MouseWheel="InsideWidth_MouseWheel"/>
+                <Border Background="Transparent" Grid.Row="2" MouseWheel="OnMouseWheel"/>
             </Grid>
-            <Border Background="Transparent" Grid.Row="4" Grid.ColumnSpan="6" MouseWheel="Width_MouseWheel"/>
+            <Border Background="Transparent" Grid.Row="4" Grid.ColumnSpan="6" MouseWheel="OnMouseWheel"/>
             
             <Grid Grid.RowSpan="6" Grid.Column="2">
                 <Grid.ColumnDefinitions>
@@ -66,9 +66,9 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
 
-                <Border Background="Transparent" Grid.Column="2" MouseWheel="InsideHeight_MouseWheel"/>
+                <Border Background="Transparent" Grid.Column="2" MouseWheel="OnMouseWheel"/>
             </Grid>
-            <Border Background="Transparent" Grid.Column="4" Grid.RowSpan="6" MouseWheel="Height_MouseWheel"/>
+            <Border Background="Transparent" Grid.Column="4" Grid.RowSpan="6" MouseWheel="OnMouseWheel"/>
 
 <!-- Inside Dimentions -->
             <TextBox 
@@ -79,7 +79,7 @@
                 VerticalAlignment="Center" 
                      HorizontalAlignment="Right"
                 Text="{Binding Height, StringFormat=N1, FallbackValue=xxx}"
-                MouseWheel="InsideHeight_MouseWheel"
+                MouseWheel="OnMouseWheel"
                 KeyUp="OnKeyEnterUpdate" 
                 >
                 <TextBox.Effect>
@@ -95,7 +95,7 @@
                      VerticalAlignment="Bottom" 
                      HorizontalAlignment="Center"
                      Text="{Binding Width,  StringFormat=N1, FallbackValue=xxx}"
-                     MouseWheel="InsideWidth_MouseWheel"
+                     MouseWheel="OnMouseWheel"
                      KeyUp="OnKeyEnterUpdate" 
                      >
                 <TextBox.Effect>
@@ -130,7 +130,7 @@
                 VerticalAlignment="Center" 
                      HorizontalAlignment="Left"
                 Text="{Binding OutsideHeight, StringFormat=N1,FallbackValue=xxx}"
-                MouseWheel="Height_MouseWheel"
+                MouseWheel="OnMouseWheel"
                      KeyUp="OnKeyEnterUpdate" 
                 >
                 <TextBox.Effect>
@@ -145,7 +145,7 @@
                      VerticalAlignment="Top" 
                      HorizontalAlignment="Center"
                      Text="{Binding OutsideWidth,  StringFormat=N1, FallbackValue=xxx}"
-                     MouseWheel="Width_MouseWheel"
+                     MouseWheel="OnMouseWheel"
                      KeyUp="OnKeyEnterUpdate" 
                      >
                 <TextBox.Effect>
@@ -163,7 +163,7 @@
                 HorizontalAlignment="Center" 
                 VerticalAlignment="Top" 
                 Background="#00FFFFFF"
-             MouseWheel="Top_MouseWheel"   
+             MouseWheel="OnMouseWheel"   
             />
 
         <TextBox 
@@ -174,7 +174,7 @@
                 HorizontalAlignment="Left" 
                 VerticalAlignment="Center" 
                 Background="#00FFFFFF"
-             MouseWheel="Left_MouseWheel"
+             MouseWheel="OnMouseWheel"
             />
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"  VerticalAlignment="Bottom">
@@ -185,7 +185,7 @@
                 HorizontalAlignment="Center" 
                 Foreground="#FFD9DCEC" 
                 Background="#00FFFFFF" 
-                MouseWheel="Bottom_MouseWheel"/>
+                MouseWheel="OnMouseWheel"/>
         </StackPanel>
 
         <StackPanel HorizontalAlignment="Right"  VerticalAlignment="Center" >
@@ -195,7 +195,7 @@
                 HorizontalAlignment="Right" 
                 Foreground="#FFD9DCEC" 
                 Background="#00FFFFFF" 
-                MouseWheel="Right_MouseWheel"/>
+                MouseWheel="OnMouseWheel"/>
         </StackPanel>
 
         <!--<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">

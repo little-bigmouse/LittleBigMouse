@@ -20,6 +20,7 @@
 	  mailto:mathieu@mgth.fr
 	  http://www.mgth.fr
 */
+
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -29,7 +30,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 
-namespace LittleBigMouse.Control.Core
+namespace LittleBigMouse.Control.Core.Sys
 {
     internal class WindowResizer
     {
@@ -39,7 +40,7 @@ namespace LittleBigMouse.Control.Core
         private readonly Grid _grid;
 
 
-        private readonly Dictionary<UIElement, ResizeDirection> _sizers = new Dictionary<UIElement, ResizeDirection>();
+        private readonly Dictionary<UIElement, ResizeDirection> _resizers = new Dictionary<UIElement, ResizeDirection>();
 
         public WindowResizer(Window activeW, Grid grid)
         {
@@ -75,14 +76,14 @@ namespace LittleBigMouse.Control.Core
             sizer.MouseLeave += Sizer_MouseLeave;
             sizer.PreviewMouseDown += Sizer_PreviewMouseDown;
 
-            _sizers.Add(sizer, dir);           
+            _resizers.Add(sizer, dir);           
         }
 
         private void Sizer_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (!(sender is UIElement clicked)) return;
 
-            var dir = _sizers[clicked];
+            var dir = _resizers[clicked];
 
             Sizer_MouseEnter(sender, e);
 
@@ -92,7 +93,7 @@ namespace LittleBigMouse.Control.Core
         {
             if (!(sender is UIElement clicked)) return;
 
-            var dir = _sizers[clicked];
+            var dir = _resizers[clicked];
 
             {
                 switch (dir)
@@ -134,10 +135,10 @@ namespace LittleBigMouse.Control.Core
         private void InitializeWindowSource(object sender, EventArgs e)
         {
             _hwndSource = PresentationSource.FromVisual((Visual)sender) as HwndSource;
-            _hwndSource?.AddHook(new HwndSourceHook(WndProc));
+            _hwndSource?.AddHook(WndProc);
         }
 
-        IntPtr _retInt = IntPtr.Zero;
+        private IntPtr _retInt = IntPtr.Zero;
 
         private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
@@ -152,8 +153,6 @@ namespace LittleBigMouse.Control.Core
 
             return IntPtr.Zero;
         }
-
-
 
         public enum ResizeDirection
         {
@@ -170,15 +169,9 @@ namespace LittleBigMouse.Control.Core
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern IntPtr SendMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
-
         private void ResizeWindow(ResizeDirection direction)
         {
             SendMessage(_hwndSource.Handle, WmSyscommand, (IntPtr)(61440 + direction), IntPtr.Zero);
         }
-
-
-
-
-
     }
 }

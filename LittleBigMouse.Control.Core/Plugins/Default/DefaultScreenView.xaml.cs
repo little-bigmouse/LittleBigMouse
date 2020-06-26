@@ -23,6 +23,7 @@
 using System.Windows.Controls;
 using HLab.Mvvm.Annotations;
 using HLab.Mvvm.Extensions;
+using LittleBigMouse.Control.Core.ScreenFrame;
 
 namespace LittleBigMouse.Control.Core.Plugins.Default
 {

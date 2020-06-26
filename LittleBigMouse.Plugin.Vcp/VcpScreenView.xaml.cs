@@ -25,6 +25,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using HLab.Mvvm.Annotations;
 using LittleBigMouse.Control.Core;
+using LittleBigMouse.Control.Core.ScreenFrame;
 
 namespace LittleBigMouse.Plugin.Vcp
 {

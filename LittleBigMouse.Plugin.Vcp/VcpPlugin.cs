@@ -25,6 +25,7 @@ using HLab.Core.Annotations;
 using HLab.DependencyInjection.Annotations;
 using HLab.Mvvm.Annotations;
 using LittleBigMouse.Control.Core;
+using LittleBigMouse.Control.Core.Main;
 
 namespace LittleBigMouse.Plugin.Vcp
 {

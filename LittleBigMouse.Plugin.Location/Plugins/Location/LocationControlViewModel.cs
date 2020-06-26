@@ -21,26 +21,23 @@
 	  http://www.mgth.fr
 */
 
-using System;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using HLab.Base.Extensions;
 using HLab.DependencyInjection.Annotations;
 using HLab.Mvvm;
 using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
 using HLab.Sys.Windows.Monitors;
 using LittleBigMouse.ScreenConfig;
-using LittleBigMouse.ScreenConfigs;
 using Newtonsoft.Json;
 
 namespace LittleBigMouse.Plugin.Location.Plugins.Location
 {
-    class LocationControlViewModel : ViewModel<LocationControlViewModel,ScreenConfig.ScreenConfig>
+    using H = NotifyHelper<LocationControlViewModel>;
+
+    class LocationControlViewModel : ViewModel<ScreenConfig.ScreenConfig>
     {
         private readonly IMonitorsService _monitorsService;
 
@@ -49,6 +46,7 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
 
         public LocationControlViewModel()
         {
+            H.Initialize(this);
         }
 
 
@@ -166,7 +164,7 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
         {
             _monitorsService = monitorsService;
             _service.StateChanged += s => Running = s;
-            Initialize();
+            H.Initialize(this);
             new Task(async () => Running = await _service.Running()).Start();
             
         }

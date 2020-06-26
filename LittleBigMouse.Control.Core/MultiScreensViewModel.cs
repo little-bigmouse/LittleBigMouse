@@ -21,30 +21,28 @@
 	  http://www.mgth.fr
 */
 using System;
-using System.Collections.ObjectModel;
-using System.Windows;
+using HLab.DependencyInjection.Annotations;
 using HLab.Mvvm;
 using HLab.Mvvm.Annotations;
-using HLab.Notify;
 using HLab.Notify.PropertyChanged;
-using LittleBigMouse.ScreenConfigs;
+using LittleBigMouse.Control.Core.Main;
+using LittleBigMouse.Control.Core.ScreenFrame;
+using LittleBigMouse.ScreenConfig.Dimensions;
 
 namespace LittleBigMouse.Control.Core
 {
-    public class MultiScreensViewModel : ViewModel<MultiScreensViewModel>, IPresenterViewModel, IMvvmContextProvider
+    using H = NotifyHelper<MultiScreensViewModel>;
+
+    public class MultiScreensViewModel : ViewModel, IPresenterViewModel, IMvvmContextProvider
     {
+        [Import]
+        public MainViewModel MainViewModel { get; }
+
         public MultiScreensViewModel(ScreenConfig.ScreenConfig config)
         {
-            Initialize();
+            H.Initialize(this);
             Config = config;
         }
-
-        public MainViewModel MainViewModel
-        {
-            get => _mainViewModel.Get();
-            set => _mainViewModel.Set(value);
-        }
-        private readonly IProperty<MainViewModel> _mainViewModel = H.Property<MainViewModel>();
 
         public Type ViewMode
         {
@@ -52,21 +50,32 @@ namespace LittleBigMouse.Control.Core
             set => _viewMode.Set(value);
         }
         private readonly IProperty<Type> _viewMode 
-            = H.Property<Type>(nameof(ViewMode), c=>c
-                .Set(e => typeof(ViewModeDefault/*ViewModeScreenLocation*/)));
-
-        // private readonly IProperty<Size> _size = H.Property<Size>(nameof(Size));
-        // public Size Size { get => _size.Get(); set => _size.Set(value); }
-        // public ObservableCollection<ScreenFrameViewModel> ScreenFrames = new ObservableCollection<ScreenFrameViewModel>();
-
+            = H.Property<Type>(nameof(ViewMode), c=>c.Default(typeof(ViewModeDefault)));
 
         public ScreenConfig.ScreenConfig Config
         {
             get => _config.Get();
             set => _config.Set(value);
         }
-        private readonly IProperty<ScreenConfig.ScreenConfig> _config = H.Property<ScreenConfig.ScreenConfig>(nameof(Config));
+        private readonly IProperty<ScreenConfig.ScreenConfig> _config = H.Property<ScreenConfig.ScreenConfig>();
 
+        public double Width => _width.Get();
+        private readonly IProperty<double> _width = H.Property<double>(c => c
+            .Set(e => e.Config.InMmOutsideBounds.Width * e.VisualRatio.X)
+            .On(e => e.Config.InMmOutsideBounds)
+            .On(e => e.VisualRatio.X)
+            .Update()
+        );
+
+        public double Height => _height.Get();
+        private readonly IProperty<double> _height = H.Property<double>(c => c
+            .Set(e => e.Config.InMmOutsideBounds.Height * e.VisualRatio.Y)
+            .On(e => e.Config.InMmOutsideBounds)
+            .On(e => e.VisualRatio.Y)
+            .Update()
+        );
+
+        public IScreenRatio VisualRatio { get; } = new ScreenRatioValue(1.0);
         public void ConfigureMvvmContext(IMvvmContext ctx)
         {
             ctx.AddCreator<ScreenFrameViewModel>(vm => vm.Presenter = this);

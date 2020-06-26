@@ -23,22 +23,23 @@
 
 using System;
 using HLab.Notify.PropertyChanged;
-using LittleBigMouse.ScreenConfigs;
 using Newtonsoft.Json;
 
 namespace LittleBigMouse.ScreenConfig.Dimensions
 {
+    using H = NotifyHelper<ScreenSizeInMm>;
+
     /// <summary>
     /// Actual real monitor size 
     /// </summary>
-    public class ScreenSizeInMm : ScreenSize<ScreenSizeInMm>
+    public class ScreenSizeInMm : ScreenSize
     {
         [JsonIgnore]
         public ScreenModel ScreenModel { get; }
         public ScreenSizeInMm(ScreenModel screen):base(null)
         {
             ScreenModel = screen;
-            Initialize();
+            H.Initialize(this);
         }
 
         public bool Saved
@@ -102,8 +103,8 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
             get => _x.Get();
             set => _x.Set(value);
         }
-
         private readonly IProperty<double> _x = H.Property<double>();
+        
         public override double Y
         {
             get => _y.Get();

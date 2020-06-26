@@ -22,13 +22,14 @@
 */
 using System;
 using System.ComponentModel;
+using LittleBigMouse.Control.Core.Main;
 
 namespace LittleBigMouse.Control.Core
 {
     public interface IPresenterViewModel : INotifyPropertyChanged
     {
 
-        MainViewModel MainViewModel { get; set; }
+        MainViewModel MainViewModel { get; }
         Type ViewMode { get; set; }
 
         //private IPluginScreenControl _screenControlGetter;

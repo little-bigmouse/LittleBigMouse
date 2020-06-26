@@ -81,7 +81,6 @@ namespace LittleBigMouse.ScreenConfig
 
         // References properties
         [DataMember] public string Id => _id.Get();
-
         private readonly IProperty<string> _id = H.Property<string>(c => c
             .Set(e => e.Monitor.IdMonitor + "_" + e.Orientation)
             .On(e => e.Monitor.IdMonitor)
@@ -89,9 +88,7 @@ namespace LittleBigMouse.ScreenConfig
             .Update()
         );
 
-
         [DataMember] public string IdResolution => _idResolution.Get();
-
         private readonly IProperty<string> _idResolution = H.Property<string>(c => c
             .Set(e => e.InPixel.Width + "x" + e.InPixel.Height)
             .On(e => e.InPixel)
@@ -135,7 +132,6 @@ namespace LittleBigMouse.ScreenConfig
         // Natives
 
         public ScreenModel ScreenModel => _screenModel.Get();
-
         private readonly IProperty<ScreenModel> _screenModel = H.Property<ScreenModel>(nameof(ScreenModel),
         c => c
             .Set(s => s.Config.GetScreenModel(s.Monitor.PnpCode, s.Monitor))
@@ -146,7 +142,6 @@ namespace LittleBigMouse.ScreenConfig
         );
 
         [DataMember] public IScreenSize PhysicalRotated => _physicalRotated.Get();
-
         private readonly IProperty<IScreenSize> _physicalRotated =
             H.Property<IScreenSize>(nameof(PhysicalRotated), c => c
                 .Set(s => s.ScreenModel.Physical.Rotate(s.Orientation))
@@ -158,12 +153,23 @@ namespace LittleBigMouse.ScreenConfig
 
 
         //Mm
-        [DataMember] public IScreenSize InMm => _inMm.Get();
+
+        [DataMember] 
+        public IScreenSize InMm => _inMm.Get();
         private readonly IProperty<IScreenSize> _inMm = H.Property<IScreenSize>(c => c
             .Set(e => e.PhysicalRotated.Scale(e.PhysicalRatio).Locate())
             .On(e => e.PhysicalRotated)
             .On(e => e.PhysicalRatio)
-//            .NotNull(e => e.PhysicalRotated)
+            .Update()
+        );
+
+        [DataMember]
+        public IScreenSize InMmU => _inMmU.Get();
+        private readonly IProperty<IScreenSize> _inMmU = H.Property<IScreenSize>(c => c
+            .Set(e => e.ScreenModel.Physical.Scale(e.PhysicalRatio))
+            //            .Set(e => e.InMm.Rotate((4-e.Orientation)%4))
+            .On(e => e.ScreenModel.Physical)
+            .On(e => e.PhysicalRatio)
             .Update()
         );
 
@@ -180,9 +186,13 @@ namespace LittleBigMouse.ScreenConfig
                         screen.InMm.X -= value;
                     }
                 }
-                else InMm.X = value;
+                else
+                {
+                    InMm.X = value;
+                }
             }
         }
+
         private readonly IProperty<double> _inMmX = H.Property<double>(c => c
             .Set(e => e.InMm.X)
             .On(e => e.InMm.X)
@@ -191,7 +201,11 @@ namespace LittleBigMouse.ScreenConfig
 
         public double InMmY
         {
-            get => _inMmY.Get();
+            get
+            {
+                _inMmU.Get();
+                return _inMmY.Get();
+            }
             set
             {
                 if (Primary)
@@ -199,11 +213,17 @@ namespace LittleBigMouse.ScreenConfig
                     foreach (var screen in Config.AllBut(this))
                     {
                         screen.InMm.Y -= value;
+                        screen.InMmU.Y -= value;
                     }
                 }
-                else InMm.Y = value;
+                else
+                {
+                    InMm.Y = value;
+                    InMmU.Y = value;
+                }
             }
         }
+
         private readonly IProperty<double> _inMmY = H.Property<double>(c => c
             .Set(e => e.InMm.Y)
             .On(e => e.InMm.Y)
@@ -217,14 +237,6 @@ namespace LittleBigMouse.ScreenConfig
         );
 
 
-        [DataMember]
-        public IScreenSize InMmUnrotated => _inMmUnrotated.Get();
-        private readonly IProperty<IScreenSize> _inMmUnrotated = H.Property<IScreenSize>(c => c
-            .Set(e => e.InMm.Rotate(4 - e.Orientation))
-            .On(e => e.InMm)
-            .On(e => e.Orientation)
-            .Update()
-        );
 
         //Pixel
         [DataMember] public IScreenSize InPixel => _inPixel.Get();
@@ -580,6 +592,7 @@ namespace LittleBigMouse.ScreenConfig
                         EffectiveDpi.Y / 96
                     );
 
+                case NativeMethods.DPI_Awareness_Context.StangeValue2 :
                 case NativeMethods.DPI_Awareness_Context.StrangeValue :
                 case NativeMethods.DPI_Awareness_Context.Per_Monitor_Aware_V2:
                     return new ScreenRatioValue(

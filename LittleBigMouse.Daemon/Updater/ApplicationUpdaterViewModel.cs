@@ -11,13 +11,22 @@ using System.Windows.Input;
 using HLab.Mvvm;
 using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
+using LittleBigMouse_Daemon.Updater;
 using Newtonsoft.Json.Linq;
 using Application = System.Windows.Application;
 
-namespace LittleBigMouse_Daemon.Updater
+namespace LittleBigMouse.Daemon.Updater
 {
-    public class ApplicationUpdateViewModel : ViewModel<ApplicationUpdateViewModel>
+    using H = NotifyHelper<ApplicationUpdateViewModel>;
+
+    public class ApplicationUpdateViewModel : ViewModel
     {
+        public ApplicationUpdateViewModel()
+        {
+            H.Initialize(this);
+        }
+
+
         public void Show()
         {
             var view = new ApplicationUpdateView

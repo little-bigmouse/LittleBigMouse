@@ -14,7 +14,6 @@
     <None Remove="Icons\IconFullscreen.svg" />
     <None Remove="Icons\IconPinned.svg" />
     <None Remove="Icons\IconUnfullscreen.svg" />
-    <None Remove="MainIcon.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -59,7 +58,7 @@
     <Compile Update="Devices\DeviceView.xaml.cs">
       <DependentUpon>DeviceView.xaml</DependentUpon>
     </Compile>
-    <Compile Update="MainView.xaml.cs">
+    <Compile Update="Main\MainView.xaml.cs">
       <DependentUpon>MainView.xaml</DependentUpon>
     </Compile>
     <Compile Update="MultiScreensView.xaml.cs">
@@ -71,7 +70,7 @@
     <Compile Update="Plugins\Default\DefaultScreenView.xaml.cs">
       <DependentUpon>DefaultScreenView.xaml</DependentUpon>
     </Compile>
-    <Compile Update="ScreenFrameView.xaml.cs">
+    <Compile Update="ScreenFrame\ScreenFrameView.xaml.cs">
       <DependentUpon>ScreenFrameView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
@@ -86,7 +85,7 @@
     <Page Update="Devices\DeviceView.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="MainView.xaml">
+    <Page Update="Main\MainView.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="MultiScreensView.xaml">
@@ -98,7 +97,7 @@
     <Page Update="Plugins\Default\DefaultScreenView.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="ScreenFrameView.xaml">
+    <Page Update="ScreenFrame\ScreenFrameView.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

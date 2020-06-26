@@ -6,6 +6,7 @@
              xmlns:location="clr-namespace:LittleBigMouse.Plugin.Location.Plugins.Location"
              xmlns:icons="clr-namespace:HLab.Mvvm.Icons;assembly=HLab.Mvvm.Wpf"
              xmlns:converters="clr-namespace:HLab.Base.Converters;assembly=HLab.Base.Wpf"
+             xmlns:mvvm="clr-namespace:HLab.Mvvm;assembly=HLab.Mvvm.Wpf"
              mc:Ignorable="d" 
              MouseLeftButtonUp="OnMouseLeftButtonUp"
              MouseLeftButtonDown="OnMouseLeftButtonDown"
@@ -13,7 +14,9 @@
              d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance Type=location:LocationScreenViewModel, IsDesignTimeCreatable=True}"
              x:Name="UserControl"
-             >
+             SizeChanged="View_SizeChanged"
+             
+>
              <!--FontSize="{Binding Path=ActualHeight, ElementName=UserControl, Converter={StaticResource Scale},ConverterParameter=0.05}"-->             
     <UserControl.FontSize>
         <MultiBinding Converter="{StaticResource MultiScale}" ConverterParameter="0.05">

@@ -24,22 +24,20 @@
 using HLab.Core.Annotations;
 using HLab.DependencyInjection.Annotations;
 using HLab.Mvvm.Annotations;
-using LittleBigMouse.Control.Core;
+using LittleBigMouse.Control.Core.Main;
 
 namespace LittleBigMouse.Plugin.Location.Plugins.Location
 {
     class ViewModeScreenLocation : ViewMode { }
 
-    class ScreenLocationPlugin : IBootloader
+    public class ScreenLocationPlugin : IBootloader
     {
-        private MainService _mainService;
-        private IIconService _iconService;
+        private readonly MainService _mainService;
 
         [Import]
         public ScreenLocationPlugin(MainService mainService, IIconService iconService)
         {
             _mainService = mainService;
-            _iconService = iconService;
         }
 
         public void Load(IBootContext bootstrapper)

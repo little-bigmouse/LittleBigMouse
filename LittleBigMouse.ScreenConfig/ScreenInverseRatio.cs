@@ -22,20 +22,22 @@
 */
 
 
-using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
+using LittleBigMouse.ScreenConfig.Dimensions;
 
-namespace LittleBigMouse.ScreenConfigs
+namespace LittleBigMouse.ScreenConfig
 {
+    using H = NotifyHelper<ScreenInverseRatio>;
+
     public static class ScreenInverseRatioExt
     {
     }
-    public class ScreenInverseRatio : ScreenRatio<ScreenInverseRatio>
+    public class ScreenInverseRatio : ScreenRatio
     {
         public ScreenInverseRatio(IScreenRatio ratio)
         {
             Source = ratio;
-            Initialize();
+            H.Initialize(this);
         }
 
         public IScreenRatio Source { get; }

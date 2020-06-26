@@ -20,11 +20,9 @@
 	  mailto:mathieu@mgth.fr
 	  http://www.mgth.fr
 */
+
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Net.Http;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -34,17 +32,19 @@ using HLab.Mvvm;
 using HLab.Mvvm.Annotations;
 using HLab.Mvvm.Icons;
 using HLab.Notify.PropertyChanged;
-using LittleBigMouse.ScreenConfigs;
 
-namespace LittleBigMouse.Control.Core
+namespace LittleBigMouse.Control.Core.Main
 {
-    public class MainViewModel : ViewModel<MainViewModel>, IMvvmContextProvider
+    using H = NotifyHelper<MainViewModel>;
+
+    [Export(typeof(MainViewModel)),Singleton]
+    public class MainViewModel : ViewModel
     {
         [Import]
         public MainViewModel(IIconService iconService)
         {
             IconService = iconService;
-            Initialize();
+            H.Initialize(this);
         }
 
         public IIconService IconService { get; }
@@ -56,29 +56,16 @@ namespace LittleBigMouse.Control.Core
             set => _config.Set(value);
         }
 
-
-        public INotifyPropertyChanged Control
-        {
-            get => _control.Get();
-            set => _control.Set(value);
-        }
-        private readonly IProperty<INotifyPropertyChanged> _control = H.Property<INotifyPropertyChanged>(nameof(Control));
-
         public IPresenterViewModel Presenter
         {
             get => _presenter.Get();
-            set
-            {
-                if (_presenter.Set(value))
-                {
-                    Presenter.MainViewModel = this;
-                }
-            }
+            set => _presenter.Set(value);
         }
         private readonly IProperty<IPresenterViewModel> _presenter = H.Property<IPresenterViewModel>(nameof(Presenter));
 
-
-        public ICommand CloseCommand { get; } = H.Command(c => c.Action(e => e.Close()));
+        public ICommand CloseCommand { get; } = H.Command(c => c
+            .Action(e => e.Close())
+        );
 
         private void Close()
         {
@@ -100,25 +87,6 @@ namespace LittleBigMouse.Control.Core
             {
                 Application.Current.Shutdown();
             }
-
-        }
-
-
-        static async void GraphQl(string q)
-        {
-            // ... Target page.
-            string page = "https://api.github.com/graphql";
-
-            // ... Use HttpClient.
-            using (HttpClient client = new HttpClient())
-            //using (HttpResponseMessage response = await client.GetAsync(page))
-            //using (HttpContent content = response.Content)
-            {
-                client.BaseAddress = new Uri(page);
-                var content = new FormUrlEncodedContent(new []{new KeyValuePair<string, string>(q,q)});
-                // ... Read the string.
-                var response = client.PostAsync("",content).Result;
-            }
         }
 
         private readonly IProperty<WindowState> _windowState = H.Property<WindowState>(nameof(WindowState));
@@ -138,7 +106,6 @@ namespace LittleBigMouse.Control.Core
                         }
             }
         ));
-
 
         public void UnMaximize()
         {
@@ -189,11 +156,6 @@ namespace LittleBigMouse.Control.Core
             };
 
             ButtonPanel.Children.Add(tb);
-        }
-
-        public void ConfigureMvvmContext(IMvvmContext ctx)
-        {
-            ctx.AddCreator<ScreenFrameViewModel>(vm => vm.Presenter = Presenter as MultiScreensViewModel);
         }
     }
 }

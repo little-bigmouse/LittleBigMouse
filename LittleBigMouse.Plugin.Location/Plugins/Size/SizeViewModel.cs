@@ -26,18 +26,19 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
 using HLab.Mvvm;
-using HLab.Notify.Annotations;
+using HLab.Notify.PropertyChanged;
 using LittleBigMouse.LocationPlugin.Plugins.Size;
 using LittleBigMouse.ScreenConfig;
 
 namespace LittleBigMouse.Plugin.Location.Plugins.Size
 {
-    class ScreenSizeViewModel : ViewModel<ScreenSizeViewModel,Screen>
+    using H = NotifyHelper<ScreenSizeViewModel>;
+
+    class ScreenSizeViewModel : ViewModel<Screen>
     //ScreenControlViewModel
     {
         public ScreenSizeViewModel()
         {
-            Initialize();
 
             var canvas = new Canvas { Effect = _effect };
 
@@ -50,6 +51,7 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Size
 
             InsideCoverControl.LayoutUpdated += OnFrameSizeChanged;
 
+            H.Initialize(this);
         }
 
 
@@ -97,77 +99,94 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Size
             _ousideHorizontalCotation.SetPoints(arrow, x2, y + (h/8)-(h/128),x2+w2,y + (h/8)-(h/128));
         }
 
-        [TriggerOn(nameof(Model), "PhysicalRotated", "Height")]
         public double Height
         {
-            get => Model.PhysicalRotated.Height;
+            get => _height.Get();
             set
             {
                 Model.PhysicalRotated.Height = value;
                 Model.Config.Compact();
             }
         }
+        private readonly IProperty<double> _height = H.Property<double>(c => c
+            .Set(e => e.Model.PhysicalRotated.Height)
+            .On(e => e.Model.PhysicalRotated.Height)
+            .Update());
 
 
-        [TriggerOn(nameof(Model), "PhysicalRotated", "Width")]
         public double Width
         {
-            get => Model.PhysicalRotated.Width;
+            get => _width.Get();
             set
             {
                 Model.PhysicalRotated.Width = value;
                 Model.Config.Compact(); 
             }
         }
+        private readonly IProperty<double> _width = H.Property<double>(c => c
+            .Set(e => e.Model.PhysicalRotated.Width)
+            .On(e => e.Model.PhysicalRotated.Width)
+            .Update());
 
-        [TriggerOn(nameof(Model), "PhysicalRotated", "TopBorder")]
         public double TopBorder
         {
-            get => Model.PhysicalRotated.TopBorder;
+            get => _topBorder.Get();
             set
             {
                 Model.PhysicalRotated.TopBorder = value;
                 Model.Config.Compact();
             }
         }
+        private readonly IProperty<double> _topBorder = H.Property<double>(c => c
+            .Set(e => e.Model.PhysicalRotated.TopBorder)
+            .On(e => e.Model.PhysicalRotated.TopBorder)
+            .Update());
 
-        [TriggerOn(nameof(Model), "PhysicalRotated","RightBorder")]
         public double RightBorder
         {
-            get => Model.PhysicalRotated.RightBorder;
+            get => _rightBorder.Get();
             set
             {
                 Model.PhysicalRotated.RightBorder = value;
                 Model.Config.Compact();
             }
         }
+        private readonly IProperty<double> _rightBorder = H.Property<double>(c => c
+            .Set(e => e.Model.PhysicalRotated.RightBorder)
+            .On(e => e.Model.PhysicalRotated.RightBorder)
+            .Update());
 
-        [TriggerOn(nameof(Model), "PhysicalRotated","BottomBorder")]
         public double BottomBorder
         {
-            get => Model.PhysicalRotated.BottomBorder;
+            get => _bottomBorder.Get();
             set
             {
                 Model.PhysicalRotated.BottomBorder = value;
                 Model.Config.Compact();
             }
         }
+        private readonly IProperty<double> _bottomBorder = H.Property<double>(c => c
+            .Set(e => e.Model.PhysicalRotated.BottomBorder)
+            .On(e => e.Model.PhysicalRotated.BottomBorder)
+            .Update());
 
-        [TriggerOn(nameof(Model), "PhysicalRotated","LeftBorder")]
         public double LeftBorder
         {
-            get => Model.PhysicalRotated.LeftBorder;
+            get => _leftBorder.Get();
             set
             {
                 Model.PhysicalRotated.LeftBorder = value;
                 Model.Config.Compact();
             }
         }
+        private readonly IProperty<double> _leftBorder = H.Property<double>(c => c
+            .Set(e => e.Model.PhysicalRotated.LeftBorder)
+            .On(e => e.Model.PhysicalRotated.LeftBorder)
+            .Update());
 
-        [TriggerOn(nameof(Model), "PhysicalRotated", "OutsideHeight")]
         public double OutsideHeight
         {
-            get => Model.PhysicalRotated.OutsideHeight;
+            get => _outsideHeight.Get();
             set
             {
                 var offset = value - OutsideHeight;
@@ -175,11 +194,14 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Size
                 Model.Config.Compact();
             }
         }
+        private readonly IProperty<double> _outsideHeight = H.Property<double>(c => c
+            .Set(e => e.Model.PhysicalRotated.OutsideHeight)
+            .On(e => e.Model.PhysicalRotated.OutsideHeight)
+            .Update());
 
-        [TriggerOn(nameof(Model), "PhysicalRotated","OutsideWidth")]
         public double OutsideWidth
         {
-            get => Model.PhysicalRotated.OutsideWidth;
+            get => _outsideWidth.Get();
             set
             {
                 var offset = (value - OutsideWidth) / 2;
@@ -188,5 +210,9 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Size
                 Model.Config.Compact();
             }
         }
+        private readonly IProperty<double> _outsideWidth = H.Property<double>(c => c
+            .Set(e => e.Model.PhysicalRotated.OutsideWidth)
+            .On(e => e.Model.PhysicalRotated.OutsideWidth)
+            .Update());
     }
 }

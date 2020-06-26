@@ -17,7 +17,7 @@ namespace LittleBigMouse.ScreenConfig
         public LittleBigMouse.ScreenConfig.ScreenConfig Config { get; }
         public string PnpCode { get; }
 
-        public ScreenModel(string pnpCode, LittleBigMouse.ScreenConfig.ScreenConfig config)
+        public ScreenModel(string pnpCode, LittleBigMouse.ScreenConfig.ScreenConfig config):base(false)
         {
             Config = config;
             PnpCode = pnpCode;

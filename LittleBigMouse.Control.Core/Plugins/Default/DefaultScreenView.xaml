@@ -5,10 +5,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:converters="clr-namespace:HLab.Mvvm.Converters;assembly=HLab.Mvvm.Wpf"
              xmlns:converters1="clr-namespace:HLab.Base.Converters;assembly=HLab.Base.Wpf"
+             xmlns:default="clr-namespace:LittleBigMouse.Control.Core.Plugins.Default"
              mc:Ignorable="d" 
               d:DesignHeight="300" d:DesignWidth="300"
-             x:Name="UserControl"
-             >
+             x:Name="UserControl" 
+             d:DataContext="{d:DesignInstance Type = default:DefaultScreenViewModel, IsDesignTimeCreatable = false}">
+
     <UserControl.Resources>
         <converters:MultiScaleConverter x:Key="MultiScale"/>
         <converters1:ToBrushConverter x:Key="Highlighter" TrueValue="{StaticResource SelectedBrush}" FalseValue="{StaticResource UnselectedBrush}"/>
@@ -23,27 +25,27 @@
         </MultiBinding>
     </UserControl.FontSize>
 
-
-    <Grid x:Name="grid" >
+    <Grid x:Name="Grid" >
 
         <Border BorderThickness="0" Background="#80000000"/>
+
         <!-- Central Device No -->
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-             <Border x:Name="center" 
-                    Width ="{Binding ElementName=center, Path=Height}"
-                    BorderThickness = "{Binding Path=ActualHeight, ElementName=center, Converter={StaticResource Scale},ConverterParameter=0.05}" 
-                    CornerRadius= "{Binding Path=ActualHeight, ElementName=center, Converter={StaticResource Scale},ConverterParameter=0.5}"
+             <Border x:Name="Center" 
+                    Width ="{Binding Height, ElementName=Center}"
+                    BorderThickness = "{Binding Path=ActualHeight, ElementName=Center, Converter={StaticResource Scale},ConverterParameter=0.05}" 
+                    CornerRadius= "{Binding Path=ActualHeight, ElementName=Center, Converter={StaticResource Scale},ConverterParameter=0.5}"
                      BorderBrush="AliceBlue"
                      Opacity="0.5"
                     >
                  <Border.Height>
                          <MultiBinding Converter="{StaticResource MultiScale}" ConverterParameter="0.3">
-                            <Binding ElementName="grid" Path="ActualHeight"/>
-                            <Binding ElementName="grid" Path="ActualWidth"/>
+                            <Binding ElementName="Grid" Path="ActualHeight"/>
+                            <Binding ElementName="Grid" Path="ActualWidth"/>
                         </MultiBinding>
                 </Border.Height>
                 <Label 
-                   FontSize="{Binding Path=ActualHeight, ElementName=center, Converter={StaticResource Scale},ConverterParameter=0.5}" 
+                   FontSize="{Binding Path=ActualHeight, ElementName=Center, Converter={StaticResource Scale},ConverterParameter=0.5}" 
                     Margin="0,-7,0,-5" 
                     Content ="{Binding Path=Model.Monitor.MonitorNo,FallbackValue=1}" 
                     HorizontalAlignment="Center" 
@@ -66,8 +68,8 @@
                 Foreground="LightBlue">
                 <Label.FontSize>
                     <MultiBinding Converter="{StaticResource MultiScale}" ConverterParameter="0.03">
-                        <Binding ElementName="grid" Path="ActualHeight"/>
-                        <Binding ElementName="grid" Path="ActualWidth"/>
+                        <Binding ElementName="Grid" Path="ActualHeight"/>
+                        <Binding ElementName="Grid" Path="ActualWidth"/>
                     </MultiBinding>
                 </Label.FontSize>
             </Label>
@@ -83,8 +85,8 @@
                Foreground="LightBlue">
             <Label.FontSize>
                 <MultiBinding Converter="{StaticResource MultiScale}" ConverterParameter="0.05">
-                    <Binding ElementName="grid" Path="ActualHeight"/>
-                    <Binding ElementName="grid" Path="ActualWidth"/>
+                    <Binding ElementName="Grid" Path="ActualHeight"/>
+                    <Binding ElementName="Grid" Path="ActualWidth"/>
                 </MultiBinding>
             </Label.FontSize>
             </Label>
@@ -93,8 +95,8 @@
                Foreground="GhostWhite">
             <Label.FontSize>
                 <MultiBinding Converter="{StaticResource MultiScale}" ConverterParameter="0.04">
-                    <Binding ElementName="grid" Path="ActualHeight"/>
-                    <Binding ElementName="grid" Path="ActualWidth"/>
+                    <Binding ElementName="Grid" Path="ActualHeight"/>
+                    <Binding ElementName="Grid" Path="ActualWidth"/>
                 </MultiBinding>
             </Label.FontSize>
             </Label>
@@ -116,8 +118,8 @@
 <Label HorizontalAlignment="Right">
             <Label.FontSize>
                 <MultiBinding Converter="{StaticResource MultiScale}" ConverterParameter="0.05">
-                    <Binding ElementName="grid" Path="ActualHeight"/>
-                    <Binding ElementName="grid" Path="ActualWidth"/>
+                    <Binding ElementName="Grid" Path="ActualHeight"/>
+                    <Binding ElementName="Grid" Path="ActualWidth"/>
                 </MultiBinding>
             </Label.FontSize>
     

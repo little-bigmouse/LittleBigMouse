@@ -20,7 +20,7 @@
 	  mailto:mathieu@mgth.fr
 	  http://www.mgth.fr
 */
-using HLab.Mvvm;
+
 using HLab.Mvvm.Annotations;
 
 namespace LittleBigMouse.Control.Core

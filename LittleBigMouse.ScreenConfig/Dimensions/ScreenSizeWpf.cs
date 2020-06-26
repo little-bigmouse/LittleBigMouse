@@ -23,18 +23,20 @@
 
 using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
-using LittleBigMouse.ScreenConfigs;
 
 namespace LittleBigMouse.ScreenConfig.Dimensions
 {
+    using H = NotifyHelper<ScreenSizeWpf>;
+
     public static class ScreenSizeWpfExt
     {
         public static IScreenSize Wpf(this ScreenSizeInPixels source, IScreenRatio ratio) => new ScreenScale(source, ratio);
     }
-    public class ScreenSizeWpf : ScreenSize<ScreenSizeWpf>
+    public class ScreenSizeWpf : ScreenSize
     {
         public ScreenSizeWpf(IScreenSize source):base(source)
         {
+            H.Initialize(this);
         }
 
         private readonly IProperty<IScreenRatio> _ratio = H.Property<IScreenRatio>();

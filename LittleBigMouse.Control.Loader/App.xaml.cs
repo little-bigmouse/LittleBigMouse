@@ -35,8 +35,7 @@ namespace LittleBigMouse.Control.Loader
     /// </summary>
     public partial class App : Application
     {
-        protected override void OnStartup(StartupEventArgs e)
-        {
+        protected override void OnStartup(StartupEventArgs e) {
             base.OnStartup(e);
             var container = new DependencyInjectionContainer();
             var boot = container.Locate<Bootstrapper>();

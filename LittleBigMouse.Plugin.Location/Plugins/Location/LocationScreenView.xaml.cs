@@ -33,6 +33,7 @@ using HLab.Mvvm.Annotations;
 using HLab.Mvvm.Extensions;
 using HLab.Sys.Windows.API;
 using LittleBigMouse.Control.Core;
+using LittleBigMouse.Control.Core.ScreenFrame;
 using LittleBigMouse.ScreenConfig;
 using MultiScreensView = LittleBigMouse.Control.Core.MultiScreensView;
 
@@ -51,12 +52,8 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
         public DefaultScreenView() 
         {
             InitializeComponent();
-            //LayoutUpdated += View_LayoutUpdated;
-            SizeChanged += View_LayoutUpdated;
         }
 
-        //        private ScreenConfig Config => MainViewModel.Instance.Config;
-        //        private SizerPlugin.SizerPlugin Plugin => SizerPlugin.SizerPlugin.Instance;
         private Point? _staticPoint = null;
 
         private void SetStaticPoint()
@@ -66,7 +63,7 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
                 p.X / ActualWidth,
                 p.Y / ActualHeight);
         }
-        private void View_LayoutUpdated(object sender, EventArgs e)
+        private void View_SizeChanged(object sender, EventArgs e)
         {
             if (_staticPoint != null)
             {
@@ -83,6 +80,8 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
         }
 
          private LocationScreenViewModel ViewModel => (DataContext as LocationScreenViewModel);
+         private Panel MainPanel => this.FindVisualParent<MultiScreensView>().GetMainPanel();
+         private Panel BackPanel => this.FindVisualParent<MultiScreensView>().GetMainPanel();
 
 
         private void PhysicalWidth_MouseWheel(object sender, MouseWheelEventArgs e)
@@ -108,13 +107,13 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
         private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             CaptureMouse();
-            StartMove(e.GetPosition(Presenter.Canvas));
+            StartMove(e.GetPosition(MainPanel));
             //Gui.BringToFront(); // Todo
             e.Handled = true;
         }
         private void OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            EndMove(e.GetPosition(Presenter.Canvas));
+            EndMove(e.GetPosition(MainPanel));
             ReleaseMouseCapture();
         }
 
@@ -129,12 +128,12 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
 
             if (e.LeftButton != MouseButtonState.Pressed)
             {
-                EndMove(e.GetPosition(Presenter.Canvas));
+                EndMove(e.GetPosition(MainPanel));
                 ReleaseMouseCapture();
                 return;
             }
 
-            Move(e.GetPosition(Presenter.Canvas));
+            Move(e.GetPosition(MainPanel));
         }
 
         private Point _guiStartPosition;
@@ -161,7 +160,7 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
 
             if (!ViewModel.Model.Moving) return;
 
-            Presenter.BackgoundGrid.Children.Remove(_anchorsCanvas);
+            BackPanel.Children.Remove(_anchorsCanvas);
             _anchorsCanvas = null;
 
             ViewModel.Model.Moving = false;
@@ -178,25 +177,27 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
         public void Move(Point newGuiPosition)
         {
             if(_anchorsCanvas!=null)
-                Presenter.BackgoundGrid.Children.Remove(_anchorsCanvas);
+                BackPanel.Children.Remove(_anchorsCanvas);
 
             _anchorsCanvas = new Canvas
             {
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Top
             };
-            Presenter.BackgoundGrid.Children.Add(_anchorsCanvas);
+            BackPanel.Children.Add(_anchorsCanvas);
 
             const double maxSnapDistance = 10.0;
 
             if (!this.GetFrame().ViewModel.Model.Moving) return;
 
 
-            var ratio = Presenter.GetRatio();
+            var ratioX = ViewModel.ScreenFrameViewModel.Presenter.VisualRatio.X;
+            var ratioY = ViewModel.ScreenFrameViewModel.Presenter.VisualRatio.Y;
 
+            var x0 = ViewModel.Model.Config.X0;
+            var y0 = ViewModel.Model.Config.Y0;
 
-
-            var dragOffset = (newGuiPosition - _guiStartPosition) / ratio;
+            var dragOffset = (newGuiPosition - _guiStartPosition) / ratioX;
 
             var snapOffset = new Vector(double.PositiveInfinity, double.PositiveInfinity);
 
@@ -280,7 +281,7 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
             foreach (var anchor in xAnchors)
             {
                 var t = ReferenceEquals(anchor.Screen, ViewModel.Model) ? 5 : 2;
-                var x = Presenter.PhysicalToUiX(anchor.Pos /*+ shift.X*/);
+                var x = ratioX * ( x0 + anchor.Pos );
                 var l = ReferenceEquals(anchor.Screen, ViewModel.Model)
                     ? new Line
                     {
@@ -304,8 +305,8 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
                     {
                         X1 = x,
                         X2 = x,
-                        Y1 = Presenter.PhysicalToUiY(anchor.Screen.InMm.OutsideY),
-                        Y2 = Presenter.PhysicalToUiY(anchor.Screen.InMm.OutsideBounds.Bottom),
+                        Y1 = ratioY * (y0 + anchor.Screen.InMm.OutsideY),
+                        Y2 = ratioY * (y0 + anchor.Screen.InMm.OutsideBounds.Bottom),
                         //StrokeThickness = 2,
                         Stroke = anchor.Brush,
                         StrokeDashArray = anchor.StrokeDashArray,
@@ -316,7 +317,7 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
 
             foreach (var anchor in yAnchors)
             {
-                var y = Presenter.PhysicalToUiY(anchor.Pos /*+ shift.Y*/);
+                var y = ratioY * (y0 + anchor.Pos);
 
                 var l =  ReferenceEquals(anchor.Screen, ViewModel.Model) ?
                     new Line
@@ -342,8 +343,8 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
                     {
                         Y1 = y,
                         Y2 = y,
-                        X1 = Presenter.PhysicalToUiX(anchor.Screen.InMm.OutsideX),//0,
-                        X2 = Presenter.PhysicalToUiX(anchor.Screen.InMm.OutsideBounds.Right),//this.FindParent<MultiScreensView>().BackgoundGrid.ActualWidth,
+                        X1 = ratioX * (x0 + anchor.Screen.InMm.OutsideX),//0,
+                        X2 = ratioX * (y0 + anchor.Screen.InMm.OutsideBounds.Right),//this.FindParent<MultiScreensView>().BackgoundGrid.ActualWidth,
                         Stroke = anchor.Brush,
                         //StrokeThickness = 2,
                         StrokeDashArray = anchor.StrokeDashArray,

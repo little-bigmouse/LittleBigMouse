@@ -21,99 +21,120 @@
 	  http://www.mgth.fr
 */
 
-using System.Windows;
+
+using System;
 using HLab.Notify.PropertyChanged;
 
 namespace LittleBigMouse.ScreenConfig.Dimensions
 {
-    using H = NotifyHelper<ScreenLocate>;
+    using H = NotifyHelper<ScreenScaleWithLocation>;
 
-    public class ScreenLocate : ScreenSize
+    public class ScreenScaleWithLocation : ScreenSize
     {
-        public ScreenLocate(IScreenSize source, Point? point = null):base(source)
+        public ScreenScaleWithLocation(IScreenSize source, IScreenRatio ratio):base(source)
         {
+            Ratio = ratio;
             H.Initialize(this);
-            Location = point??new Point();
         }
+
+        public IScreenRatio Ratio { get; }
+
 
         public override double Width
         {
             get => _width.Get();
-            set => Source.Width = value;
+            set => Source.Width = value / Ratio.X;
         }
-        private readonly IProperty<double> _width = H.Property<double>(c => c
-            .Set(e => e.Source.Width)
+        private readonly IProperty<double> _width = H.Property<double>( c => c
+            .Set(s => s.Source.Width * s.Ratio.X) 
             .On(e => e.Source.Width)
+            .On(e => e.Ratio.X)
             .Update()
         );
 
         public override double Height
         {
             get => _height.Get();
-            set => Source.Height = value;
+            set => Source.Height = value / Ratio.Y;
         }
         private readonly IProperty<double> _height = H.Property<double>(c => c
-            .Set(e => e.Source.Height)
+            .Set(e => e.Source.Height * e.Ratio.Y)
             .On(e => e.Source.Height)
+            .On(e => e.Ratio.Y)
             .Update()
         );
 
         public override double X
         {
             get => _x.Get();
-            set => _x.Set(value);
+            set => Source.X = value / Ratio.X;
         }
-        private readonly IProperty<double> _x = H.Property<double>();
+        private readonly IProperty<double> _x = H.Property<double>(nameof(X), c => c
+            .Set(e => e.Source.X * e.Ratio.X)
+            .On(e => e.Source.X)
+            .On(e => e.Ratio.X)
+            .Update()
+        );
 
         public override double Y
         {
             get => _y.Get();
-            set => _y.Set(value);
+            set => Source.Y = value / Ratio.Y;
         }
-        private readonly IProperty<double> _y = H.Property<double>();
+        private readonly IProperty<double> _y = H.Property<double>(c => c
+            .Set(e => e.Source.Y * e.Ratio.Y)
+            .On(e => e.Source.Y)
+            .On(e => e.Ratio.Y)
+            .Update()
+        );
 
         public override double TopBorder
         {
             get => _topBorder.Get();
-            set => Source.TopBorder = value;
+            set => Source.TopBorder = value / Ratio.Y;
         }
         private readonly IProperty<double> _topBorder = H.Property<double>(c => c
-            .Set(e => e.Source.TopBorder)
+            .Set(e => e.Source.TopBorder * e.Ratio.Y)
             .On(e => e.Source.TopBorder)
-            .Update()
-        );
-
-        public override double RightBorder
-        {
-            get => _rightBorder.Get();
-            set => Source.RightBorder = value;
-        }
-        private readonly IProperty<double> _rightBorder = H.Property<double>(c => c
-            .Set(e => e.Source.RightBorder)
-            .On(e => e.Source.RightBorder)
+            .On(e => e.Ratio.Y)
             .Update()
         );
 
         public override double BottomBorder
         {
             get => _bottomBorder.Get();
-            set => Source.BottomBorder = value;
+            set => Source.BottomBorder = value / Ratio.Y;
         }
         private readonly IProperty<double> _bottomBorder = H.Property<double>(c => c
-            .Set(e => e.Source.BottomBorder)
+            .Set(e => e.Source.BottomBorder * e.Ratio.Y)
             .On(e => e.Source.BottomBorder)
+            .On(e => e.Ratio.Y)
             .Update()
         );
 
         public override double LeftBorder
         {
             get => _leftBorder.Get();
-            set => Source.LeftBorder = value;
+            set => Source.LeftBorder = value / Ratio.X;
         }
         private readonly IProperty<double> _leftBorder = H.Property<double>(c => c
-            .Set(e => e.Source.LeftBorder)
+            .Set(e => e.Source.LeftBorder * e.Ratio.X)
             .On(e => e.Source.LeftBorder)
+            .On(e => e.Ratio.X)
             .Update()
         );
+
+        public override double RightBorder
+        {
+            get => _rightBorder.Get();
+            set => Source.RightBorder = value / Ratio.X;
+        }
+        private readonly IProperty<double> _rightBorder = H.Property<double>(c => c
+            .Set(e => e.Source.RightBorder * e.Ratio.X)
+            .On(e => e.Source.RightBorder)
+            .On(e => e.Ratio.X)
+            .Update()
+        );
+
     }
 }

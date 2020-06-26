@@ -23,14 +23,9 @@
 
 using System;
 using System.Runtime.Serialization;
-using System.Threading;
-using System.Windows;
-using HLab.Base;
-using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
-using Newtonsoft.Json;
 
-namespace LittleBigMouse.ScreenConfigs
+namespace LittleBigMouse.ScreenConfig.Dimensions
 {
     public interface IScreenRatio
     {
@@ -39,9 +34,9 @@ namespace LittleBigMouse.ScreenConfigs
     }
 
     [DataContract]
-    public abstract class ScreenRatio<TClass> : N<TClass>, IScreenRatio, IEquatable<IScreenRatio>
-    where TClass : ScreenRatio<TClass>
+    public abstract class ScreenRatio : NotifierBase, IScreenRatio, IEquatable<IScreenRatio>
     {
+        protected ScreenRatio() {}
         [DataMember]
         public abstract double X { get; set; }
         [DataMember]
@@ -52,41 +47,5 @@ namespace LittleBigMouse.ScreenConfigs
             if (other == null) return false;
             return !(Math.Abs(X - other.X) > double.Epsilon || Math.Abs(Y - other.Y) > double.Epsilon);
         }
-    }
-
-    public class ScreenRatioValue : ScreenRatio<ScreenRatioValue>
-    {
-        public ScreenRatioValue(double x, double y)
-        {
-            Initialize();
-            X = x;
-            Y = y;
-        }
-        public ScreenRatioValue(double r)
-        {
-            Initialize();
-            X = r;
-            Y = r;
-        }
-        public ScreenRatioValue(Vector v)
-        {
-            Initialize();
-            X = v.X;
-            Y = v.Y;
-        }
-
-        public override double X
-        {
-            get => _x.Get();
-            set => _x.Set(value);
-        }
-        private readonly IProperty<double> _x = H.Property<double>();
-
-        public override double Y
-        {
-            get => _y.Get();
-            set => _y.Set(value);
-        }
-        private readonly IProperty<double> _y = H.Property<double>(); 
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using LittleBigMouse.Daemon.Updater;
 
 namespace LittleBigMouse_Daemon.Updater
 {
