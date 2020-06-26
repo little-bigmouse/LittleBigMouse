@@ -637,118 +637,111 @@ namespace LittleBigMouse.ScreenConfig
 
             lock (_compactLock)
             {
-                if (_compacting) return;
-                _compacting = true;
-            }
-            // List all screens not positioned
-            List<Screen> unatachedScreens = placeall ? AllScreens.ToList() : AllScreens.Where(s => !s.Placed).ToList();
+                // List all screens not positioned
+                List<Screen> unatachedScreens = placeall ? AllScreens.ToList() : AllScreens.Where(s => !s.Placed).ToList();
 
-            // start with primary screen
-            Queue<Screen> todo = new Queue<Screen>();
-            todo.Enqueue(PrimaryScreen);
+                // start with primary screen
+                Queue<Screen> todo = new Queue<Screen>();
+                todo.Enqueue(PrimaryScreen);
 
-            while (todo.Count > 0)
-            {
-                foreach (Screen s2 in todo)
+                while (todo.Count > 0)
                 {
-                    unatachedScreens.Remove(s2);
-                }
-
-                Screen placedScreen = todo.Dequeue();
-
-                foreach (Screen screenToPlace in unatachedScreens)
-                {
-                    if (screenToPlace == placedScreen) continue;
-
-                    bool done = false;
-
-                    //     __
-                    //  __| A
-                    // B  |__
-                    //  __|
-                    if (screenToPlace.InPixel.Bounds.X == placedScreen.InPixel.Bounds.Right)
+                    foreach (Screen s2 in todo)
                     {
-                        screenToPlace.InMm.X = placedScreen.InMm.OutsideBounds.Right + screenToPlace.InMm.LeftBorder;
-                        done = true;
-                    }
-                    //B |___|_
-                    //A  |    |
-                    if (screenToPlace.InPixel.Bounds.Y == placedScreen.InPixel.Bounds.Bottom)
-                    {
-                        screenToPlace.InMm.Y = placedScreen.InMm.OutsideBounds.Bottom + screenToPlace.InMm.TopBorder;
-                        done = true;
+                        unatachedScreens.Remove(s2);
                     }
 
-                    //     __
-                    //  __| B
-                    // A  |__
-                    //  __|
-                    if (screenToPlace.InPixel.Bounds.Right == placedScreen.InPixel.Bounds.X)
+                    Screen placedScreen = todo.Dequeue();
+
+                    foreach (Screen screenToPlace in unatachedScreens)
                     {
-                        screenToPlace.InMm.X = placedScreen.InMm.OutsideBounds.Left -
-                                                  screenToPlace.InMm.OutsideBounds.Width + screenToPlace.InMm.LeftBorder;
-                        done = true;
+                        if (screenToPlace == placedScreen) continue;
+
+                        bool somethingDone = false;
+
+                        //     __
+                        //  __| A
+                        // B  |__
+                        //  __|
+                        if (screenToPlace.InPixel.Bounds.X == placedScreen.InPixel.Bounds.Right)
+                        {
+                            screenToPlace.InMm.X = placedScreen.InMm.OutsideBounds.Right + screenToPlace.InMm.LeftBorder;
+                            somethingDone = true;
+                        }
+                        //B |___|_
+                        //A  |    |
+                        if (screenToPlace.InPixel.Bounds.Y == placedScreen.InPixel.Bounds.Bottom)
+                        {
+                            screenToPlace.InMm.Y = placedScreen.InMm.OutsideBounds.Bottom + screenToPlace.InMm.TopBorder;
+                            somethingDone = true;
+                        }
+
+                        //     __
+                        //  __| B
+                        // A  |__
+                        //  __|
+                        if (screenToPlace.InPixel.Bounds.Right == placedScreen.InPixel.Bounds.X)
+                        {
+                            screenToPlace.InMm.X = placedScreen.InMm.OutsideBounds.Left -
+                                                      screenToPlace.InMm.OutsideBounds.Width + screenToPlace.InMm.LeftBorder;
+                            somethingDone = true;
+                        }
+
+                        //A |___|_
+                        //B  |    |
+
+                        if (screenToPlace.InPixel.Bounds.Bottom == placedScreen.InPixel.Y)
+                        {
+                            screenToPlace.InMm.Y = placedScreen.InMm.OutsideBounds.Top -
+                                                      screenToPlace.InMm.OutsideBounds.Height + screenToPlace.InMm.TopBorder;
+                            somethingDone = true;
+                        }
+
+
+                        //  __
+                        // |
+                        // |__
+                        //  __
+                        // |
+                        // |__
+                        if (screenToPlace.InPixel.Bounds.X == placedScreen.InPixel.Bounds.X)
+                        {
+                            screenToPlace.InMm.X = placedScreen.InMm.X;
+                            somethingDone = true;
+                        }
+
+                        //  ___   ___
+                        // |   | |   |
+                        if (screenToPlace.InPixel.Bounds.Y == placedScreen.InPixel.Bounds.Y)
+                        {
+                            screenToPlace.InMm.Y = placedScreen.InMm.Y;
+                            somethingDone = true;
+                        }
+
+                        // __
+                        //   |
+                        // __|
+                        // __
+                        //   |
+                        // __|
+                        if (screenToPlace.InPixel.Bounds.Right == placedScreen.InPixel.Bounds.Right)
+                        {
+                            screenToPlace.InMm.X = placedScreen.InMm.Bounds.Right - screenToPlace.InMm.Bounds.Width;
+                            somethingDone = true;
+                        }
+
+                        //|___||___|
+                        if (screenToPlace.InPixel.Bounds.Bottom == placedScreen.InPixel.Bounds.Bottom)
+                        {
+                            screenToPlace.InMm.Y = placedScreen.InMm.Bounds.Bottom -
+                                                      screenToPlace.InMm.Bounds.Height;
+                            somethingDone = true;
+                        }
+                        if (somethingDone)
+                        {
+                            todo.Enqueue(screenToPlace);
+                        }
                     }
-
-                    //A |___|_
-                    //B  |    |
-
-                    if (screenToPlace.InPixel.Bounds.Bottom == placedScreen.InPixel.Y)
-                    {
-                        screenToPlace.InMm.Y = placedScreen.InMm.OutsideBounds.Top -
-                                                  screenToPlace.InMm.OutsideBounds.Height + screenToPlace.InMm.TopBorder;
-                        done = true;
-                    }
-
-
-                    //  __
-                    // |
-                    // |__
-                    //  __
-                    // |
-                    // |__
-                    if (screenToPlace.InPixel.Bounds.X == placedScreen.InPixel.Bounds.X)
-                    {
-                        screenToPlace.InMm.X = placedScreen.InMm.X;
-                        done = true;
-                    }
-
-                    //  ___   ___
-                    // |   | |   |
-                    if (screenToPlace.InPixel.Bounds.Y == placedScreen.InPixel.Bounds.Y)
-                    {
-                        screenToPlace.InMm.Y = placedScreen.InMm.Y;
-                        done = true;
-                    }
-
-                    // __
-                    //   |
-                    // __|
-                    // __
-                    //   |
-                    // __|
-                    if (screenToPlace.InPixel.Bounds.Right == placedScreen.InPixel.Bounds.Right)
-                    {
-                        screenToPlace.InMm.X = placedScreen.InMm.Bounds.Right - screenToPlace.InMm.Bounds.Width;
-                        done = true;
-                    }
-
-                    //|___||___|
-                    if (screenToPlace.InPixel.Bounds.Bottom == placedScreen.InPixel.Bounds.Bottom)
-                    {
-                        screenToPlace.InMm.Y = placedScreen.InMm.Bounds.Bottom -
-                                                  screenToPlace.InMm.Bounds.Height;
-                        done = true;
-                    }
-                    if (done)
-                    {
-                        todo.Enqueue(screenToPlace);
-                    }
-                }
-
-                lock (_compactLock)
-                {
-                    _compacting = false;
                 }
             }
         }
@@ -765,28 +758,20 @@ namespace LittleBigMouse.ScreenConfig
             //if (Moving) return;
             lock (_compactLock)
             {
-                if (_compacting) return;
-                _compacting = true;
-            }
+                List<Screen> done = new List<Screen> { PrimaryScreen };
 
-            List<Screen> done = new List<Screen> { PrimaryScreen };
+                List<Screen> todo = AllBut(PrimaryScreen).OrderBy(s => s.Distance(PrimaryScreen)).ToList();
 
-            List<Screen> todo = AllBut(PrimaryScreen).OrderBy(s => s.Distance(PrimaryScreen)).ToList();
+                while (todo.Count > 0)
+                {
+                    Screen screen = todo[0];
+                    todo.Remove(screen);
 
-            while (todo.Count > 0)
-            {
-                Screen screen = todo[0];
-                todo.Remove(screen);
+                    screen.PlaceAuto(done);
+                    done.Add(screen);
 
-                screen.PlaceAuto(done);
-                done.Add(screen);
-
-                todo = todo.OrderBy(s => s.Distance(done)).ToList();
-            }
-
-            lock (_compactLock)
-            {
-                _compacting = false;
+                    todo = todo.OrderBy(s => s.Distance(done)).ToList();
+                }
             }
         }
 

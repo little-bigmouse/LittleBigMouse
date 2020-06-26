@@ -41,8 +41,10 @@ using Microsoft.Win32;
 
 namespace LittleBigMouse.ScreenConfig
 {
+    using H = NotifyHelper<Screen>;
+
     [DataContract]
-    public class Screen : N<Screen>
+    public class Screen : NotifierBase
     {
         [JsonIgnore] public ScreenConfig Config { get; }
         public Monitor Monitor { get; }
@@ -52,7 +54,7 @@ namespace LittleBigMouse.ScreenConfig
             Config = config;
             Monitor = monitor;
 
-            Initialize();
+            H.Initialize(this);
         }
 
         private readonly ITrigger _updateModel = H.Trigger(c => c
@@ -247,7 +249,7 @@ namespace LittleBigMouse.ScreenConfig
 
         // Dip
         [DataMember] public IScreenSize InDip => _inDip.Get();
-        private readonly IProperty<IScreenSize> _inDip = H.Property<IScreenSize>(nameof(InDip), c => c
+        private readonly IProperty<IScreenSize> _inDip = H.Property<IScreenSize>(c => c
             .Set(s => s.InPixel.ScaleDip(s))
             .On(e => e.InPixel)
             .Update()
@@ -1140,6 +1142,10 @@ namespace LittleBigMouse.ScreenConfig
             }
         }
 
+        private ITrigger _debug = H.Trigger(c => c
+            .On(e => e.InPixel.Width)
+            .Do(e => {})
+        );
 
 }
 }

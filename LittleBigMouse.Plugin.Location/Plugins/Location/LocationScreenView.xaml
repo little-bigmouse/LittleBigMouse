@@ -53,7 +53,7 @@
                     BorderThickness = "{Binding Path=ActualHeight, ElementName=center, Converter={StaticResource Scale},ConverterParameter=0.05}" 
                     CornerRadius= "{Binding Path=ActualHeight, ElementName=center, Converter={StaticResource Scale},ConverterParameter=0.5}" 
                      
-                    Background="{Binding Model.Selected, Converter={StaticResource Highlighter}, FallbackValue={StaticResource UnselectedBrush}}" 
+                    Background="{Binding Model.Primary, Converter={StaticResource Highlighter}, FallbackValue={StaticResource UnselectedBrush}}" 
                     BorderBrush="#FFD9DCEC">
                  <Border.Height>
                          <MultiBinding Converter="{StaticResource MultiScale}" ConverterParameter="0.3">
@@ -88,7 +88,9 @@
                 KeyUp="OnKeyEnterUpdate" 
                 HorizontalAlignment="Center" 
                 VerticalAlignment="Top" 
-                Background="#00FFFFFF"/>
+                Background="#00FFFFFF"
+                MouseWheel="OnMouseWheel"
+               />
 
 <!-- X Position -->
         <TextBox 
@@ -96,7 +98,9 @@
                 KeyUp="OnKeyEnterUpdate" 
                 HorizontalAlignment="Left" 
                 VerticalAlignment="Center" 
-                Background="#00FFFFFF"/>
+                Background="#00FFFFFF"
+                MouseWheel="OnMouseWheel"
+                />
         
 <!-- Bottom Dimensions -->
         <StackPanel Orientation="Horizontal" 
@@ -108,8 +112,7 @@
                    HorizontalAlignment="Center"/>
             <Label 
                    Content="{Binding Path=Model.InPixel.Height,FallbackValue=pix.h}" 
-                   HorizontalAlignment="Center" Foreground="#FFD9DCEC"  
-                   Visibility="{Binding Model.Selected, Converter={StaticResource ToVisibilityConverter}}"
+                   HorizontalAlignment="Center" Foreground="#FFD9DCEC"                     
                    />
             
             <StackPanel Orientation="Horizontal" 
@@ -121,7 +124,7 @@
                      Foreground="#FFD9DCEC" 
                      Background="#00FFFFFF" 
                      
-                     MouseWheel="PhysicalHeight_MouseWheel"
+                     MouseWheel="OnMouseWheel"
                      />
                 <Label Content="%" Foreground="#FFD9DCEC" VerticalAlignment="Center"></Label>
             </StackPanel>
@@ -131,32 +134,30 @@
         <StackPanel HorizontalAlignment="Right"  VerticalAlignment="Center" >
             
             <Label 
-                   Content="{Binding Path=Model.InMm.Bounds.Right,FallbackValue=right.x}" 
-                   ContentStringFormat="#0.#" 
-                   HorizontalAlignment="Right"
+                Content="{Binding Path=Model.InMm.Bounds.Right,FallbackValue=right.x}" 
+                ContentStringFormat="#0.#" 
+                HorizontalAlignment="Right"
                 />
             
-            
             <Label 
-                  Content="{Binding Path=Model.InPixel.Width,FallbackValue=pix.w}" 
-                   HorizontalAlignment="Right" 
-                   Foreground="#FFD9DCEC" 
-                   Visibility="{Binding Model.Selected, Converter={StaticResource ToVisibilityConverter}}"
-                   />
+                Content="{Binding Path=Model.InPixel.Width,FallbackValue=pix.w}" 
+                HorizontalAlignment="Right" 
+                Foreground="#FFD9DCEC"                    
+                />
+            
             <StackPanel Orientation="Horizontal">
                 <TextBox 
-                         Text="{Binding Path=RatioX, StringFormat=N1,FallbackValue=phy.w}" 
-                         KeyUp="OnKeyEnterUpdate" 
-                         HorizontalAlignment="Right" 
+                    Text="{Binding Path=RatioX, StringFormat=N1,FallbackValue=phy.w}" 
+                    KeyUp="OnKeyEnterUpdate" 
+                    HorizontalAlignment="Right" 
                     VerticalAlignment="Center"
-                         Foreground="#FFD9DCEC" 
-                         Background="#00FFFFFF" 
-                         MouseWheel="PhysicalWidth_MouseWheel" 
-                        />
+                    Foreground="#FFD9DCEC" 
+                    Background="#00FFFFFF" 
+                    MouseWheel="OnMouseWheel" 
+                    />
                 <Label Content="%" Foreground="#FFD9DCEC" VerticalAlignment="Center"/>
             </StackPanel>
         </StackPanel>
-        
 
         <StackPanel>
         <Label 

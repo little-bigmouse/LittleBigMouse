@@ -57,7 +57,7 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Size
             ViewHelper.OnKeyEnterUpdate(sender, e);
         }
 
-        public double WheelDelta(MouseWheelEventArgs e)
+        private static double WheelDelta(MouseWheelEventArgs e)
         {
             double delta = (e.Delta > 0) ? 1 : -1;
             if ((Keyboard.Modifiers & ModifierKeys.Control) != 0) delta /= 10;

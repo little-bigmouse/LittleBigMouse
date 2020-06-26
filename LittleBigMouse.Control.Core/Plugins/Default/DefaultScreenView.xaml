@@ -29,6 +29,8 @@
 
         <Border BorderThickness="0" Background="#80000000"/>
 
+        <Label VerticalAlignment="Bottom" Opacity="0.3" Visibility="{Binding Model.Primary,Converter={StaticResource BooleanToVisibilityConverter}}">Primary</Label>
+        
         <!-- Central Device No -->
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
              <Border x:Name="Center" 
@@ -126,19 +128,21 @@
         <StackPanel >
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >
-        <Label 
-            Padding="2,0"
-            Content="{Binding Path=Model.RealDpiAvg, FallbackValue=96}" 
-            ContentStringFormat="#0" VerticalAlignment="{Binding Path=DpiVerticalAlignment}" 
-            HorizontalAlignment="Right" 
-            Foreground="White"/>
-                    <Label Padding="2,0" Foreground="AliceBlue">dpi</Label>
-</StackPanel>
-                <Label HorizontalAlignment="Right"
-                    Padding="0"
-                    Content="{Binding Path=Inches, FallbackValue=X.0}"  
-                    Foreground="AliceBlue">
-                </Label>
+                <Label Padding="2,0" Foreground="AliceBlue">Pitch</Label>
+                <Label 
+                    Padding="2,0"
+                    Content="{Binding Path=Model.EffectiveDpi.X, FallbackValue=96}" 
+                    ContentStringFormat="#0" VerticalAlignment="{Binding Path=DpiVerticalAlignment}" 
+                    HorizontalAlignment="Right" 
+                    Foreground="White"/>
+                <Label Padding="2,0" Foreground="AliceBlue">dpi</Label>
+            </StackPanel>
+            
+            <Label HorizontalAlignment="Right"
+                Padding="0"
+                Content="{Binding Path=Inches, FallbackValue=X.0}"  
+                Foreground="AliceBlue">
+            </Label>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Label Padding="2,0" Foreground="AliceBlue" Content="{Binding Path=Model.InPixel.Width,FallbackValue=pix.w}"/>

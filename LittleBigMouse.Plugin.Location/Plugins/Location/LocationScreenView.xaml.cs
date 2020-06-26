@@ -23,12 +23,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using HLab.Mvvm.Annotations;
 using HLab.Mvvm.Extensions;
 using HLab.Sys.Windows.API;
@@ -84,25 +87,6 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
          private Panel BackPanel => this.FindVisualParent<MultiScreensView>().GetMainPanel();
 
 
-        private void PhysicalWidth_MouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            if (!ViewModel.Model.Selected) return;
-
-            SetStaticPoint();
-            var ratio = (e.Delta > 0) ? 1.005 : 1 / 1.005;
-            ViewModel.Model.PhysicalRatio.X *= ratio;
-            ViewModel.Model.Config.Compact();
-        }
-
-        private void PhysicalHeight_MouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            if (!ViewModel.Model.Selected) return; 
-
-            SetStaticPoint();
-            var ratio = (e.Delta > 0) ? 1.005 : 1 / 1.005;
-            ViewModel.Model.PhysicalRatio.Y *= ratio;
-            ViewModel.Model.Config.Compact();
-        }
 
         private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -121,10 +105,7 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
         {
             if (!IsMouseCaptured) return;
 
-            if (Presenter == null)
-            {
-                return;
-            }
+            if (MainPanel == null) return;
 
             if (e.LeftButton != MouseButtonState.Pressed)
             {
@@ -138,16 +119,12 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
 
         private Point _guiStartPosition;
         private Point _dragStartPosition;
-//        private Point _guiLastPosition;
-//        private Point _dragLastPosition;
         private Canvas _anchorsCanvas = null;
 
         public void StartMove(Point p)
         {
             _guiStartPosition = p;
-//            _guiLastPosition = _guiStartPosition;
             _dragStartPosition = new Point(ViewModel.Model.XMoving,ViewModel.Model.YMoving);
-//            _dragLastPosition = _dragStartPosition;
 
             ViewModel.Model.Moving = true;
         }
@@ -359,21 +336,15 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
                     };
 
                 _anchorsCanvas.Children.Add(l);
-
-                //Service.Get<ScreenLocationPlugin>().HorizontalAnchors.Children.Add(l);
             }
         }
-        private/* Vector*/ void ShiftScreen(Vector offset)
+        private void ShiftScreen(Vector offset)
         {
             Point pos = _dragStartPosition + offset;
 
             ViewModel.Model.XMoving = pos.X;
             ViewModel.Model.YMoving = pos.Y;
 
-            //Vector shift = ViewModel.Model.InMm.Location - pos;
-            //ViewModel.Model.Config.ShiftMoPhysicalBounds(shift);
-            //_dragStartPosition += shift;
-            //return shift;
         }
 
         public List<Anchor> VerticalAnchors(Screen s, double shift) => new List<Anchor>
@@ -413,6 +384,49 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
         {
             ViewModel.Ruler = !ViewModel.Ruler;
         }
+        private static double WheelDelta(MouseWheelEventArgs e)
+        {
+            double delta = (e.Delta > 0) ? 1 : -1;
+            if ((Keyboard.Modifiers & ModifierKeys.Control) != 0) delta /= 10;
+            if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0) delta *= 10;
+            return delta;
+        }
+
+        private void OnMouseWheel(object sender,MouseWheelEventArgs e)
+        {
+            if (sender is TextBox tb)
+            {
+                var p = e.GetPosition(tb);
+                var rx = p.X / tb.ActualWidth;
+                var ry = p.Y / tb.ActualHeight;
+
+                var delta = WheelDelta(e);
+
+                var prop = TextBox.TextProperty;
+
+                var binding = BindingOperations.GetBindingExpression(tb, prop);
+
+                var val = binding?.Target.GetValue(prop);
+                if (val is string s)
+                {
+                    if (double.TryParse(s, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture,  out var d))
+                    {
+                        binding?.Target.SetValue(prop, (d + delta).ToString(CultureInfo.InvariantCulture) );
+                        binding?.UpdateSource();
+                    }
+                }
+
+                ViewModel.Model.Config.Compact();
+
+                Dispatcher.BeginInvoke(() =>
+                {
+                    var p2 = new Point(rx * tb.ActualWidth,ry*tb.ActualHeight);
+                    var l = tb.PointToScreen(p2);
+                    NativeMethods.SetCursorPos((int)l.X, (int)l.Y);
+                },DispatcherPriority.Loaded);
+            }
+        }
+
     }
 
 }
