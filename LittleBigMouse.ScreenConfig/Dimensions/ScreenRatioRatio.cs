@@ -3,7 +3,7 @@ using HLab.Notify.PropertyChanged;
 
 namespace LittleBigMouse.ScreenConfig.Dimensions
 {
-    using H = NotifyHelper<ScreenRatioRatio>;
+    using H = H<ScreenRatioRatio>;
 
     public class ScreenRatioRatio : ScreenRatio
     {
@@ -34,7 +34,7 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
             get => _y.Get();
             set => throw new NotImplementedException();
         }
-        private readonly IProperty<double> _y = H.Property<double>(nameof(Y), c => c
+        private readonly IProperty<double> _y = H.Property<double>(c => c
             .Set(s => s.SourceA.Y * s.SourceB.Y)
             .On(e => e.SourceA.Y)
             .On(e => e.SourceB.Y)

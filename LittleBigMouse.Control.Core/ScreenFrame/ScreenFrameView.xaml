@@ -2,11 +2,12 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:core="clr-namespace:LittleBigMouse.Control.Core"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mvvm="clr-namespace:HLab.Mvvm;assembly=HLab.Mvvm.Wpf"
              xmlns:converters="clr-namespace:HLab.Base.Converters;assembly=HLab.Base.Wpf"
              xmlns:screenFrame="clr-namespace:LittleBigMouse.Control.Core.ScreenFrame"
+             xmlns:converters1="clr-namespace:HLab.Base.Wpf.Converters;assembly=HLab.Base.Wpf"
+             xmlns:plugins="clr-namespace:LittleBigMouse.Plugins;assembly=LittleBigMouse.Plugins"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="500"
              HorizontalAlignment="Left"
@@ -48,7 +49,7 @@
             <GradientStop Color ="#FF1E1E1E" Offset="0.5"/>
             <GradientStop Color="Black" Offset="1"/>
         </LinearGradientBrush>
-        <converters:ToBrushConverter x:Key="Highlighter" TrueValue="{StaticResource SelectedBrush}" FalseValue="{StaticResource UnselectedBrush}"/>
+        <converters1:ToBrushConverter x:Key="Highlighter" TrueValue="{StaticResource SelectedBrush}" FalseValue="{StaticResource UnselectedBrush}"/>
     </UserControl.Resources>
 
     <Grid>
@@ -159,7 +160,7 @@
                 Content="{Binding Path=Logo}"
                 />
 
-            <Label 
+            <!--<Label 
                 Margin="0" 
                 HorizontalAlignment="Right" 
                 VerticalAlignment="Center" 
@@ -167,7 +168,7 @@
                 Grid.Column="1" 
                 Grid.ColumnSpan="2"
                 Content="{Binding PowerButton}"
-                />
+                />-->
         </Grid>
 
         <Grid>               
@@ -196,7 +197,7 @@
             
             <mvvm:ViewLocator 
                 Grid.Column="1" Grid.Row="1" 
-                ViewClass="{x:Type screenFrame:IViewScreenFrameContent}"
+                ViewClass="{x:Type plugins:IViewScreenFrameContent}"
                 Model="{Binding Model}"
                 ViewMode="{Binding Presenter.ViewMode}"
             />

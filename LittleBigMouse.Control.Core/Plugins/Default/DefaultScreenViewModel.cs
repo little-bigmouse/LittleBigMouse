@@ -21,13 +21,14 @@
 	  http://www.mgth.fr
 */
 
+using System.Windows;
 using HLab.Mvvm;
 using HLab.Notify.PropertyChanged;
 using LittleBigMouse.ScreenConfig;
 
 namespace LittleBigMouse.Control.Core.Plugins.Default
 {
-    using H = NotifyHelper<DefaultScreenViewModel>;
+    using H = H<DefaultScreenViewModel>;
 
     class DefaultScreenViewModel : ViewModel<Screen>
     {
@@ -37,6 +38,19 @@ namespace LittleBigMouse.Control.Core.Plugins.Default
         private readonly IProperty<string> _inches = H.Property<string>(c => c
             .Set(e => (e.Model.Diagonal / 25.4).ToString("##.#") +"\"")
             .On(e => e.Model.Diagonal)
+            .Update()
+        );
+        public VerticalAlignment DpiVerticalAlignment => _dpiVerticalAlignment.Get();
+        private readonly IProperty<VerticalAlignment> _dpiVerticalAlignment = H.Property<VerticalAlignment>(c => c
+            .Set(e => e.Model.Orientation == 3 ? VerticalAlignment.Bottom : VerticalAlignment.Top)
+            .On(e => e.Model.Orientation)
+            .Update()
+        );
+
+        public VerticalAlignment PnpNameVerticalAlignment => _pnpNameVerticalAlignment.Get();
+        private readonly IProperty<VerticalAlignment> _pnpNameVerticalAlignment = H.Property<VerticalAlignment>(c => c
+            .Set(e => e.Model.Orientation == 2 ? VerticalAlignment.Bottom : VerticalAlignment.Top)
+            .On(e => e.Model.Orientation)
             .Update()
         );
 

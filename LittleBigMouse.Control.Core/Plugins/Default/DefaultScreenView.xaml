@@ -6,15 +6,17 @@
              xmlns:converters="clr-namespace:HLab.Mvvm.Converters;assembly=HLab.Mvvm.Wpf"
              xmlns:converters1="clr-namespace:HLab.Base.Converters;assembly=HLab.Base.Wpf"
              xmlns:default="clr-namespace:LittleBigMouse.Control.Core.Plugins.Default"
+             xmlns:converters2="clr-namespace:HLab.Base.Wpf.Converters;assembly=HLab.Base.Wpf"
              mc:Ignorable="d" 
               d:DesignHeight="300" d:DesignWidth="300"
              x:Name="UserControl" 
-             d:DataContext="{d:DesignInstance Type = default:DefaultScreenViewModel, IsDesignTimeCreatable = false}">
+             d:DataContext="{d:DesignInstance Type = default:DefaultScreenViewModel, IsDesignTimeCreatable = false}"
+             >
 
     <UserControl.Resources>
         <converters:MultiScaleConverter x:Key="MultiScale"/>
-        <converters1:ToBrushConverter x:Key="Highlighter" TrueValue="{StaticResource SelectedBrush}" FalseValue="{StaticResource UnselectedBrush}"/>
-        <converters1:ToVisibilityConverter x:Key="ToVisibilityConverter" TrueValue="Visible" FalseValue="Hidden"/>
+        <converters2:ToBrushConverter x:Key="Highlighter" TrueValue="{StaticResource SelectedBrush}" FalseValue="{StaticResource UnselectedBrush}"/>
+        <converters2:ToVisibilityConverter x:Key="ToVisibilityConverter" TrueValue="Visible" FalseValue="Hidden"/>
     </UserControl.Resources>
 
     <!--FontSize="{Binding Path=ActualHeight, ElementName=UserControl, Converter={StaticResource Scale},ConverterParameter=0.05}"-->             
@@ -128,10 +130,9 @@
         <StackPanel >
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >
-                <Label Padding="2,0" Foreground="AliceBlue">Pitch</Label>
                 <Label 
                     Padding="2,0"
-                    Content="{Binding Path=Model.EffectiveDpi.X, FallbackValue=96}" 
+                    Content="{Binding Path=Model.RealDpiAvg, FallbackValue=96}" 
                     ContentStringFormat="#0" VerticalAlignment="{Binding Path=DpiVerticalAlignment}" 
                     HorizontalAlignment="Right" 
                     Foreground="White"/>

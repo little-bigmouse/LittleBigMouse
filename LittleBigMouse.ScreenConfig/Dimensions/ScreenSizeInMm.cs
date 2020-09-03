@@ -23,11 +23,12 @@
 
 using System;
 using HLab.Notify.PropertyChanged;
+using HLab.Sys.Windows.Monitors;
 using Newtonsoft.Json;
 
 namespace LittleBigMouse.ScreenConfig.Dimensions
 {
-    using H = NotifyHelper<ScreenSizeInMm>;
+    using H = H<ScreenSizeInMm>;
 
     /// <summary>
     /// Actual real monitor size 

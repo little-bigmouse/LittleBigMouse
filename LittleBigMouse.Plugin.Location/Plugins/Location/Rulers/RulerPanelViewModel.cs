@@ -26,21 +26,22 @@ using System.Windows;
 using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
 using LittleBigMouse.ScreenConfig;
-using LittleBigMouse.ScreenConfigs;
 
 namespace LittleBigMouse.Plugin.Location.Plugins.Location.Rulers
 {
-    public class RulerPanelViewModel : N<RulerPanelViewModel>
+    using H = H<RulerPanelViewModel>;
+
+    public class RulerPanelViewModel : NotifierBase
     {
         public RulerPanelViewModel(Screen screen, Screen drawOn)
         {
             Screen = screen;
             DrawOn = drawOn;
-            TopRuler = new RulerViewModel(Screen, DrawOn, RulerViewModel.RulerSide.Top);
-            RightRuler = new RulerViewModel(Screen, DrawOn, RulerViewModel.RulerSide.Right);
-            BottomRuler = new RulerViewModel(Screen, DrawOn, RulerViewModel.RulerSide.Bottom);
-            LeftRuler = new RulerViewModel(Screen, DrawOn, RulerViewModel.RulerSide.Left);
-            Initialize();
+            TopRuler = new RulerViewModel(Screen, DrawOn, 0);
+            RightRuler = new RulerViewModel(Screen, DrawOn, 1);
+            BottomRuler = new RulerViewModel(Screen, DrawOn, 2);
+            LeftRuler = new RulerViewModel(Screen, DrawOn, 3);
+            H.Initialize(this);
         }
         public Screen Screen { get; }
         public Screen DrawOn { get; }
@@ -63,19 +64,21 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location.Rulers
             set => _visibility.Set(value);
         }
         private readonly IProperty<Visibility> _visibility 
-            = H.Property<Visibility>(nameof(Visibility));
+            = H.Property<Visibility>();
 
         
         public double RulerWidth => _rulerWidth.Get();
         private readonly IProperty<double> _rulerWidth = H.Property<double>(c => c
-            .On(e => e.DrawOn.MmToDipRatio.X)
             .Set(e => 30 * e.DrawOn.MmToDipRatio.X)
+            .On(e => e.DrawOn.MmToDipRatio.X)
+            .Update()
         );
 
         public double RulerHeight => _rulerHeight.Get();
         private readonly IProperty<double> _rulerHeight = H.Property<double>(c => c
-            .On(e => e.DrawOn.MmToDipRatio.Y)
             .Set(e => 30 * e.DrawOn.MmToDipRatio.Y)
+            .On(e => e.DrawOn.MmToDipRatio.Y)
+            .Update()
         );
     }
 }

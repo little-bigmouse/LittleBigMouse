@@ -21,12 +21,15 @@
 	  http://www.mgth.fr
 */
 
+using System;
 using HLab.DependencyInjection.Annotations;
+using HLab.Mvvm.Annotations;
+using LittleBigMouse.Plugins;
 
 namespace LittleBigMouse.Control.Core.Main
 {
-    [Export(typeof(MainService)),Singleton]
-    public class MainService
+    [Export(typeof(IMainService)),Singleton]
+    public class MainService : IMainService
     {
         public ScreenConfig.ScreenConfig Config {get;}
         public MainViewModel MainViewModel { get; }
@@ -38,5 +41,14 @@ namespace LittleBigMouse.Control.Core.Main
            Config = config;
         }
 
+        public void AddButton(string iconPath, string toolTip, Action activate, Action deactivate) =>
+            MainViewModel.AddButton(iconPath, toolTip, activate, deactivate);
+
+        public void SetViewMode(Type viewMode)
+        {
+            MainViewModel.Presenter.ViewMode = viewMode;
+        }
+
+        public void SetViewMode<T>() where T:ViewMode => SetViewMode(typeof(T));
     }
 }

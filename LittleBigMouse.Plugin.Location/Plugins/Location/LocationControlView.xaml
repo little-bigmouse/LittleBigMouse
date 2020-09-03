@@ -32,7 +32,7 @@
                 </StackPanel>
                 <StackPanel Orientation="Vertical" Margin="5,0,0,0" VerticalAlignment="Center">
                     <CheckBox   Content="Auto Check for update"  IsChecked="{Binding Path=Config.AutoUpdate, Mode=TwoWay}" Foreground="LightGray"/>
-                    <CheckBox   Content="Load at startup"  IsChecked="{Binding Path=LoadAtStartup, Mode=TwoWay}" Foreground="LightGray"/>
+                    <CheckBox   Content="Load at startup"  IsChecked="{Binding Path=Config.LoadAtStartup, Mode=TwoWay}" Foreground="LightGray"/>
                     <CheckBox   Content="Enabled" IsChecked="{Binding Path=Config.Enabled, Mode=TwoWay}" Foreground="LightGray"/>
                 </StackPanel>
             </StackPanel>

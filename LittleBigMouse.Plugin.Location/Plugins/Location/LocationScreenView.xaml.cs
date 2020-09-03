@@ -32,11 +32,13 @@ using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using HLab.Base;
 using HLab.Mvvm.Annotations;
 using HLab.Mvvm.Extensions;
 using HLab.Sys.Windows.API;
 using LittleBigMouse.Control.Core;
 using LittleBigMouse.Control.Core.ScreenFrame;
+using LittleBigMouse.Plugins;
 using LittleBigMouse.ScreenConfig;
 using MultiScreensView = LittleBigMouse.Control.Core.MultiScreensView;
 
@@ -402,19 +404,17 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
 
                 var delta = WheelDelta(e);
 
-                var prop = TextBox.TextProperty;
-
-                var binding = BindingOperations.GetBindingExpression(tb, prop);
-
-                var val = binding?.Target.GetValue(prop);
-                if (val is string s)
+                tb.SetBindingValue(TextBox.TextProperty, v =>
                 {
-                    if (double.TryParse(s, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture,  out var d))
+                    if (v is string s)
                     {
-                        binding?.Target.SetValue(prop, (d + delta).ToString(CultureInfo.InvariantCulture) );
-                        binding?.UpdateSource();
+                        if (double.TryParse(s, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture,  out var d))
+                        {
+                            return (d + delta).ToString(CultureInfo.InvariantCulture);
+                        }
                     }
-                }
+                    return v;
+                });
 
                 ViewModel.Model.Config.Compact();
 
@@ -424,6 +424,14 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
                     var l = tb.PointToScreen(p2);
                     NativeMethods.SetCursorPos((int)l.X, (int)l.Y);
                 },DispatcherPriority.Loaded);
+            }
+        }
+
+        private void OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is TextBox tb)
+            {
+                tb.SetBindingValue(TextBox.TextProperty, v => (100.0).ToString(CultureInfo.InvariantCulture));
             }
         }
 

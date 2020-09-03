@@ -3,7 +3,7 @@ using HLab.Notify.PropertyChanged;
 
 namespace LittleBigMouse.ScreenConfig.Dimensions
 {
-    using H=NotifyHelper<ScreenRatioValue>;
+    using H=H<ScreenRatioValue>;
 
     public class ScreenRatioValue : ScreenRatio
     {

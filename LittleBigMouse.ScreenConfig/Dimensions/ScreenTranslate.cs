@@ -27,7 +27,7 @@ using HLab.Notify.PropertyChanged;
 
 namespace LittleBigMouse.ScreenConfig.Dimensions
 {
-    using H = NotifyHelper<ScreenTranslate>;
+    using H = H<ScreenTranslate>;
 
     public static class ScreenTranslateExt
     {

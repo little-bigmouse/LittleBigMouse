@@ -31,7 +31,7 @@ using LittleBigMouse.ScreenConfig.Dimensions;
 
 namespace LittleBigMouse.Control.Core
 {
-    using H = NotifyHelper<MultiScreensViewModel>;
+    using H = H<MultiScreensViewModel>;
 
     public class MultiScreensViewModel : ViewModel, IPresenterViewModel, IMvvmContextProvider
     {
@@ -50,7 +50,7 @@ namespace LittleBigMouse.Control.Core
             set => _viewMode.Set(value);
         }
         private readonly IProperty<Type> _viewMode 
-            = H.Property<Type>(nameof(ViewMode), c=>c.Default(typeof(ViewModeDefault)));
+            = H.Property<Type>(c=>c.Default(typeof(ViewModeDefault)));
 
         public ScreenConfig.ScreenConfig Config
         {
@@ -61,6 +61,7 @@ namespace LittleBigMouse.Control.Core
 
         public double Width => _width.Get();
         private readonly IProperty<double> _width = H.Property<double>(c => c
+            .NotNull(e => e.Config)
             .Set(e => e.Config.InMmOutsideBounds.Width * e.VisualRatio.X)
             .On(e => e.Config.InMmOutsideBounds)
             .On(e => e.VisualRatio.X)
@@ -69,6 +70,7 @@ namespace LittleBigMouse.Control.Core
 
         public double Height => _height.Get();
         private readonly IProperty<double> _height = H.Property<double>(c => c
+            .NotNull(e => e.Config)
             .Set(e => e.Config.InMmOutsideBounds.Height * e.VisualRatio.Y)
             .On(e => e.Config.InMmOutsideBounds)
             .On(e => e.VisualRatio.Y)

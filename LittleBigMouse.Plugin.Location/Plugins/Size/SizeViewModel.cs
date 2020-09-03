@@ -32,7 +32,7 @@ using LittleBigMouse.ScreenConfig;
 
 namespace LittleBigMouse.Plugin.Location.Plugins.Size
 {
-    using H = NotifyHelper<ScreenSizeViewModel>;
+    using H = H<ScreenSizeViewModel>;
 
     class ScreenSizeViewModel : ViewModel<Screen>
     //ScreenControlViewModel

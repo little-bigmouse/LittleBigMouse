@@ -27,7 +27,7 @@ using LittleBigMouse.ScreenConfig.Dimensions;
 
 namespace LittleBigMouse.ScreenConfig
 {
-    using H = NotifyHelper<ScreenInverseRatio>;
+    using H = H<ScreenInverseRatio>;
 
     public static class ScreenInverseRatioExt
     {

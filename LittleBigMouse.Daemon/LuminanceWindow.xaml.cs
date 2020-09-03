@@ -26,8 +26,9 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using HLab.Base.Wpf;
 using HLab.Mvvm.Annotations;
-using LittleBigMouse.ScreenConfigs;
+using LittleBigMouse.ScreenConfig;
 
 namespace LittleBigMouse_Daemon
 {

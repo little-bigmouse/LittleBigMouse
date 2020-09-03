@@ -29,7 +29,7 @@ namespace LittleBigMouse.ScreenConfig
 {
     public interface ILittleBigMouseClientService : ILittleBigMouseService
     {
-        event Action<bool> StateChanged;
+        event Action<string> StateChanged;
     }
 
     //    public class LittleBigMouseClient : DuplexClientBase<ILittleBigMouseService>, ILittleBigMouseService

@@ -27,7 +27,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace LittleBigMouse.ScreenConfigs
+namespace LittleBigMouse.ScreenConfig
 {
     class Html
     {

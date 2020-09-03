@@ -24,9 +24,8 @@
 using System.Reflection;
 using System.Windows;
 using HLab.Core;
-using HLab.Core.Annotations;
 using HLab.DependencyInjection;
-using HLab.Notify;
+using HLab.Notify.Wpf;
 
 namespace LittleBigMouse.Control.Loader
 {

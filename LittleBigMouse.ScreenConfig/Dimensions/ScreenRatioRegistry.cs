@@ -28,7 +28,7 @@ using Microsoft.Win32;
 
 namespace LittleBigMouse.ScreenConfig.Dimensions
 {
-    using H = NotifyHelper<ScreenRatioRegistry>;
+    using H = H<ScreenRatioRegistry>;
 
     public class ScreenRatioRegistry : ScreenRatio
     {

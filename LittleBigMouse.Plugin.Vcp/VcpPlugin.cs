@@ -24,8 +24,7 @@
 using HLab.Core.Annotations;
 using HLab.DependencyInjection.Annotations;
 using HLab.Mvvm.Annotations;
-using LittleBigMouse.Control.Core;
-using LittleBigMouse.Control.Core.Main;
+using LittleBigMouse.Plugins;
 
 namespace LittleBigMouse.Plugin.Vcp
 {
@@ -33,20 +32,18 @@ namespace LittleBigMouse.Plugin.Vcp
 
     class VcpPlugin : IBootloader
     {
-        private readonly IIconService _iconService;
-        private readonly MainService _mainService;
+        private readonly IMainService _mainService;
 
-        [Import] public VcpPlugin(IIconService iconService, MainService mainService)
+        [Import] public VcpPlugin(IMainService mainService)
         {
-            _iconService = iconService;
             _mainService = mainService;
         }
 
         public void Load(IBootContext bootstrapper)
         {
-            _mainService.MainViewModel.AddButton("Icons/IconVcp","Vcp control",
-                () => _mainService.MainViewModel.Presenter.ViewMode = typeof(ViewModeScreenVcp),
-                () => _mainService.MainViewModel.Presenter.ViewMode = typeof(ViewModeDefault));
+            _mainService.AddButton("Icons/IconVcp","Vcp control",
+                () => _mainService.SetViewMode<ViewModeScreenVcp>(),
+                () => _mainService.SetViewMode<ViewModeDefault>());
         }
 
     }

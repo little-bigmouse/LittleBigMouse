@@ -23,9 +23,9 @@
 
 using System.Windows;
 using System.Windows.Input;
+using HLab.Base.Wpf;
 using HLab.Mvvm.Annotations;
 using LittleBigMouse.Control.Core.Sys;
-using LittleBigMouse.ScreenConfigs;
 
 namespace LittleBigMouse.Control.Core.Main
 {

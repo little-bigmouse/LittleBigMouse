@@ -1,6 +1,6 @@
 ﻿using HLab.Mvvm.Annotations;
 
-namespace LittleBigMouse.Control.Core
+namespace LittleBigMouse.Plugins
 {
     public interface IViewScreenFrameLayer  : IViewClass
     {

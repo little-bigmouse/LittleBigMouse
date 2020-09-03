@@ -35,7 +35,7 @@ using Newtonsoft.Json;
 
 namespace LittleBigMouse.Plugin.Location.Plugins.Location
 {
-    using H = NotifyHelper<LocationControlViewModel>;
+    using H = H<LocationControlViewModel>;
 
     class LocationControlViewModel : ViewModel<ScreenConfig.ScreenConfig>
     {
@@ -64,7 +64,7 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
             public ObservableCollectionSafe<Monitor> Monitors { get; set; }
         }
 
-        public ICommand CopyCommand = H.Command( c =>c
+        public ICommand CopyCommand { get; } = H.Command( c =>c
         .Action(
             e =>
             {
@@ -124,28 +124,16 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
             .Action( e => e._service.Stop())
         );
 
-        private readonly IProperty<bool> _running = H.Property< bool>(nameof(Running));
+        private readonly IProperty<bool> _running = H.Property< bool>();
         public bool Running {
             get => _running.Get();
             private set => _running.Set(value); }
 
-        private readonly IProperty<bool> _liveUpdate = H.Property< bool>(nameof(LiveUpdate));
+        private readonly IProperty<bool> _liveUpdate = H.Property< bool>();
         public bool LiveUpdate
         {
             get => _liveUpdate.Get();
             set => _liveUpdate.Set(value);
-        }
-
-        public bool LoadAtStartup
-        {
-            get => Config.LoadAtStartup; 
-            set
-            {
-                if(value)
-                    Config.LoadAtStartup = Config.Schedule();
-                else
-                    Config.Unschedule();
-            }
         }
 
 
@@ -163,7 +151,18 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
         public LocationControlViewModel(IMonitorsService monitorsService)
         {
             _monitorsService = monitorsService;
-            _service.StateChanged += s => Running = s;
+            _service.StateChanged += s =>
+            {
+                switch (s)
+                {
+                    case "running":
+                        Running = true;
+                        break;
+                    case "stopped":
+                        Running = false;
+                        break;
+                }
+            };
             H.Initialize(this);
             new Task(async () => Running = await _service.Running()).Start();
             

@@ -26,7 +26,7 @@ using HLab.Notify.PropertyChanged;
 
 namespace LittleBigMouse.ScreenConfig.Dimensions
 {
-    using H = NotifyHelper<ScreenLocate>;
+    using H = H<ScreenLocate>;
 
     public class ScreenLocate : ScreenSize
     {

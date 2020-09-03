@@ -37,7 +37,7 @@
         </EventTrigger>-->
     </Window.Triggers>
     <Grid>
-        <monitorVcp:Luminance x:Name="Luminance" Config="{Binding Config}"/>
+        <monitorVcp:Luminance x:Name="Luminance" Monitors="{Binding Monitors}"/>
 
     </Grid>
 </Window>

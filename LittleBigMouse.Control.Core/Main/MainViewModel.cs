@@ -35,7 +35,7 @@ using HLab.Notify.PropertyChanged;
 
 namespace LittleBigMouse.Control.Core.Main
 {
-    using H = NotifyHelper<MainViewModel>;
+    using H = H<MainViewModel>;
 
     [Export(typeof(MainViewModel)),Singleton]
     public class MainViewModel : ViewModel
@@ -61,7 +61,13 @@ namespace LittleBigMouse.Control.Core.Main
             get => _presenter.Get();
             set => _presenter.Set(value);
         }
-        private readonly IProperty<IPresenterViewModel> _presenter = H.Property<IPresenterViewModel>(nameof(Presenter));
+        private readonly IProperty<IPresenterViewModel> _presenter = H.Property<IPresenterViewModel>();
+
+        public double VerticalResizerSize => _verticalResizerSize.Get();
+        private readonly IProperty<double> _verticalResizerSize = H.Property<double>(c => c.Default(10.0));
+        public double HorizontalResizerSize => _horizontalResizerSize.Get();
+        private readonly IProperty<double> _horizontalResizerSize = H.Property<double>(c => c.Default(10.0));
+
 
         public ICommand CloseCommand { get; } = H.Command(c => c
             .Action(e => e.Close())
@@ -89,7 +95,7 @@ namespace LittleBigMouse.Control.Core.Main
             }
         }
 
-        private readonly IProperty<WindowState> _windowState = H.Property<WindowState>(nameof(WindowState));
+        private readonly IProperty<WindowState> _windowState = H.Property<WindowState>();
         public WindowState WindowState
         {
             get => _windowState.Get();
@@ -98,12 +104,7 @@ namespace LittleBigMouse.Control.Core.Main
 
         public ICommand MaximizeCommand { get; } = H.Command(c => c.Action(e =>
             {
-                        if (e.WindowState != WindowState.Normal)
-                            e.WindowState = WindowState.Maximized;
-                        else
-                        {
-                            e.WindowState = WindowState.Normal;
-                        }
+                e.WindowState = e.WindowState != WindowState.Normal ? WindowState.Maximized : WindowState.Normal;
             }
         ));
 

@@ -4,36 +4,37 @@ using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
 using HLab.Sys.Windows.Monitors;
 using LittleBigMouse.ScreenConfig.Dimensions;
-using LittleBigMouse.ScreenConfigs;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 
 namespace LittleBigMouse.ScreenConfig
 {
+    using H = H<ScreenModel>;
+
     [DataContract]
-    public class ScreenModel : N<ScreenModel>
+    public class ScreenModel : NotifierBase
     {
         [JsonIgnore]
-        public LittleBigMouse.ScreenConfig.ScreenConfig Config { get; }
+        public ScreenConfig Config { get; }
         public string PnpCode { get; }
 
-        public ScreenModel(string pnpCode, LittleBigMouse.ScreenConfig.ScreenConfig config):base(false)
+        public ScreenModel(string pnpCode, ScreenConfig config)
         {
             Config = config;
             PnpCode = pnpCode;
-            Initialize();
+            H.Initialize(this);
         }
 
-        private readonly IProperty<string> _pnpDevice = H.Property<string>(nameof(PnpDeviceName));
         [DataMember]
         public string PnpDeviceName
         {
-            get => _pnpDevice.Get();
+            get => _pnpDeviceName.Get();
             private set
             {
-                if (_pnpDevice.Set(value)) Saved = false;
+                if (_pnpDeviceName.Set(value)) Saved = false;
             }
         }
+        private readonly IProperty<string> _pnpDeviceName = H.Property<string>();
 
 
         [TriggerOn(nameof(Physical), "TopBorder")]
@@ -153,12 +154,12 @@ namespace LittleBigMouse.ScreenConfig
             return OpenMonitorRegKey(PnpCode, create);
         }
 
-        private readonly IProperty<bool> _saved = H.Property<bool>(nameof(Saved));
         public bool Saved
         {
             get => _saved.Get();
             set => _saved.Set(value);
         }
+        private readonly IProperty<bool> _saved = H.Property<bool>();
 
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace LittleBigMouse.Control.Core
+﻿namespace LittleBigMouse.Plugins
 {
     public interface IViewScreenFrameTopLayer : IViewScreenFrameLayer
     {

@@ -38,7 +38,7 @@ using LittleBigMouse.ScreenConfig;
 
 namespace LittleBigMouse.Plugin.Vcp
 {
-    using H = NotifyHelper<VcpScreenViewModel>;
+    using H = H<VcpScreenViewModel>;
 
     class VcpScreenViewModel : ViewModel<Screen>
     {
@@ -126,7 +126,7 @@ namespace LittleBigMouse.Plugin.Vcp
         public ObservableCollectionSafe<TestPatternButtonViewModel> TestPatterns {get;}
 
 
-        public ProbeLut Lut => Model?.ProbeLut();
+        public ProbeLut Lut => Model?.Monitor.ProbeLut();
 
         [TriggerOn(nameof(Model))]
         void InitLut()
@@ -153,7 +153,7 @@ namespace LittleBigMouse.Plugin.Vcp
                 uint max = Vcp.Gain.Red.Max;
                 uint min = Vcp.Gain.Red.Min;
 
-                double old = Model.ProbeLut().Luminance;
+                double old = Model.Monitor.ProbeLut().Luminance;
                 level.Value = 0;
 
                 for (uint i = max; i >= min; i--)
@@ -180,7 +180,7 @@ namespace LittleBigMouse.Plugin.Vcp
                     if (t.MinGain <= min) break;
                 }
 
-                Model.ProbeLut().Luminance = old;
+                Model.Monitor.ProbeLut().Luminance = old;
             }
             ).Start();
             return;

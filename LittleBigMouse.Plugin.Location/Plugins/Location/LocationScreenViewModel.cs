@@ -36,7 +36,7 @@ using RulerView = LittleBigMouse.Plugin.Location.Plugins.Location.Rulers.RulerVi
 
 namespace LittleBigMouse.Plugin.Location.Plugins.Location
 {
-    using H = NotifyHelper<LocationScreenViewModel>;
+    using H = H<LocationScreenViewModel>;
 
     class LocationScreenViewModel : ViewModel<Screen>, IScreenContentViewModel
     {
@@ -95,14 +95,15 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
 
             foreach (var screen in Model.Config.AllScreens)
             {
+                var area = screen.Monitor.MonitorArea;
                 var s = screen.InDip;
 
                 var panel = new RulerPanelView
                 {
-                    Left = s.Bounds.Left+s.Bounds.Width/4, // if <=Left or >=Left+Width/2  panel maximize to wrong screen
-                    Top = s.Bounds.Top+s.Bounds.Height/4,
-                    Width = 0, //s.Bounds.Width/* - 20*/,
-                    Height = 0, //s.Bounds.Height/* - 20*/,
+                    Left = s.Bounds.Left+s.Bounds.Width/4, //area.Left, //+area.Width/10, // // if <=Left or >=Left+Width/2  panel maximize to wrong screen
+                    Top = s.Bounds.Top+s.Bounds.Height/4, //area.Top, //+area.Height/10, //
+                    Width = 0, //area.Width*1,//, //s.Bounds.Width/* - 20*/,
+                    Height = 0, //area.Height*1,//, //s.Bounds.Height/* - 20*/,
                     DataContext = new RulerPanelViewModel(Model,screen)
                 };
                 panel .Show();

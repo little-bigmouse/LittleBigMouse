@@ -29,7 +29,6 @@ using HLab.Mvvm;
 using HLab.Mvvm.Annotations;
 using LittleBigMouse.Control.Core.ScreenFrame;
 using LittleBigMouse.ScreenConfig;
-using LittleBigMouse.ScreenConfigs;
 
 namespace LittleBigMouse.Control.Core
 {
@@ -68,7 +67,7 @@ namespace LittleBigMouse.Control.Core
                     {
                         foreach (var s in e.NewItems.OfType<Screen>())
                         {
-                            var view = new ViewLocator {Model = s};
+                            var view = new ViewLocator {Model = s,Tag=s.Id};
                             //var view = ViewModel.MvvmContext.GetView<ViewModeDefault>(s, typeof(IViewClassDefault));
                             ContentGrid.Children.Add((UIElement)view);
                             //if (view.Content is ScreenFrameView sfw)
@@ -85,7 +84,7 @@ namespace LittleBigMouse.Control.Core
                         {
                             foreach (var element in ContentGrid.Children.OfType<FrameworkElement>().ToList())
                             {
-                                if (element is ScreenFrameView view && ReferenceEquals(view.ViewModel.Model, s))
+                                if (element.Tag.ToString() == s.Id)
                                 {
                                     ContentGrid.Children.Remove(element);
                                 }

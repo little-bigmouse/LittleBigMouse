@@ -26,7 +26,7 @@ using HLab.Notify.PropertyChanged;
 
 namespace LittleBigMouse.ScreenConfig.Dimensions
 {
-    using H = NotifyHelper<ScreenSizeWpf>;
+    using H = H<ScreenSizeWpf>;
 
     public static class ScreenSizeWpfExt
     {

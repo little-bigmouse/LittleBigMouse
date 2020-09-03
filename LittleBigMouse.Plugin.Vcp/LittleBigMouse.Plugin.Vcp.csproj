@@ -18,13 +18,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Extended.Wpf.Toolkit" Version="3.8.1" />
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\HLab.Sys\HLab.Sys.Windows.MonitorVcp\HLab.Sys.Windows.MonitorVcp.csproj" />
-    <ProjectReference Include="..\LittleBigMouse.Control.Core\LittleBigMouse.Control.Core.csproj" />
     <ProjectReference Include="..\..\HLab.Sys\HLab.Sys.Argyll\HLab.Sys.Argyll.csproj" />
+    <ProjectReference Include="..\LittleBigMouse.Plugins\LittleBigMouse.Plugins.csproj" />
+    <ProjectReference Include="..\LittleBigMouse.ScreenConfig\LittleBigMouse.ScreenConfig.csproj" />
   </ItemGroup>
 
   <ItemGroup>

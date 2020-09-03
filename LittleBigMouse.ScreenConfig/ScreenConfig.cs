@@ -29,6 +29,7 @@ using System.IO;
 using System.Linq;
 using System.Management;
 using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
 using System.Windows;
 using HLab.DependencyInjection.Annotations;
 using HLab.Notify.Annotations;
@@ -42,15 +43,17 @@ using Microsoft.Win32.TaskScheduler;
 
 namespace LittleBigMouse.ScreenConfig
 {
+    using H = H<ScreenConfig>;
+
     [DataContract]
-    public class ScreenConfig : N<ScreenConfig>
+    public class ScreenConfig : NotifierBase
     {
         [Import]
-        public ScreenConfig(IMonitorsService monitorsService):base(false)
+        public ScreenConfig(IMonitorsService monitorsService)
         {
             MonitorsService = monitorsService;
 
-            Initialize();
+            H.Initialize(this);
 
             _wallPaperPath.Set(GetCurrentDesktopWallpaper());
 
@@ -77,11 +80,8 @@ namespace LittleBigMouse.ScreenConfig
 
         public static RegistryKey OpenRootRegKey(bool create = false)
         {
-            using (RegistryKey key = Registry.CurrentUser)
-            {
-                if (key == null) return null;
-                return create ? key.CreateSubKey(ROOT_KEY) : key.OpenSubKey(ROOT_KEY);
-            }
+            using var key = Registry.CurrentUser;
+            return create ? key.CreateSubKey(ROOT_KEY) : key.OpenSubKey(ROOT_KEY);
         }
 
         /// <returns>a list of string representing each known config in registry</returns>
@@ -149,7 +149,7 @@ namespace LittleBigMouse.ScreenConfig
 
 
         public int WallpaperStyle => _wallpaperStyle.Get();
-        private readonly IProperty<int> _wallpaperStyle = H.Property<int>(nameof(WallpaperStyle), c => c
+        private readonly IProperty<int> _wallpaperStyle = H.Property<int>(c => c
                  .Set(s =>
                 {
                     using (var key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", false))
@@ -164,7 +164,8 @@ namespace LittleBigMouse.ScreenConfig
                     }
                 }));
 
-        private readonly IProperty<int[]> _backgroundColor = H.Property<int[]>(nameof(BackGroundColor), c => c
+        public int[] BackgroundColor => _backgroundColor.Get();
+        private readonly IProperty<int[]> _backgroundColor = H.Property<int[]>(c => c
              .Set(e =>
                 {
                     using (var key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Colors", false))
@@ -177,7 +178,6 @@ namespace LittleBigMouse.ScreenConfig
                     }
                 }
             ));
-        public int[] BackGroundColor => _backgroundColor.Get();
 
         private void MonitorsOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
         {
@@ -366,7 +366,6 @@ namespace LittleBigMouse.ScreenConfig
                     AllowCornerCrossing = k.GetValue("AllowCornerCrossing", 0).ToString() == "1";
                     AllowOverlaps = k.GetValue("AllowOverlaps", 0).ToString() == "1";
                     AllowDiscontinuity = k.GetValue("AllowDiscontinuity", 0).ToString() == "1";
-                    LoadAtStartup = k.GetValue("LoadAtStartup", 0).ToString() == "1";
                     HomeCinema = k.GetValue("HomeCinema", 0).ToString() == "1";
                     Pinned = k.GetValue("Pinned", 0).ToString() == "1";
                     LoopX = k.GetValue("LoopX", 0).ToString() == "1";
@@ -374,6 +373,8 @@ namespace LittleBigMouse.ScreenConfig
                     AutoUpdate = k.GetValue("AutoUpdate", 0).ToString() == "1";
                 }
             }
+
+            LoadAtStartup = IsScheduled();
 
             foreach (Screen s in AllScreens)
             {
@@ -394,12 +395,13 @@ namespace LittleBigMouse.ScreenConfig
                     k.SetValue("AllowCornerCrossing", AllowCornerCrossing ? "1" : "0");
                     k.SetValue("AllowOverlaps", AllowOverlaps ? "1" : "0");
                     k.SetValue("AllowDiscontinuity", AllowDiscontinuity ? "1" : "0");
-                    k.SetValue("LoadAtStartup", LoadAtStartup ? "1" : "0");
                     k.SetValue("HomeCinema", HomeCinema ? "1" : "0");
                     k.SetValue("Pinned", Pinned ? "1" : "0");
                     k.SetValue("LoopX", LoopX ? "1" : "0");
                     k.SetValue("LoopY", LoopY ? "1" : "0");
                     k.SetValue("AutoUpdate", AutoUpdate ? "1" : "0");
+
+                    if (LoadAtStartup) Schedule(); else Unschedule();
 
                     foreach (Screen s in AllScreens)
                         s.Save(k);
@@ -411,7 +413,6 @@ namespace LittleBigMouse.ScreenConfig
             }
         }
 
-        private readonly IProperty<bool> _autoUpdate = H.Property<bool>(nameof(AutoUpdate));
         [DataMember]
         public bool AutoUpdate
         {
@@ -421,6 +422,7 @@ namespace LittleBigMouse.ScreenConfig
                 if (_autoUpdate.Set(value)) Saved = false;
             }
         }
+        private readonly IProperty<bool> _autoUpdate = H.Property<bool>();
 
         [DataMember]
         public Screen PrimaryScreen => _primaryScreen.Get();
@@ -517,8 +519,9 @@ namespace LittleBigMouse.ScreenConfig
         public bool LoadAtStartup
         {
             get => _loadAtStartup.Get();
-            set { if (_loadAtStartup.Set(value)) { Saved = false; } }
+            set { if(_loadAtStartup.Set(value)) Saved = false; }
         }
+
         private readonly IProperty<bool> _loadAtStartup = H.Property<bool>();
 
         [DataMember]
@@ -531,8 +534,8 @@ namespace LittleBigMouse.ScreenConfig
             get => _loopX.Get() && LoopAllowed;
             set { if (_loopX.Set(value)) { Saved = false; } }
         }
-        private readonly IProperty<bool> _loopX = H.Property<bool>(nameof(LoopX), c => c
-            .On(nameof(LoopAllowed)));
+        private readonly IProperty<bool> _loopX = H.Property<bool>(c => c
+            .On(e => e.LoopAllowed));
 
 
         [DataMember]
@@ -541,13 +544,13 @@ namespace LittleBigMouse.ScreenConfig
             get => LoopAllowed && _loopY.Get();
             set { if (_loopY.Set(value)) { Saved = false; } }
         }
-        private readonly IProperty<bool> _loopY = H.Property<bool>(nameof(LoopY), c => c
-             .On(nameof(LoopAllowed)));
+        private readonly IProperty<bool> _loopY = H.Property<bool>(c => c
+             .On(e => e.LoopAllowed));
 
 
         [DataMember]
-        public bool IsRatio100 => _isRation100.Get();
-        private readonly IProperty<bool> _isRation100 = H.Property<bool>(nameof(IsRatio100), c => c
+        public bool IsRatio100 => _isRatio100.Get();
+        private readonly IProperty<bool> _isRatio100 = H.Property<bool>(c => c
             .Set(e => e._getIsRatio100())
             .On(e => e.AllScreens.Item().PixelToDipRatio)
             .Update()
@@ -566,7 +569,7 @@ namespace LittleBigMouse.ScreenConfig
 
         [DataMember]
         public bool AdjustPointerAllowed => _adjustPointerAllowed.Get();
-        private IProperty<bool> _adjustPointerAllowed = H.Property<bool>(c => c
+        private readonly IProperty<bool> _adjustPointerAllowed = H.Property<bool>(c => c
             .Set(e => e.IsRatio100)
             .On(e => e.IsRatio100)
             .Update()
@@ -848,8 +851,25 @@ namespace LittleBigMouse.ScreenConfig
 
         private string ServiceName { get; } = "LittleBigMouse_" + System.Security.Principal.WindowsIdentity.GetCurrent().Name.Replace('\\', '_');
 
+        private string DaemonExe { get; } = AppDomain.CurrentDomain.BaseDirectory + AppDomain.CurrentDomain.FriendlyName
+            .Replace(".vshost", "")
+            .Replace(".Control.Loader", ".Daemon")
+            + ".exe"
+            ;
+
+
+        public bool IsScheduled()
+        {
+            using (var ts = new TaskService())
+            {
+                return ts.RootFolder.GetTasks(new Regex(ServiceName)).Any();
+            }
+        }
+
+
         public bool Schedule()
         {
+            Unschedule();
             using (var ts = new TaskService())
             {
                 ts.RootFolder.DeleteTask(ServiceName, false);
@@ -860,14 +880,9 @@ namespace LittleBigMouse.ScreenConfig
                     //new BootTrigger());
                     new LogonTrigger { UserId = System.Security.Principal.WindowsIdentity.GetCurrent().Name });
 
-                //var p = Process.GetCurrentProcess();
-                //string filename = p.MainModule.FileName.Replace(".vshost", "");
-                var filename = AppDomain.CurrentDomain.BaseDirectory + AppDomain.CurrentDomain.FriendlyName.Replace(".vshost", "");
-
-                filename = filename.Replace("_Control", "_Daemon");
 
                 td.Actions.Add(
-                    new ExecAction(filename, "--start", AppDomain.CurrentDomain.BaseDirectory)
+                    new ExecAction(DaemonExe, "--start", AppDomain.CurrentDomain.BaseDirectory)
                 );
 
                 td.Principal.RunLevel = TaskRunLevel.Highest;
@@ -890,12 +905,8 @@ namespace LittleBigMouse.ScreenConfig
 
         public void Unschedule()
         {
-            using (TaskService ts = new TaskService())
-            {
-                ts.RootFolder.DeleteTask("LittleBigMouse", false); //TODO : remove this in one or two releases
-                ts.RootFolder.DeleteTask(ServiceName, false);
-            }
-
+            using TaskService ts = new TaskService();
+            ts.RootFolder.DeleteTask(ServiceName, false);
         }
 
     }

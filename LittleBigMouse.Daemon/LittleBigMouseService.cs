@@ -27,7 +27,6 @@ using System.ServiceProcess;
 using System.Threading.Tasks;
 using HLab.Sys.Windows.Monitors;
 using LittleBigMouse.ScreenConfig;
-using LittleBigMouse.ScreenConfigs;
 
 namespace LittleBigMouse.Daemon
 {

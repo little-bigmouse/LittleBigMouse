@@ -33,10 +33,11 @@ using System.Threading.Tasks;
 using System.Windows;
 using HLab.Notify;
 using HLab.Notify.PropertyChanged;
+using HLab.Notify.Wpf;
+using HLab.Remote;
 using HLab.Sys.Windows.Monitors;
 using LittleBigMouse.Daemon.Updater;
 using LittleBigMouse.ScreenConfig;
-using LittleBigMouse.ScreenConfigs;
 using LittleBigMouse_Daemon;
 using LittleBigMouse_Daemon.Updater;
 using Microsoft.Win32.TaskScheduler;
@@ -70,9 +71,9 @@ namespace LittleBigMouse.Daemon
 //       private ServiceHost _host;
 
         private PipeServer _pipe;
-       public void StartServer()
+       public void StartServer(string name)
        {
-           _pipe = new PipeServer {PipeName = "lbm", Command =  CommandLine};
+           _pipe = new PipeServer {PipeName = name, Command =  CommandLine};
            _pipe.Run();
        }
 
@@ -89,7 +90,7 @@ namespace LittleBigMouse.Daemon
 
             _engine.ConfigLoaded += _engine_ConfigLoaded;
 
-           StartServer();
+           StartServer("lbm.daemon");
 
             if (_notify != null)
                 _notify.Click += OnNotifyClick;
@@ -178,7 +179,8 @@ namespace LittleBigMouse.Daemon
 
         public async Task<string> CommandLine(string arg)
         {
-            switch (arg.ToLower())
+            var args = arg.Split("=");
+            switch (args[0].ToLower())
             {
                 case "x":
                 case "exit":
@@ -202,6 +204,9 @@ namespace LittleBigMouse.Daemon
                 case "u":
                 case "update":
                     return await CheckUpdateAsync()?"1":"0";
+                case "register":
+                    return await Register(args[1])?"1":"0";
+
             }
 
             return "?";
@@ -255,6 +260,7 @@ namespace LittleBigMouse.Daemon
         {
             _engine.Start();
             _notify.SetOn();
+            await SendAsync("running");
             return true;
         }
 
@@ -267,6 +273,7 @@ namespace LittleBigMouse.Daemon
         {
             _engine.Stop();
             _notify.SetOff();
+            await SendAsync("stopped");
             return true;
         }
 
@@ -386,5 +393,20 @@ namespace LittleBigMouse.Daemon
             ts.RootFolder.DeleteTask(ServiceName, false);
         }
 
+        private readonly Dictionary<string,RemoteClient> _controls = new Dictionary<string, RemoteClient>();
+        public async Task<bool> Register(string name)
+        {
+            if (_controls.ContainsKey(name)) return true;
+            _controls.Add(name,new RemoteClient(name){});
+            return true;
+        }
+
+        public async Task SendAsync(string message)
+        {
+            foreach (var c in _controls)
+            {
+                await c.Value.SendAsync(message);
+            }
+        }
     }
 }

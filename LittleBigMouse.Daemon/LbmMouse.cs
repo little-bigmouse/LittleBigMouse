@@ -23,6 +23,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows;
 using HLab.Sys.Windows.API;
 using Microsoft.Win32;
@@ -58,7 +59,15 @@ namespace LittleBigMouse.Daemon
                 NativeMethods.GetCursorPos(out var p);
                 return p;
             }
-            set => NativeMethods.SetCursorPos((int)value.X, (int)value.Y);
+            set
+            {
+                NativeMethods.SetCursorPos((int) value.X, (int) value.Y);
+                //new Thread(() => 
+                //{
+                //    /* run your code here */ 
+                //    NativeMethods.SetCursorPos((int) value.X, (int) value.Y);
+                //}).Start();
+            }
         }
 
         public static double MouseSpeed
@@ -138,5 +147,7 @@ namespace LittleBigMouse.Daemon
                     break;
             }
         }
+
+
     }
 }

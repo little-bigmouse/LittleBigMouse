@@ -28,7 +28,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using ControlzEx.Standard;
 using HLab.Mvvm;
 using HLab.Mvvm.Annotations;
 using HLab.Notify.PropertyChanged;
@@ -38,7 +37,7 @@ using LittleBigMouse.ScreenConfig.Dimensions;
 
 namespace LittleBigMouse.Control.Core.ScreenFrame
 {
-    using H = NotifyHelper<ScreenFrameViewModel>;
+    using H = H<ScreenFrameViewModel>;
     public class ScreenFrameViewModel : ViewModel<Screen>, IMvvmContextProvider
     {
         public ScreenFrameViewModel()
@@ -148,6 +147,7 @@ namespace LittleBigMouse.Control.Core.ScreenFrame
 
         public IScreenSize Rotated => _rotated.Get();
         private readonly IProperty<IScreenSize> _rotated = H.Property<IScreenSize>(c => c
+            .NotNull(e => e.Model)
             .Set(e =>
             {
                 if (e.Presenter == null) return e.Model.InMm;
@@ -178,6 +178,7 @@ namespace LittleBigMouse.Control.Core.ScreenFrame
 
         public Stretch WallPaperStretch => _wallPaperStretch.Get();
         private readonly IProperty<Stretch> _wallPaperStretch = H.Property<Stretch>(c => c
+            .NotNull(e => e.Model)
             .Set(e =>
             {
                 switch (e.Model.Config.WallpaperStyle)
@@ -227,10 +228,10 @@ namespace LittleBigMouse.Control.Core.ScreenFrame
         private readonly IProperty<Brush> _backgroundColor = H.Property<Brush>(c=>c
             .Set(e => (Brush)new SolidColorBrush(
                 Color.FromRgb(
-                    (byte)e.Model.Config.BackGroundColor[0],
-                    (byte)e.Model.Config.BackGroundColor[1],
-                    (byte)e.Model.Config.BackGroundColor[2])))
-            .On(e => e.Model.Config.BackGroundColor)
+                    (byte)e.Model.Config.BackgroundColor[0],
+                    (byte)e.Model.Config.BackgroundColor[1],
+                    (byte)e.Model.Config.BackgroundColor[2])))
+            .On(e => e.Model.Config.BackgroundColor)
             .Update()
         );
 

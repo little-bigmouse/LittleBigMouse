@@ -1,6 +1,5 @@
 ﻿using System.Windows.Media;
 using LittleBigMouse.ScreenConfig;
-using LittleBigMouse.ScreenConfigs;
 
 namespace LittleBigMouse.Control.Core
 {

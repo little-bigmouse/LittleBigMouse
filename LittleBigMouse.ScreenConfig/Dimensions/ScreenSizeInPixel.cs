@@ -28,7 +28,7 @@ using Microsoft.Win32;
 
 namespace LittleBigMouse.ScreenConfig.Dimensions
 {
-    using H = NotifyHelper<ScreenSizeInPixels>;
+    using H = H<ScreenSizeInPixels>;
 
     public class ScreenSizeInPixels : ScreenSize
     {
@@ -45,23 +45,35 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
             get => _width.Get();
             set => throw new NotImplementedException();
         }
-
-        private IProperty<double> _width = H.Property<double>(c => c
-            .Set(e => e.Screen.Monitor.MonitorArea.Width)
-            .On(e => e.Screen.Monitor.MonitorArea)
+        private readonly IProperty<double> _width = H.Property<double>(c => c
+            .Set(e => e.Screen.Monitor.AttachedDisplay?.CurrentMode.Pels.Width??0)
+            .On(e => e.Screen.Monitor.AttachedDisplay.CurrentMode)
             .Update()
         );
+
+        // Monitor area was found depending on system scale
+
+        //private IProperty<double> _width = H.Property<double>(c => c
+        //    .Set(e => e.Screen.Monitor.MonitorArea.Width)
+        //    .On(e => e.Screen.Monitor.MonitorArea)
+        //    .Update()
+        //);
 
         public override double Height
         {
             get => _height.Get();
             set => throw new NotImplementedException();
         }
-        private IProperty<double> _height = H.Property<double>(c => c
-            .Set(e => e.Screen.Monitor.MonitorArea.Height)
-            .On(e => e.Screen.Monitor.MonitorArea)
+        private readonly IProperty<double> _height = H.Property<double>(c => c
+            .Set(e => e.Screen.Monitor.AttachedDisplay?.CurrentMode.Pels.Height??0)
+            .On(e => e.Screen.Monitor.AttachedDisplay.CurrentMode.Pels)
             .Update()
         );
+        //private IProperty<double> _height = H.Property<double>(c => c
+        //    .Set(e => e.Screen.Monitor.MonitorArea.Height)
+        //    .On(e => e.Screen.Monitor.MonitorArea)
+        //    .Update()
+        //);
 
         public override double X
         {
@@ -69,21 +81,31 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
             set => throw new NotImplementedException();
         }
         private readonly IProperty<double> _x = H.Property<double>(c => c
-            .Set(s => s.Screen.Monitor.MonitorArea.X)
-            .On( e => e.Screen.Monitor.MonitorArea)
+            .Set(e => e.Screen.Monitor.AttachedDisplay.CurrentMode.Position.X)
+            .On( e => e.Screen.Monitor.AttachedDisplay.CurrentMode.Position)
             .Update()
         );
+        //private readonly IProperty<double> _x = H.Property<double>(c => c
+        //    .Set(s => s.Screen.Monitor.MonitorArea.X)
+        //    .On( e => e.Screen.Monitor.MonitorArea)
+        //    .Update()
+        //);
 
         public override double Y
         {
             get => _y.Get();
             set => throw new NotImplementedException();
         }
-        private readonly IProperty<double> _y = H.Property<double>(nameof(Y), c => c
-            .Set(s => s.Screen.Monitor.MonitorArea.Y)
-            .On(e => e.Screen.Monitor.MonitorArea)
+        private readonly IProperty<double> _y = H.Property<double>(c => c
+            .Set(e => e.Screen.Monitor.AttachedDisplay.CurrentMode.Position.Y)
+            .On(e => e.Screen.Monitor.AttachedDisplay.CurrentMode.Position)
             .Update()
         );
+        //private readonly IProperty<double> _y = H.Property<double>(nameof(Y), c => c
+        //    .Set(s => s.Screen.Monitor.MonitorArea.Y)
+        //    .On(e => e.Screen.Monitor.MonitorArea)
+        //    .Update()
+        //);
 
 
         public override double TopBorder
@@ -108,7 +130,7 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
         }
         private double LoadValueMonitor(Func<double> def, [CallerMemberName]string name = null)
         {
-            using (RegistryKey key = Screen.OpenMonitorRegKey())
+            using (RegistryKey key = Screen.Monitor.OpenMonitorRegKey())
             {
                 return key.GetKey(name, def);
             }

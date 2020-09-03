@@ -26,7 +26,7 @@ using HLab.Notify.PropertyChanged;
 
 namespace LittleBigMouse.ScreenConfig.Dimensions
 {
-    using H = NotifyHelper<ScreenScale>;
+    using H = H<ScreenScale>;
 
     public class ScreenScale : ScreenSize
     {
@@ -68,7 +68,7 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
             get => _x.Get();
             set => Source.X = value;
         }
-        private readonly IProperty<double> _x = H.Property<double>(nameof(X), c => c
+        private readonly IProperty<double> _x = H.Property<double>( c => c
             .Set(e => e.Source.X)
             .On(e => e.Source.X)
             .Update()

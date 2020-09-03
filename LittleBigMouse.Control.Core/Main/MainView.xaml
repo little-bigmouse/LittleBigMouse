@@ -20,6 +20,7 @@
         Loaded="Window_Loaded"
         WindowState="{Binding WindowState}"
         d:DataContext="{d:DesignInstance  main:MainViewModel}"
+        Foreground="White"
          >
         <!--xmlns:src="clr-namespace:NativeHelpers;assembly=NativeHelpers"-->
     <!--Left ="{Binding Path=LocationLeft, Mode=TwoWay}"

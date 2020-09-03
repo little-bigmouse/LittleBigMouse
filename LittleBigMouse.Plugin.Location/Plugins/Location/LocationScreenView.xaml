@@ -7,6 +7,7 @@
              xmlns:icons="clr-namespace:HLab.Mvvm.Icons;assembly=HLab.Mvvm.Wpf"
              xmlns:converters="clr-namespace:HLab.Base.Converters;assembly=HLab.Base.Wpf"
              xmlns:mvvm="clr-namespace:HLab.Mvvm;assembly=HLab.Mvvm.Wpf"
+             xmlns:converters1="clr-namespace:HLab.Base.Wpf.Converters;assembly=HLab.Base.Wpf"
              mc:Ignorable="d" 
              MouseLeftButtonUp="OnMouseLeftButtonUp"
              MouseLeftButtonDown="OnMouseLeftButtonDown"
@@ -39,13 +40,13 @@
             <GradientStop Color="#FF7288C0" Offset="0"/>
             <GradientStop Color="#FF333E9A" Offset="1"/>
         </LinearGradientBrush>
-        <converters:ToBrushConverter x:Key="Highlighter" TrueValue="{StaticResource SelectedBrush}" FalseValue="{StaticResource UnselectedBrush}"/>
-        <converters:ToVisibilityConverter x:Key="ToVisibilityConverter" TrueValue="Visible" FalseValue="Hidden"/>
+        <converters1:ToBrushConverter x:Key="Highlighter" TrueValue="{StaticResource SelectedBrush}" FalseValue="{StaticResource UnselectedBrush}"/>
+        <converters1:ToVisibilityConverter x:Key="ToVisibilityConverter" TrueValue="Visible" FalseValue="Hidden"/>
     </UserControl.Resources>
     
     <Grid x:Name="grid" >
 
-        <Border BorderThickness="0" Background="{StaticResource ScreenColor}"/>
+        <!--<Border BorderThickness="0" Background="{StaticResource ScreenColor}"/>-->
         <!-- Central Device No -->
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
              <Border x:Name="center" 
@@ -125,6 +126,7 @@
                      Background="#00FFFFFF" 
                      
                      MouseWheel="OnMouseWheel"
+                     MouseDoubleClick="OnMouseDoubleClick"
                      />
                 <Label Content="%" Foreground="#FFD9DCEC" VerticalAlignment="Center"></Label>
             </StackPanel>
@@ -153,7 +155,9 @@
                     VerticalAlignment="Center"
                     Foreground="#FFD9DCEC" 
                     Background="#00FFFFFF" 
+
                     MouseWheel="OnMouseWheel" 
+                    MouseDoubleClick="OnMouseDoubleClick"
                     />
                 <Label Content="%" Foreground="#FFD9DCEC" VerticalAlignment="Center"/>
             </StackPanel>

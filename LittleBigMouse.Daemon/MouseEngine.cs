@@ -27,15 +27,12 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Windows;
 using HLab.DependencyInjection.Annotations;
 using HLab.Sys.MouseHooker;
 using HLab.Sys.Windows.Monitors;
 using HLab.Sys.Windows.MonitorVcp;
-using HLab.Sys.Windows.MonitorVcp;
 using Microsoft.Win32;
-using HLab.Sys.MouseHooker;
 using NativeMethods = HLab.Sys.Windows.API.NativeMethods;
 
 //using static HLab.Windows.API.NativeMethods;
@@ -80,7 +77,7 @@ namespace LittleBigMouse.Daemon
                 else
                     double.TryParse(ms, out _initMouseSpeed);
 
-                using (RegistryKey savekey = key.CreateSubKey("InitialCursor"))
+                using (var savekey = key.CreateSubKey("InitialCursor"))
                 {
                     if (savekey?.ValueCount == 0)
                     {
@@ -92,8 +89,6 @@ namespace LittleBigMouse.Daemon
             Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.RealTime;
 
 
-            _handler = OnMouseMoveExtFirst;
-            Hook.MouseMove += _handler;
 
             if (Config.AdjustPointer)
                 ZoneChanged += AdjustPointer;
@@ -104,6 +99,8 @@ namespace LittleBigMouse.Daemon
             if (Config.HomeCinema)
                 ZoneChanged += HomeCinema;
 
+            Hook.MouseMove += OnMouseMoveExtFirst;
+
             Hook.Hook();
         }
 
@@ -113,7 +110,6 @@ namespace LittleBigMouse.Daemon
 
             if (Config == null) return;
 
-            Hook.MouseMove -= _handler;
 
             if (Config.AdjustPointer)
                 ZoneChanged -= AdjustPointer;
@@ -245,22 +241,16 @@ namespace LittleBigMouse.Daemon
 
         private void OnMouseMoveExtFirst(object sender, HookMouseEventArg e)
         {
+            Hook.MouseMove -= OnMouseMoveExtFirst;
             _oldPoint = e.Point; //new Point(e.X,e.Y);
             //_oldScreenRect = Config.ScreenFromPixel(_oldPoint).InPixel.Bounds;
             _oldZone = _zones.FromPx(_oldPoint);
 
-            Hook.MouseMove -= _handler;
 
             if (Config.AllowCornerCrossing)
-                _handler = MouseMoveCross;
+                Hook.MouseMove += MouseMoveCross;
             else
-            {
-                _handler = MouseMoveStraight;
-            }
-
-            Hook.MouseMove += _handler;
-
-            //e.Handled = false;
+                Hook.MouseMove += MouseMoveStraight;
         }
 
         public event EventHandler<ZoneChangeEventArgs> ZoneChanged;
@@ -314,8 +304,19 @@ namespace LittleBigMouse.Daemon
 
             return (true);
         }
+
+
+        private NativeMethods.RECT _oldRect;
+        private bool _reset;
+
         private void MouseMoveStraight(object sender, HookMouseEventArg e)
         {
+
+            if (_reset)
+            {
+                NativeMethods.ClipCursor(ref _oldRect);
+                _reset = false;
+            }
             //TODO : if (e.Clicked) return;
             var pIn = e.Point;
 
@@ -326,6 +327,7 @@ namespace LittleBigMouse.Daemon
                 return;
             }
 
+            Debug.WriteLine("Leaving zone");
 
             //Point oldpInMm = _oldZone.Px2Mm(_oldPoint);
             Point pInMm = _oldZone.Px2Mm(pIn);
@@ -333,9 +335,12 @@ namespace LittleBigMouse.Daemon
 
             var minDx = 0.0;
             var minDy = 0.0;
+            var maxDx = 0.0;
+            var maxDy = 0.0;
 
-            if (pIn.Y > _oldZone.Px.Bottom)
+            if (pIn.Y >= _oldZone.Px.Bottom)
             {
+                Debug.WriteLine("by bottom");
                 foreach (var zone in _zones.All/*.Where(z => z.Mm.Top > _oldZone.Mm.Bottom)*/)
                 {
                     if (zone.Mm.Left > pInMm.X || zone.Mm.Right < pInMm.X) continue;
@@ -352,6 +357,7 @@ namespace LittleBigMouse.Daemon
             }
             else if (pIn.Y < _oldZone.Px.Top)
             {
+                Debug.WriteLine("by top");
                 foreach (var zone in _zones.All/*.Where(z => !ReferenceEquals(z, _oldZone))*/)
                 {
                     if (zone.Mm.Left > pInMm.X || zone.Mm.Right < pInMm.X) continue;
@@ -365,15 +371,22 @@ namespace LittleBigMouse.Daemon
                 }
             }
 
-            if (pIn.X > _oldZone.Px.Right)
+            if (pIn.X >= _oldZone.Px.Right)
             {
+                Debug.WriteLine("by right");
                 foreach (var zone in _zones.All)
                 {
                     if (zone.Mm.Top > pInMm.Y || zone.Mm.Bottom < pInMm.Y) continue;
                     var dx = zone.Mm.Left - _oldZone.Mm.Right;
 
                     if (dx < 0) continue;
-                    if (dx > minDx && minDx > 0) continue;
+                    //{
+                    //    if (minDx > 0) continue;
+                    //    if (dx > maxDx && zoneOut!=null) continue;
+                    //    maxDx = dx;
+                    //    zoneOut = zone;
+                    //}
+                    if (dx > minDx && zoneOut!=null) continue;
 
                     minDx = dx;
                     zoneOut = zone;
@@ -381,13 +394,20 @@ namespace LittleBigMouse.Daemon
             }
             else if (pIn.X < _oldZone.Px.Left)
             {
+                Debug.WriteLine("by left");
                 foreach (var zone in _zones.All)
                 {
                     if (zone.Mm.Top > pInMm.Y || zone.Mm.Bottom < pInMm.Y) continue;
                     var dx = zone.Mm.Right - _oldZone.Mm.Left;
 
-                    if (dx < minDx && minDx < 0) continue;
                     if (dx > 0) continue;
+                    //{
+                    //    if (minDx < 0) continue;
+                    //    if (dx < maxDx && zoneOut!=null) continue;
+                    //    maxDx = dx;
+                    //    zoneOut = zone;
+                    //}
+                    if (dx < minDx && minDx < 0) continue;
 
                     minDx = dx;
                     zoneOut = zone;
@@ -396,15 +416,55 @@ namespace LittleBigMouse.Daemon
 
             if (zoneOut == null)
             {
-                LbmMouse.CursorPos = _oldZone.InsidePx(pIn);
-                e.Handled = true;
+                Debug.WriteLine("No zone found : " + pIn);
+
+                var r = new NativeMethods.RECT((int) _oldZone.Px.Left, (int) _oldZone.Px.Top, (int) _oldZone.Px.Right,
+                    (int) _oldZone.Px.Bottom);
+
+                NativeMethods.GetClipCursor(out _oldRect);
+                _reset = true;
+
+                NativeMethods.ClipCursor(ref r);
+
+                e.Handled = false;
                 return;
             }
+            else
+            {
+                var pMm = new Point(pInMm.X + minDx, pInMm.Y + minDy);
+                Debug.WriteLine("mm : " + pMm.ToString());
+                var pOut = zoneOut.Mm2Px(pMm);
+                Debug.WriteLine("px : " + pOut.ToString());
+                pOut = zoneOut.InsidePx(pOut);
+                Debug.WriteLine("px : " + pOut.ToString());
+                _oldZone = zoneOut.Main;
+                _oldPoint = pOut;
 
-            var pOut = zoneOut.Mm2Px(new Point(pInMm.X + minDx, pInMm.Y + minDy));
-            pOut = zoneOut.InsidePx(pOut);
-            _oldZone = zoneOut.Main;
-            _oldPoint = pOut;
+                var p = LbmMouse.CursorPos;
+                var i = 0;
+                while (Math.Abs(pOut.X - p.X) >= 1 || Math.Abs(pOut.Y - p.Y) >= 1 && i<10)
+                {
+                    LbmMouse.CursorPos = pOut;
+                    //e.Point = pOut;
+                    p = LbmMouse.CursorPos;
+                    i++;
+                }
+                Debug.WriteLine("try : " + i);
+
+
+                //var r = new NativeMethods.RECT((int) zoneOut.Px.Left, (int) zoneOut.Px.Top, (int) zoneOut.Px.Right+1,
+                //    (int) zoneOut.Px.Bottom+1);
+
+                //NativeMethods.GetClipCursor(out _oldRect);
+                //_reset = true;
+
+                //LbmMouse.CursorPos = pOut;
+                //NativeMethods.ClipCursor(ref r);
+
+                e.Handled = true;
+                ZoneChanged?.Invoke(this, new ZoneChangeEventArgs(_oldZone, zoneOut));
+                return;
+            }
 
             //IntPtr hwnd = OpenInputDesktop(0, false, DESKTOP_SWITCHDESKTOP);
             //SetThreadDesktop(hwnd);
@@ -418,70 +478,79 @@ namespace LittleBigMouse.Daemon
 
             //SendInput((UInt32)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
 
-            LbmMouse.CursorPos = pOut;
-
-            var p = LbmMouse.CursorPos;
-            if (Math.Abs(pOut.X - p.X) >= 1 || Math.Abs(pOut.Y - p.Y) >= 1)
-            {
-                IntPtr hOldDesktop = GetThreadDesktop(GetCurrentThreadId());
-                IntPtr hwnd = OpenInputDesktop(0, true, (uint)DESKTOP_ACCESS.GENERIC_ALL);
-
-                Thread t = new Thread(() =>
-                {
-                    SwitchDesktop(hwnd);
-                    var b = SetThreadDesktop(hwnd);
-
-                    var b2 = LbmMouse.MouseEvent(
-                        NativeMethods.MOUSEEVENTF.ABSOLUTE | NativeMethods.MOUSEEVENTF.MOVE
-                        | NativeMethods.MOUSEEVENTF.VIRTUALDESK
-                        , pOut.X, pOut.Y);
-                    if (b2 == 0)
-                    {
-                        var s = NativeMethods.GetLastError();
-                    }
-
-                    //LbmMouse.CursorPos = pOut;
-                    var b3 = NativeMethods.SetCursorPos((int)pOut.X, (int)pOut.Y);
-
-                    if (b3 == false)
-                    {
-                        var s = NativeMethods.GetLastError();
-                    }
-
-                    //    IList<string> list = new List<string>();
-                    //    GCHandle gch = GCHandle.Alloc(list);
-                    //    EnumWindowStationsDelegate childProc = new EnumWindowStationsDelegate(EnumWindowStationsCallback);
-
-                    //    EnumWindowStations(childProc, GCHandle.ToIntPtr(gch));
 
 
-                    //}
-                });
 
-                t.Start();
-                t.Join();
+            //var p = LbmMouse.CursorPos;
+            //while (Math.Abs(pOut.X - p.X) >= 1 || Math.Abs(pOut.Y - p.Y) >= 1)
+            //{
+            //    LbmMouse.CursorPos = pOut;
+            //    //e.Point = pOut;
+            //    p = LbmMouse.CursorPos;
+            //}
 
-                SwitchDesktop(hOldDesktop);
+            //if (Math.Abs(pOut.X - p.X) >= 1 || Math.Abs(pOut.Y - p.Y) >= 1)
+            //{
+            //    Debug.WriteLine("Mouse move did not work");
 
-                //var w = new Window
-                //{
-                //    WindowStyle = WindowStyle.None,
-                //    Visibility = Visibility.Collapsed,
-                //    Width = 0,
-                //    Height = 0
-                //};
-                //w.Show();
+            //    IntPtr hOldDesktop = GetThreadDesktop(GetCurrentThreadId());
+            //    IntPtr hwnd = OpenInputDesktop(0, true, (uint)DESKTOP_ACCESS.GENERIC_ALL);
 
-                ////const int DESKTOP_SWITCHDESKTOP = 256;
-                ////IntPtr hwnd = OpenInputDesktop(0, false, 0x00020000);
-                ////var b = SetThreadDesktop(hwnd);
+            //    Thread t = new Thread(() =>
+            //    {
+            //        SwitchDesktop(hwnd);
+            //        var b = SetThreadDesktop(hwnd);
 
-                //LbmMouse.CursorPos = pOut;
+            //        var b2 = LbmMouse.MouseEvent(
+            //            NativeMethods.MOUSEEVENTF.ABSOLUTE | NativeMethods.MOUSEEVENTF.MOVE
+            //            | NativeMethods.MOUSEEVENTF.VIRTUALDESK
+            //            , pOut.X, pOut.Y);
+            //        if (b2 == 0)
+            //        {
+            //            var s = NativeMethods.GetLastError();
+            //        }
 
-                //w.Close();
-            }
+            //        //LbmMouse.CursorPos = pOut;
+            //        var b3 = NativeMethods.SetCursorPos((int)pOut.X, (int)pOut.Y);
 
-            ZoneChanged?.Invoke(this, new ZoneChangeEventArgs(_oldZone, zoneOut));
+            //        if (b3 == false)
+            //        {
+            //            var s = NativeMethods.GetLastError();
+            //        }
+
+            //        //    IList<string> list = new List<string>();
+            //        //    GCHandle gch = GCHandle.Alloc(list);
+            //        //    EnumWindowStationsDelegate childProc = new EnumWindowStationsDelegate(EnumWindowStationsCallback);
+
+            //        //    EnumWindowStations(childProc, GCHandle.ToIntPtr(gch));
+
+
+            //        //}
+            //    });
+
+            //    t.Start();
+            //    t.Join();
+
+            //    SwitchDesktop(hOldDesktop);
+
+            //    //var w = new Window
+            //    //{
+            //    //    WindowStyle = WindowStyle.None,
+            //    //    Visibility = Visibility.Collapsed,
+            //    //    Width = 0,
+            //    //    Height = 0
+            //    //};
+            //    //w.Show();
+
+            //    ////const int DESKTOP_SWITCHDESKTOP = 256;
+            //    ////IntPtr hwnd = OpenInputDesktop(0, false, 0x00020000);
+            //    ////var b = SetThreadDesktop(hwnd);
+
+            //    //LbmMouse.CursorPos = pOut;
+
+            //    //w.Close();
+            //}
+
             e.Handled = true;
         }
 

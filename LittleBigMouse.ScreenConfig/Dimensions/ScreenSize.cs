@@ -29,7 +29,7 @@ using Newtonsoft.Json;
 
 namespace LittleBigMouse.ScreenConfig.Dimensions
 {
-    using H = NotifyHelper<ScreenSize>;
+    using H = H<ScreenSize>;
     
     [DataContract]
     public abstract class ScreenSize : NotifierBase, IScreenSize
@@ -99,10 +99,10 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
             }
         }
         private readonly IProperty<Size> _size = H.Property<Size>(c => c
-            .Set(e => new Size(e.Width,e.Height))            
             .On(e => e.Width)
             .On(e => e.Height)
-            .Update()
+            .Set(e => new Size(e.Width,e.Height))            
+//            .Update()
         );
 
         public Point Center => _center.Get();

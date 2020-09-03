@@ -17,7 +17,7 @@ using Application = System.Windows.Application;
 
 namespace LittleBigMouse.Daemon.Updater
 {
-    using H = NotifyHelper<ApplicationUpdateViewModel>;
+    using H = H<ApplicationUpdateViewModel>;
 
     public class ApplicationUpdateViewModel : ViewModel
     {
@@ -74,7 +74,7 @@ namespace LittleBigMouse.Daemon.Updater
             get => _url.Get();
             set => _url.Set(value);
         }
-        private readonly IProperty<string> _url = H.Property<string>(nameof(Url));
+        private readonly IProperty<string> _url = H.Property<string>();
 
         public string FileName
         {

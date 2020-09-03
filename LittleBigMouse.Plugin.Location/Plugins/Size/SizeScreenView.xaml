@@ -20,7 +20,7 @@
     <Grid>
 
         
-        <Border BorderThickness="0" Background="{Binding Path=ScreenColor}"/>
+        <!--<Border BorderThickness="0" Background="{Binding Path=ScreenColor}"/>-->
 
         <ContentControl Content="{Binding InsideCoverControl}"/>
         

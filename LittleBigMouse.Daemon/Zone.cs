@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
+using HLab.Sys.Windows.API;
 using LittleBigMouse.ScreenConfig;
 
 namespace LittleBigMouse.Daemon
@@ -41,13 +42,13 @@ namespace LittleBigMouse.Daemon
         {
             Screen = screen;
 
-            if (main == null) main = this;
+            main ??= this;
 
             Main = main;
 
             Px = screen.InPixel.Bounds;
-            Px.Width = Px.Width - 1;
-            Px.Height = Px.Height - 1;
+            //Px.Width -= 1;
+            //Px.Height -= 1;
 
             var mm = screen.InMm.Bounds;
             var matrix = new Matrix();
@@ -80,16 +81,24 @@ namespace LittleBigMouse.Daemon
 
         public Point Mm2Px(Point mm) => mm * _mm2Px;
 
-        public bool ContainsPx(Point px) => Px.Contains(px);
+        public bool ContainsPx(Point px)
+        {
+            if (px.X < Px.X) return false;
+            if (px.Y < Px.Y) return false;
+            if (px.X >= Px.Right) return false;
+            if (px.Y >= Px.Bottom) return false;
+            return true;
+        }
+
         public bool ContainsMm(Point mm) => Mm.Contains(mm);
 
         public Point InsidePx(Point px)
         {
             if (px.X < Px.X) px.X = Px.X;
-            else if (px.X > Px.Right) px.X = Px.Right;
+            else if (px.X >= Px.Right) px.X = Px.Right - 1;
 
             if (px.Y < Px.Y) px.Y = Px.Y;
-            else if (px.Y > Px.Bottom) px.Y = Px.Bottom;
+            else if (px.Y >= Px.Bottom) px.Y = Px.Bottom - 1;
 
             return px;
         }

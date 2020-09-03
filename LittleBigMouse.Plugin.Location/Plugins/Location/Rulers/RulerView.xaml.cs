@@ -21,13 +21,11 @@
 	  http://www.mgth.fr
 */
 
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Interop;
 using HLab.Mvvm.Annotations;
-using HLab.Sys.Windows.API;
-using LittleBigMouse.ScreenConfig.Dimensions;
 
 namespace LittleBigMouse.Plugin.Location.Plugins.Location.Rulers
 {
@@ -36,8 +34,6 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location.Rulers
     /// </summary>
     /// 
 
-
- 
     public partial class RulerView : UserControl, IView<RulerViewModel>
     {
         public RulerView()
@@ -48,57 +44,56 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location.Rulers
         public RulerViewModel ViewModel => DataContext as RulerViewModel;
 
         private Point _oldPoint;
-        private Point _dragStartPoint;
+        private Point? _dragStartPoint;
 
         private void Window_MouseMove(object sender, MouseEventArgs e)
         {
             if (!Moving || _dragStartPoint == null) return;
 
-            Point newPoint = PointToScreen(e.GetPosition(this)); // LbmMouse.CursorPos;
-            //newPoint.Offset(
-            //    _screen.Config.BoundsInMm.X/DrawOn.PitchX, 
-            //    _screen.Config.BoundsInMm.Y/DrawOn.PitchY
-            //    );
+            var newPoint = e.GetPosition(this); 
 
             if (ViewModel.Vertical)
             {
-                double offset = (newPoint.Y - _oldPoint.Y)* ViewModel.DrawOn.Pitch.Y;
+                var pitch = ViewModel.DrawOn.InMm.Height / (ActualHeight-16.5);
 
-                double old = ViewModel.DrawOn.InMm.Y;
+                var offset = newPoint.Y - _oldPoint.Y;
 
-                ViewModel.DrawOn.InMm.Y = _dragStartPoint.Y - offset;
+                var old = ViewModel.DrawOn.InMm.Y;
 
-                if (ViewModel.DrawOn.Primary && ViewModel.DrawOn.InMm.Y == old) _oldPoint.Y += offset / ViewModel.DrawOn.Pitch.Y;
+                ViewModel.DrawOn.InMm.Y = _dragStartPoint.Value.Y - offset*pitch;
+
+                if (ViewModel.DrawOn.Primary && Math.Abs(ViewModel.DrawOn.InMm.Y - old) < double.Epsilon) _oldPoint.Y += offset;
             }
             else
             {
-                double old = ViewModel.DrawOn.InMm.Y;
+                var pitch = ViewModel.DrawOn.InMm.Width / (ActualWidth-16.5);
 
-                double offset = (newPoint.X - _oldPoint.X)* ViewModel.DrawOn.Pitch.X;
+                var offset = newPoint.X - _oldPoint.X;
+                
+                var old = ViewModel.DrawOn.InMm.X;
 
-                ViewModel.DrawOn.InMm.X = _dragStartPoint.X - offset;
 
-                if (ViewModel.DrawOn.Primary && ViewModel.DrawOn.InMm.X == old) _oldPoint.X += offset / ViewModel.DrawOn.Pitch.X;
+                ViewModel.DrawOn.InMm.X = _dragStartPoint.Value.X - offset*pitch;
+
+                if (ViewModel.DrawOn.Primary && Math.Abs(ViewModel.DrawOn.InMm.X - old) < double.Epsilon) _oldPoint.X += offset;
             }
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            _oldPoint = PointToScreen(e.GetPosition(this));
-            //_oldPoint.Offset(_screen.Config.BoundsInMm.X/DrawOn.PitchX, _screen.Config.BoundsInMm.Y/DrawOn.PitchY);
+            _oldPoint = e.GetPosition(this);
 
-            _dragStartPoint = InvertControl? ViewModel.DrawOn.InMm.Location: ViewModel.Screen.InMm.Location;
+            _dragStartPoint = InvertControl ? ViewModel.DrawOn.InMm.Location : ViewModel.Screen.InMm.Location;
             Moving = true;
             CaptureMouse();
         }
 
         private void Window_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (Moving)
-            {
-                Moving = false;
-                ReleaseMouseCapture();
-            }
+            if (!Moving) return;
+            Moving = false;
+            _dragStartPoint = null;
+            ReleaseMouseCapture();
         }
 
         private bool Moving { get; set; } = false;
@@ -106,46 +101,39 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location.Rulers
 
         private void Ruler_OnMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            double ratio = (e.Delta > 0) ? 1.005 : 1/1.005;
+            var delta = WheelDelta(e) * 0.01;
 
-            Point p = e.GetPosition(this);
-
-            //Point pos = new DipPoint(ViewModel.DrawOn.Config, ViewModel.DrawOn, p.X,p.Y).Mm.ToScreen(ViewModel.DrawOn);
-            Point pos = ViewModel.DrawOn.InMm.GetPoint(ViewModel.DrawOn.InDip,p);
+            var p = e.GetPosition(this);
 
             if (ViewModel.Vertical)
             {
-                ViewModel.DrawOn.PhysicalRatio.Y *= ratio;
+                var pitch = ViewModel.DrawOn.InMm.Height / (ActualHeight-16.5);
+                var pos = pitch * p.Y;
+                ViewModel.DrawOn.PhysicalRatio.Y += delta;
 
-                Point pos2 =
-                    ViewModel.DrawOn.InMm.GetPoint(ViewModel.DrawOn.InDip, p);
+                var pitch2 = ViewModel.DrawOn.InMm.Height / (ActualHeight-16.5);
+                var pos2 = pitch2 * p.Y;
 
-                ViewModel.DrawOn.InMm.Y += pos.Y - pos2.Y;
+                ViewModel.DrawOn.InMm.Y += pos - pos2;
             }
             else
             {
-                ViewModel.DrawOn.PhysicalRatio.X *= ratio;
+                var pitch = ViewModel.DrawOn.InMm.Width / (ActualWidth-16.5);
+                var pos = pitch * p.X;
+                ViewModel.DrawOn.PhysicalRatio.X += delta;
 
-                Point pos2 =
-                    ViewModel.DrawOn.InMm.GetPoint(ViewModel.DrawOn.InDip, p);
+                var pitch2 = ViewModel.DrawOn.InMm.Width / (ActualWidth-16.5);
+                var pos2 = pitch2 * p.X;
 
-                ViewModel.DrawOn.InMm.X += pos.X - pos2.X;
+                ViewModel.DrawOn.InMm.X += pos - pos2;
             }
-         }
-
-        public void SuspendDrawing()
-        {
-            var source = (HwndSource)PresentationSource.FromVisual(this);
-            if(source!=null)
-            NativeMethods.SendMessage(source.Handle, NativeMethods.WM_SETREDRAW, false, 0);
         }
-
-        public void ResumeDrawing()
+        private static double WheelDelta(MouseWheelEventArgs e)
         {
-            var source = (HwndSource)PresentationSource.FromVisual(this);
-            if(source!=null)
-            NativeMethods.SendMessage(source.Handle, NativeMethods.WM_SETREDRAW, true, 0);
+            double delta = (e.Delta > 0) ? 1 : -1;
+            if ((Keyboard.Modifiers & ModifierKeys.Control) != 0) delta /= 10;
+            if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0) delta *= 10;
+            return delta;
         }
-
     }
 }

@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using HLab.DependencyInjection.Annotations;
 using HLab.Remote;
 using JKang.IpcServiceFramework.Client;
-using LittleBigMouse.ScreenConfigs;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LittleBigMouse.ScreenConfig
@@ -16,20 +15,30 @@ namespace LittleBigMouse.ScreenConfig
      [Export(typeof(ILittleBigMouseClientService)),Singleton]
     public class LittleBigMouseClientService : RemoteClient, ILittleBigMouseClientService
     {
-        public event Action<bool> StateChanged;
+        public event Action<string> StateChanged;
 
-        public void OnStateChange(bool state)
+        public void OnStateChange(string state)
         {
             StateChanged?.Invoke(state);
         }
 
+        private readonly PipeServer _server;
 
-        private void RefreshClient()
+        public LittleBigMouseClientService():base("lbm.daemon")
         {
-            //_client.Abort();
-            //_client = new LittleBigMouseClient(this);
-            //_client.InnerDuplexChannel.Faulted += (a, e) => RefreshClient();
-            //_client.InnerDuplexChannel.Closing += (a, e) => OnStateChange(false);
+            _server = new PipeServer{PipeName = "lbm.control", Command =  CommandLine};
+            _server.Run();
+            SendAsync<bool>("register lbm.control");
+        }
+
+
+        private async Task<string> CommandLine(string command)
+        {
+            switch (command)
+            {
+                
+            }
+            return "";
         }
 
         public Task<bool> LoadConfig() => SendAsync<bool>();
@@ -49,17 +58,27 @@ namespace LittleBigMouse.ScreenConfig
         protected override bool StartServer()
         {
             var args = "";
-            var p = Process.GetCurrentProcess();
-            string filename = p.MainModule.FileName.Replace(".Control.Loader", ".Daemon").Replace(".vshost", "");
-            var process = Process.Start(filename, args);
-            return process.Responding;
-        }
+            var module = Process.GetCurrentProcess().MainModule;
 
-        public void LauchServer(string args = "")
-        {
-            var p = Process.GetCurrentProcess();
-            string filename = p.MainModule.FileName.Replace("_Control", "_Daemon").Replace(".vshost", "");
-            var process = Process.Start(filename, args);
+            var filename = module?.FileName;
+            if (filename == null) return false;
+                
+            filename = filename.Replace(".Control.Loader", ".Daemon").Replace(".vshost", "");
+            try
+            {
+                var process = Process.Start(filename, args);
+                if (process?.Responding ?? false)
+                {
+                    SendAsync<bool>("register=lbm.control");
+                    return true;
+                }
+
+                return false;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
     }

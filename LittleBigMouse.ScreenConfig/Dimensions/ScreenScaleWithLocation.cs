@@ -27,7 +27,7 @@ using HLab.Notify.PropertyChanged;
 
 namespace LittleBigMouse.ScreenConfig.Dimensions
 {
-    using H = NotifyHelper<ScreenScaleWithLocation>;
+    using H = H<ScreenScaleWithLocation>;
 
     public class ScreenScaleWithLocation : ScreenSize
     {
@@ -69,7 +69,7 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
             get => _x.Get();
             set => Source.X = value / Ratio.X;
         }
-        private readonly IProperty<double> _x = H.Property<double>(nameof(X), c => c
+        private readonly IProperty<double> _x = H.Property<double>(c => c
             .Set(e => e.Source.X * e.Ratio.X)
             .On(e => e.Source.X)
             .On(e => e.Ratio.X)

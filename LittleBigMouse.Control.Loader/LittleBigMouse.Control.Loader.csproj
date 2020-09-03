@@ -24,6 +24,11 @@
     <Content Include="setup\LittleBigMouse.iss" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <PackageReference Include="MahApps.Metro" Version="2.2.0" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\HLab.Sys\HLab.Sys.Argyll\HLab.Sys.Argyll.csproj" />
     <ProjectReference Include="..\..\HLab\HLab.Core.Annotations\HLab.Core.Annotations.csproj">

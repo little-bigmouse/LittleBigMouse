@@ -1,6 +1,7 @@
 ﻿using System.Windows.Controls;
 using HLab.Mvvm.Extensions;
 using LittleBigMouse.Control.Core.ScreenFrame;
+using LittleBigMouse.Plugins;
 
 namespace LittleBigMouse.Control.Core
 {

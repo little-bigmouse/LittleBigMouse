@@ -26,7 +26,7 @@ using HLab.Notify.PropertyChanged;
 
 namespace LittleBigMouse.ScreenConfig.Dimensions
 {
-    using H = NotifyHelper<ScreenRotate>;
+    using H = H<ScreenRotate>;
 
     public class ScreenRotate : ScreenSize
     {

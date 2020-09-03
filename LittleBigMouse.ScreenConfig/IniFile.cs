@@ -24,7 +24,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace LittleBigMouse.ScreenConfigs
+namespace LittleBigMouse.ScreenConfig
 {
     /// <summary>
     /// Create a New INI file to store or load data

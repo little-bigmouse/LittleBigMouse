@@ -22,31 +22,32 @@
 */
 
 using HLab.Notify.PropertyChanged;
-using LittleBigMouse.ScreenConfigs;
 
 namespace LittleBigMouse.ScreenConfig.Dimensions
 {
-    using H = NotifyHelper<ScreenScaleDip>;
+    using H = H<ScreenScaleDip>;
 
     public class ScreenScaleDip : ScreenSize
     {
-        public Screen Screen { get; }
+        public IScreenRatio EffectiveDpi { get; }
+        public ScreenConfig Config { get; }
 
-        public ScreenScaleDip(IScreenSize source, Screen screen):base(source)
+        public ScreenScaleDip(IScreenSize source, IScreenRatio effectiveDpi, ScreenConfig config):base(source)
         {
-            Screen = screen;
+            EffectiveDpi = effectiveDpi;
+            Config = config;
             H.Initialize(this);
         }
 
         public IScreenRatio Ratio => _ratio.Get();
 
         private readonly IProperty<IScreenRatio> _ratio 
-            = H.Property<IScreenRatio>(nameof(Ratio), c => c
+            = H.Property<IScreenRatio>( c => c
             .Set(e => (IScreenRatio)new ScreenRatioValue(
-                 96 / e.Screen.EffectiveDpi.X,
-                96 / e.Screen.EffectiveDpi.Y) )
-            .On(e => e.Screen.EffectiveDpi.X)
-            .On(e => e.Screen.EffectiveDpi.Y)
+                 96 / e.EffectiveDpi.X,
+                96 / e.EffectiveDpi.Y) )
+            .On(e => e.EffectiveDpi.X)
+            .On(e => e.EffectiveDpi.Y)
             .Update()
            );
 
@@ -54,10 +55,10 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
         private readonly IProperty<IScreenRatio> _mainRatio 
             = H.Property<IScreenRatio>(c => c
             .Set(e => (IScreenRatio)new ScreenRatioValue(
-                96 / (e.Screen.Config.PrimaryScreen?.EffectiveDpi.X??96),
-                96 / (e.Screen.Config.PrimaryScreen?.EffectiveDpi.Y??96)))
-            .On( e => e.Screen.Config.PrimaryScreen.EffectiveDpi.X)
-            .On( e => e.Screen.Config.PrimaryScreen.EffectiveDpi.Y)
+                96 / (e.Config.PrimaryScreen?.EffectiveDpi.X??96),
+                96 / (e.Config.PrimaryScreen?.EffectiveDpi.Y??96)))
+            .On( e => e.Config.PrimaryScreen.EffectiveDpi.X)
+            .On( e => e.Config.PrimaryScreen.EffectiveDpi.Y)
             .Update()
             );
 
@@ -79,7 +80,7 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
             set => Source.Height = value / Ratio.Y;
         }
         private readonly IProperty<double> _height
-            = H.Property<double>(nameof(Height), c => c
+            = H.Property<double>(c => c
                 .Set(e => e.Source.Height * e.Ratio.Y)
                 .On(e => e.Source.Height)
                 .On(e => e.Ratio.Y)

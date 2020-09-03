@@ -34,14 +34,13 @@ using HLab.Notify.PropertyChanged;
 using HLab.Sys.Windows.API;
 using HLab.Sys.Windows.Monitors;
 using LittleBigMouse.ScreenConfig.Dimensions;
-using LittleBigMouse.ScreenConfigs;
 using Microsoft.Win32;
 
 [assembly: InternalsVisibleTo("ScreenConfig")]
 
 namespace LittleBigMouse.ScreenConfig
 {
-    using H = NotifyHelper<Screen>;
+    using H = H<Screen>;
 
     [DataContract]
     public class Screen : NotifierBase
@@ -49,7 +48,7 @@ namespace LittleBigMouse.ScreenConfig
         [JsonIgnore] public ScreenConfig Config { get; }
         public Monitor Monitor { get; }
 
-        public Screen(ScreenConfig config, Monitor monitor):base(false)
+        public Screen(ScreenConfig config, Monitor monitor)
         {
             Config = config;
             Monitor = monitor;
@@ -134,8 +133,7 @@ namespace LittleBigMouse.ScreenConfig
         // Natives
 
         public ScreenModel ScreenModel => _screenModel.Get();
-        private readonly IProperty<ScreenModel> _screenModel = H.Property<ScreenModel>(nameof(ScreenModel),
-        c => c
+        private readonly IProperty<ScreenModel> _screenModel = H.Property<ScreenModel>( c => c
             .Set(s => s.Config.GetScreenModel(s.Monitor.PnpCode, s.Monitor))
             .On(e => e.Monitor.PnpCode)
             .On(e => e.Monitor)
@@ -145,7 +143,7 @@ namespace LittleBigMouse.ScreenConfig
 
         [DataMember] public IScreenSize PhysicalRotated => _physicalRotated.Get();
         private readonly IProperty<IScreenSize> _physicalRotated =
-            H.Property<IScreenSize>(nameof(PhysicalRotated), c => c
+            H.Property<IScreenSize>(c => c
                 .Set(s => s.ScreenModel.Physical.Rotate(s.Orientation))
                 .On(e => e.ScreenModel.Physical)
                 .On(e => e.Orientation)
@@ -250,8 +248,10 @@ namespace LittleBigMouse.ScreenConfig
         // Dip
         [DataMember] public IScreenSize InDip => _inDip.Get();
         private readonly IProperty<IScreenSize> _inDip = H.Property<IScreenSize>(c => c
-            .Set(s => s.InPixel.ScaleDip(s))
+            .Set(s => s.InPixel.ScaleDip(s.EffectiveDpi, s.Config))
             .On(e => e.InPixel)
+            .On(e => e.EffectiveDpi)
+            .On(e => e.Config)
             .Update()
         );
 
@@ -277,6 +277,7 @@ namespace LittleBigMouse.ScreenConfig
             .On(e => e.PhysicalRotated.Height)
             .On(e => e.InPixel.Width)
             .On(e => e.InPixel.Height)
+            .On(e => e.EffectiveDpi)
             .Update()
         );
 
@@ -348,23 +349,10 @@ namespace LittleBigMouse.ScreenConfig
 
         // Registry settings
 
-        public static RegistryKey OpenMonitorRegKey(string id, bool create = false)
-        {
-            using (RegistryKey key = LittleBigMouse.ScreenConfig.ScreenConfig.OpenRootRegKey(create))
-            {
-                if (key == null) return null;
-                return create ? key.CreateSubKey(@"monitors\" + id) : key.OpenSubKey(@"monitors\" + id);
-            }
-        }
-
-        public RegistryKey OpenMonitorRegKey(bool create = false)
-        {
-            return OpenMonitorRegKey(Monitor.IdMonitor, create);
-        }
 
         public RegistryKey OpenGuiLocationRegKey(bool create = false)
         {
-            using (RegistryKey key = OpenMonitorRegKey(create))
+            using (RegistryKey key = Monitor.OpenMonitorRegKey(create))
             {
                 if (key == null) return null;
                 return create ? key.CreateSubKey("GuiLocation") : key.OpenSubKey("GuiLocation");
@@ -431,7 +419,7 @@ namespace LittleBigMouse.ScreenConfig
                 key.SetKey("Height", GuiLocation.Height);
             }
 
-            using (RegistryKey key = OpenMonitorRegKey(true))
+            using (RegistryKey key = Monitor.OpenMonitorRegKey(true))
             {
                 key?.SetKey("DeviceId", Monitor.DeviceId);
             }
@@ -470,7 +458,7 @@ namespace LittleBigMouse.ScreenConfig
         {
             int n = names.Count;
             int pos = (names.IndexOf(side) + Orientation) % n;
-            using (RegistryKey key = fromConfig ? OpenConfigRegKey() : OpenMonitorRegKey())
+            using (RegistryKey key = fromConfig ? OpenConfigRegKey() : Monitor.OpenMonitorRegKey())
             {
                 return key.GetKey(name.Replace("%", names[pos]), def);
             }
@@ -482,7 +470,7 @@ namespace LittleBigMouse.ScreenConfig
         {
             int n = names.Count;
             int pos = (names.IndexOf(side) + n - Orientation) % n;
-            using (RegistryKey key = fromConfig ? OpenConfigRegKey(true) : OpenMonitorRegKey(true))
+            using (RegistryKey key = fromConfig ? OpenConfigRegKey(true) : Monitor.OpenMonitorRegKey(true))
             {
                 key.SetKey(name.Replace("%", names[pos]), value);
             }
@@ -517,14 +505,14 @@ namespace LittleBigMouse.ScreenConfig
 
         [DataMember]
         public double WinDpiX => _winDpiX.Get();
-        private readonly IProperty<double> _winDpiX = H.Property<double>(nameof(WinDpiX), c => c
+        private readonly IProperty<double> _winDpiX = H.Property<double>(c => c
             .Set(e => e.EffectiveDpi.X)
             .On(e => e.EffectiveDpi.X).Update()
         );
 
         [DataMember]
         public double WinDpiY => _winDpiY.Get();
-        private readonly IProperty<double> _winDpiY = H.Property<double>(nameof(WinDpiY), c => c
+        private readonly IProperty<double> _winDpiY = H.Property<double>(c => c
             .Set(e => e.EffectiveDpi.Y)
             .On(e => e.EffectiveDpi.Y).Update()
         );
@@ -581,6 +569,8 @@ namespace LittleBigMouse.ScreenConfig
                         Math.Round((RealDpi.Y / DpiAwareAngularDpi.Y) * 10) / 10 );
                 //return Math.Round((RealDpiY / DpiAwareAngularDpiY) * 20) / 20;
 
+                case NativeMethods.DPI_Awareness_Context.StangeValue2 :
+                case NativeMethods.DPI_Awareness_Context.StrangeValue :
                 case NativeMethods.DPI_Awareness_Context.System_Aware:
                     if (Config?.PrimaryScreen == null) return new ScreenRatioValue(1, 1);
                     else return new ScreenRatioValue(
@@ -594,8 +584,6 @@ namespace LittleBigMouse.ScreenConfig
                         EffectiveDpi.Y / 96
                     );
 
-                case NativeMethods.DPI_Awareness_Context.StangeValue2 :
-                case NativeMethods.DPI_Awareness_Context.StrangeValue :
                 case NativeMethods.DPI_Awareness_Context.Per_Monitor_Aware_V2:
                     return new ScreenRatioValue(
                         EffectiveDpi.X / 96,

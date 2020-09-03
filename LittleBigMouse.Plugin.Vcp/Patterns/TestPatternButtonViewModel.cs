@@ -8,7 +8,7 @@ using HLab.Sys.Windows.MonitorVcp;
 
 namespace LittleBigMouse.Plugin.Vcp.Patterns
 {
-    using H = NotifyHelper<TestPatternButtonViewModel>;
+    using H = H<TestPatternButtonViewModel>;
 
     class TestPatternButtonViewModel : ViewModel<TestPattern>
     {
@@ -18,6 +18,7 @@ namespace LittleBigMouse.Plugin.Vcp.Patterns
         public TestPatternButtonViewModel(VcpScreenViewModel target)
         {
             _target = target;
+            H.Initialize(this);
         }
 
         public TestPatternButtonViewModel Set(TestPatternType type)

@@ -8,13 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Grpc" Version="2.29.0" />
-    <PackageReference Include="JKang.IpcServiceFramework.Client.NamedPipe" Version="3.0.3" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.5" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.0-preview-20200519-01" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.0-preview.8.20407.11" />
     <PackageReference Include="Microsoft.NETCore.App" Version="2.2.8" />
-    <PackageReference Include="System.Management" Version="5.0.0-preview.4.20251.6" />
-    <PackageReference Include="TaskScheduler" Version="2.8.19" />
+    <PackageReference Include="System.Management" Version="5.0.0-preview.8.20407.11" />
+    <PackageReference Include="TaskScheduler" Version="2.8.21" />
   </ItemGroup>
 
   <ItemGroup>

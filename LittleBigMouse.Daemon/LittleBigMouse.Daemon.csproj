@@ -8,10 +8,12 @@
     <Platforms>AnyCPU;x64</Platforms>
     <ApplicationIcon>MainIcon.ico</ApplicationIcon>
     <StartupObject>LittleBigMouse.Daemon.Program</StartupObject>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <WarningLevel>0</WarningLevel>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,10 +26,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Grpc" Version="2.29.0" />
-    <PackageReference Include="JKang.IpcServiceFramework.Hosting.NamedPipe" Version="3.0.3" />
     <PackageReference Include="Microsoft.NETCore.App" Version="2.2.8" />
-    <PackageReference Include="TaskScheduler" Version="2.8.19" />
+    <PackageReference Include="TaskScheduler" Version="2.8.21" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,6 +37,8 @@
     <ProjectReference Include="..\..\HLab\HLab.DependencyInjection.Annotations\HLab.DependencyInjection.Annotations.csproj" />
     <ProjectReference Include="..\..\HLab\HLab.Notify.Wpf\HLab.Notify.Wpf.csproj" />
     <ProjectReference Include="..\..\Lib\NotifyIconWpf\NotifyIconWpf\NotifyIconWpf.csproj" />
+    <ProjectReference Include="..\LittleBigMouse.Plugin.Vcp\LittleBigMouse.Plugin.Vcp.csproj" />
+    <ProjectReference Include="..\LittleBigMouse.Plugins\LittleBigMouse.Plugins.csproj" />
     <ProjectReference Include="..\LittleBigMouse.ScreenConfig\LittleBigMouse.ScreenConfig.csproj" />
   </ItemGroup>
 

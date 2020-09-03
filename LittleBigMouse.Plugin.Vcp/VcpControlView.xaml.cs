@@ -26,7 +26,6 @@ using System.Windows.Controls;
 using HLab.DependencyInjection.Annotations;
 using HLab.Mvvm.Annotations;
 using LittleBigMouse.ScreenConfig;
-using LittleBigMouse.ScreenConfigs;
 
 namespace LittleBigMouse.Plugin.Vcp
 {

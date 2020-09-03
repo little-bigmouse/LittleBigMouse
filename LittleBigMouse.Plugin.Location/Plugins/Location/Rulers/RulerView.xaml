@@ -10,20 +10,34 @@
         MouseDown="Window_MouseDown"
         MouseUp="Window_MouseUp"
         MouseWheel="Ruler_OnMouseWheel"
-             
+        d:DataContext="{d:DesignInstance Type = rulers:RulerViewModel, IsDesignTimeCreatable = false}"
         >
-        <!--Margin="{Binding Path=Margin}"
-         Height="{Binding RulerHeight}"
-        Width ="{Binding RulerWidth}">
-   
-    -->
 
-    <Grid><Border x:Name="Border"
+    <Grid x:Name="Grid01"><Border x:Name="Border"
         Opacity="1" 
-        Background="{Binding Transparent}" 
+        Background="Transparent" 
             />
         
-        <rulers:RulerViewTop/>
+        <!--<StackPanel>
+            <Label Content="{Binding RulerLength}"/>
+            <Label Content="{Binding RulerStart}"/>
+            <Label Content="{Binding RulerEnd}"/>
+            <Label Content="{Binding Revert}"/>
+            <Label Content="{Binding Selected}"/>
+       </StackPanel>-->
+
+        <rulers:RulerViewTop 
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            RulerLength="{Binding RulerLength}"
+            RulerStart="{Binding RulerStart}"
+            Length="{Binding Length}"
+            Size="{Binding Size}"
+            RulerEnd="{Binding RulerEnd}"
+            Selected="{Binding Selected}"
+            Zero="{Binding Zero}"
+            Orientation="{Binding Orientation}"
+            />
     
     </Grid>
 </UserControl>

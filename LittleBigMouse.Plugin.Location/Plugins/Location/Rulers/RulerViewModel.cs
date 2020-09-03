@@ -29,52 +29,46 @@ using LittleBigMouse.ScreenConfig;
 
 namespace LittleBigMouse.Plugin.Location.Plugins.Location.Rulers
 {
-    public class RulerViewModel : N<RulerViewModel>
+    using H = H<RulerViewModel>; 
+    
+    public class RulerViewModel : NotifierBase
     {
         public Screen Screen { get; }
-        public RulerSide Side { get; }
+        public int Orientation { get; }
         public Screen DrawOn { get; }
 
-        public RulerViewModel(Screen screen, Screen drawOn, RulerSide side)
+        public RulerViewModel(Screen screen, Screen drawOn, int orientation)
         {
-            Side = side;
-            switch (side)
+            Orientation = orientation;
+            switch (Orientation)
             {
-                case RulerSide.Top:
+                case 0:
                     Vertical = false;
                     Horizontal = true;
                     Revert = false;
                     break;
-                case RulerSide.Bottom:
+                case 1:
+                    Vertical = true;
+                    Horizontal = false;
+                    Revert = true;
+                    break;
+                case 2:
                     Vertical = false;
                     Horizontal = true;
                     Revert = true;
                     break;
-                case RulerSide.Left:
+                case 3:
                     Vertical = true;
                     Horizontal = false;
                     Revert = false;
-                    break;
-                case RulerSide.Right:
-                    Vertical = true;
-                    Horizontal = false;
-                    Revert = true;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(side), side, null);
+                    throw new ArgumentOutOfRangeException(nameof(Orientation), orientation, null);
             }
             Screen = screen;
             DrawOn = drawOn;
-            Background = GetBackground(ReferenceEquals(DrawOn, Screen) ? Colors.DarkGreen : Colors.DarkBlue);
-            BackgroundOut = GetBackground(Colors.Black);
-            Initialize();
-        }
-        public enum RulerSide
-        {
-            Top,
-            Bottom,
-            Left,
-            Right
+            H.Initialize(this);
+            Selected = ReferenceEquals(DrawOn, Screen);
         }
 
         public bool Enabled
@@ -83,19 +77,27 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location.Rulers
             set => _enable.Set(value);
         }
         private readonly IProperty<bool> _enable = H.Property<bool>();
+        public bool Selected
+        {
+            get => _selected.Get();
+            set => _selected.Set(value);
+        }
+        private readonly IProperty<bool> _selected = H.Property<bool>();
 
         public double ZeroX => _zeroX.Get();
         private readonly IProperty<double> _zeroX = H.Property<double>(c => c
+            .Set(e => e.Screen.XMoving - e.DrawOn.XMoving)
             .On(e => e.DrawOn.XMoving)
             .On(e => e.Screen.XMoving)
-            .Set(e => e.Screen.XMoving - e.DrawOn.XMoving)
+            .Update()
         );
 
         public double ZeroY => _zeroY.Get();
         private readonly IProperty<double> _zeroY = H.Property<double>(c => c
+            .Set(e => e.Screen.YMoving - e.DrawOn.YMoving)
             .On(e => e.DrawOn.YMoving)
             .On(e => e.Screen.YMoving)
-            .Set(e => e.Screen.YMoving - e.DrawOn.YMoving)
+            .Update()
         );
 
         //public Thickness Margin => _margin.Get();
@@ -107,47 +109,6 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location.Rulers
         //);
 
 
-        public Brush GetBrush(double x1, double y1, double x2, double y2, Color c1)
-        {
-            Color c2 = Color.FromScRgb(0, c1.ScR/3, c1.ScG/3, c1.ScB/3);
-
-            c2.A = 0;
-
-            return new LinearGradientBrush
-            {
-                StartPoint = new Point(x1,y1),
-                EndPoint = new Point(x2,y2),
-                GradientStops =
-                {
-                    new GradientStop(c1, 0),
-                    new GradientStop(c1, 0.3),
-                    new GradientStop(c2, 1),
-                }
-            };
-        }
-
-        public Brush Background { get; }
-        public Brush BackgroundOut { get; }
-        private Brush GetBackground(Color color) 
-        {
-
-            var c = Color.Multiply(color,0.7f);
-
-            switch (Side)
-            {
-                case RulerSide.Top:
-                    return GetBrush(0.5, 0, 0.5, 1, c);
-                case RulerSide.Bottom:
-                    return GetBrush(0.5, 1, 0.5, 0, c);
-                case RulerSide.Left:
-                    return GetBrush(0, 0.5, 1, 0.5, c);
-                case RulerSide.Right:
-                    return GetBrush(1, 0.5, 0, 0.5, c);
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
 
         public bool Vertical { get; }
         public bool Horizontal { get; }
@@ -155,16 +116,18 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location.Rulers
 
         public double RatioX => _ratioX.Get();
         private readonly IProperty<double> _ratioX = H.Property<double>( c => c
+            .Set(e => e.DrawOn.InDip.Width / e.DrawOn.InMm.Width)
             .On(e => e.DrawOn.InDip.Width)
             .On(e => e.DrawOn.InMm.Width)
-            .Set(e => e.DrawOn.InDip.Width / e.DrawOn.InMm.Width)
+            .Update()
         );
 
         public double RatioY => _ratioY.Get();
         private readonly IProperty<double> _ratioY = H.Property<double>( c => c
+            .Set(e => e.DrawOn.InDip.Height / e.DrawOn.InMm.Height)
             .On(e => e.DrawOn.InDip.Height)
             .On(e => e.DrawOn.InMm.Height)
-            .Set(e => e.DrawOn.InDip.Height / e.DrawOn.InMm.Height)
+            .Update()
         );
 
         //public double RulerHeight => _rulerHeight.Get();
@@ -183,16 +146,18 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location.Rulers
 
         public double RulerLength => _rulerLength.Get();
         private readonly IProperty<double> _rulerLength = H.Property<double>(c => c
+                .Set(e => e.Vertical ? e.Screen.InMm.Height : e.Screen.InMm.Width)
                 .On(e => e.Screen.InMm.Width)
                 .On(e => e.Screen.InMm.Height)
-                .Set(e => e.Vertical ? e.Screen.InMm.Height : e.Screen.InMm.Width)
+                .Update()
             );
 
         public double RulerEnd => _rulerEnd.Get();
         private readonly IProperty<double> _rulerEnd = H.Property<double>(c => c
+            .Set(e => e.RulerStart + e.RulerLength)
             .On(e => e.RulerLength)
             .On(e => e.RulerStart)
-            .Set(e => e.RulerStart + e.RulerLength)
+            .Update()
         );
 
         /// <summary>
@@ -200,32 +165,36 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location.Rulers
         /// </summary>
         public double RulerStart => _rulerStart.Get();
         private readonly IProperty<double> _rulerStart = H.Property<double>(c => c
+            .Set(e => e.Vertical ? e.DrawOn.YMoving - e.Screen.YMoving : e.DrawOn.XMoving - e.Screen.XMoving)
             .On(e => e.DrawOn.XMoving)
             .On(e => e.DrawOn.YMoving)
             .On(e => e.Screen.XMoving)
             .On(e => e.Screen.YMoving)
-            .Set(e => e.Vertical ? e.DrawOn.YMoving - e.Screen.YMoving : e.DrawOn.XMoving - e.Screen.XMoving)
+            .Update()
         );
 
-        public double LengthRatio => _lengthRatio.Get();
-        private readonly IProperty<double> _lengthRatio = H.Property<double>(c => c
-            .On(e => e.RatioX)
-            .On(e => e.RatioY)
-            .Set(e => e.Vertical ? e.RatioY : e.RatioX)
+        public double Length => _length.Get();
+        private readonly IProperty<double> _length = H.Property<double>(c => c
+            .Set(e => e.Vertical ? e.DrawOn.InMm.Height : e.DrawOn.InMm.Width)
+            .On(e => e.DrawOn.InMm.Width)
+            .On(e => e.DrawOn.InMm.Height)
+            .Update()
         );
 
-        public double SizeRatio => _sizeRatio.Get();
-        private readonly IProperty<double> _sizeRatio = H.Property<double>(c => c
-            .On(e => e.RatioX)
-            .On(e => e.RatioY)
-            .Set(e => e.Vertical ? e.RatioX : e.RatioY)
+        public double Size => _size.Get();
+        private readonly IProperty<double> _size = H.Property<double>(c => c
+            .Set(e => 30.0)
+            //.On(e => e.RatioX)
+            //.On(e => e.RatioY)
+            //.Update()
         );
 
         public double Zero => _zero.Get();
         private readonly IProperty<double> _zero = H.Property<double>(c => c
+            .Set(e => e.Vertical ? e.ZeroY : e.ZeroX)
             .On(e => e.ZeroX)
             .On(e => e.ZeroY)
-            .Set(e => e.Vertical ? e.ZeroY : e.ZeroX)
+            .Update()
         );
     }
 }
