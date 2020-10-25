@@ -20,20 +20,22 @@
 	  mailto:mathieu@mgth.fr
 	  http://www.mgth.fr
 */
+
 using System;
 using HLab.DependencyInjection.Annotations;
 using HLab.Mvvm;
 using HLab.Mvvm.Annotations;
 using HLab.Notify.PropertyChanged;
-using LittleBigMouse.Control.Core.Main;
-using LittleBigMouse.Control.Core.ScreenFrame;
+using LittleBigMouse.Control.Main;
+using LittleBigMouse.Control.ScreenFrame;
+using LittleBigMouse.Plugins;
 using LittleBigMouse.ScreenConfig.Dimensions;
 
-namespace LittleBigMouse.Control.Core
+namespace LittleBigMouse.Control
 {
     using H = H<MultiScreensViewModel>;
 
-    public class MultiScreensViewModel : ViewModel, IPresenterViewModel, IMvvmContextProvider
+    public class MultiScreensViewModel : ViewModel, IPresenterViewModel, IMvvmContextProvider, IMultiScreensViewModel
     {
         [Import]
         public MainViewModel MainViewModel { get; }

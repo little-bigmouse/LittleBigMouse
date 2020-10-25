@@ -24,29 +24,26 @@
 using HLab.Core.Annotations;
 using HLab.DependencyInjection.Annotations;
 using HLab.Mvvm.Annotations;
-using LittleBigMouse.Control.Core;
-using LittleBigMouse.Control.Core.Main;
+using LittleBigMouse.Plugins;
 
 namespace LittleBigMouse.Plugin.Location.Plugins.Size
 {
     public class ViewModeScreenSize : ViewMode { }
     internal class ScreenSizePlugin : IBootloader
     {
-        private readonly MainService _mainService;
-        private readonly IIconService _iconService;
+        private readonly IMainService _mainService;
 
         [Import]
-        public ScreenSizePlugin(MainService mainService, IIconService iconService)
+        public ScreenSizePlugin(IMainService mainService)
         {
             _mainService = mainService;
-            _iconService = iconService;
         }
 
         public void Load(IBootContext bootstrapper)
         {
-            _mainService.MainViewModel.AddButton("Icons/IconSize","Size",
-                () => _mainService.MainViewModel.Presenter.ViewMode = typeof(ViewModeScreenSize),
-                () => _mainService.MainViewModel.Presenter.ViewMode = typeof(ViewModeDefault));
+            _mainService.AddButton("Icons/IconSize","Size",
+                () => _mainService.SetViewMode<ViewModeScreenSize>(),
+                () => _mainService.SetViewMode<ViewModeDefault>());
         }
     }
 

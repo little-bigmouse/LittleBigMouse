@@ -22,10 +22,10 @@
 */
 
 using System;
-using System.ServiceProcess;
 using System.Threading;
 using System.Windows;
 using HLab.Notify;
+using HLab.Remote;
 
 namespace LittleBigMouse.Daemon
 {
@@ -40,6 +40,8 @@ namespace LittleBigMouse.Daemon
 
             if (!firstInstance)
             {
+                var client = new RemoteClient("lbm.daemon");
+                client.SendMessageAsync()
                 // LittleBigMouseClient.Client.CommandLine(args); TODO
                 mutex.Close();
                 return;

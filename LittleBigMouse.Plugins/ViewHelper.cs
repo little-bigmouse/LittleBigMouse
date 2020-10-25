@@ -20,12 +20,13 @@
 	  mailto:mathieu@mgth.fr
 	  http://www.mgth.fr
 */
+
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 
-namespace LittleBigMouse.Control.Core
+namespace LittleBigMouse.Plugins
 {
     public static class ViewHelper
     {

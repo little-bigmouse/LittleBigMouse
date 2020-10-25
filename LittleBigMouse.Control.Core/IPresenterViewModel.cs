@@ -20,11 +20,12 @@
 	  mailto:mathieu@mgth.fr
 	  http://www.mgth.fr
 */
+
 using System;
 using System.ComponentModel;
-using LittleBigMouse.Control.Core.Main;
+using LittleBigMouse.Control.Main;
 
-namespace LittleBigMouse.Control.Core
+namespace LittleBigMouse.Control
 {
     public interface IPresenterViewModel : INotifyPropertyChanged
     {

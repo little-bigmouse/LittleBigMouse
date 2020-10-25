@@ -20,6 +20,7 @@
 	  mailto:mathieu@mgth.fr
 	  http://www.mgth.fr
 */
+
 using System;
 using System.Collections.Specialized;
 using System.Linq;
@@ -27,17 +28,16 @@ using System.Windows;
 using System.Windows.Controls;
 using HLab.Mvvm;
 using HLab.Mvvm.Annotations;
-using LittleBigMouse.Control.Core.ScreenFrame;
+using LittleBigMouse.Plugins;
 using LittleBigMouse.ScreenConfig;
 
-namespace LittleBigMouse.Control.Core
+namespace LittleBigMouse.Control
 {
-    public class ViewModeMultiScreenBackground : ViewMode { }
 
     /// <summary>
     /// Logique d'interaction pour MultiScreensGui.xaml
     /// </summary>
-    public partial class MultiScreensView : UserControl, IView<ViewModeDefault,MultiScreensViewModel>, IViewClassDefault
+    public partial class MultiScreensView : UserControl, IView<ViewModeDefault,MultiScreensViewModel>, IViewClassDefault, IMultiScreensView
     {
         public MultiScreensView()
         {

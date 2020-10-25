@@ -46,37 +46,17 @@ namespace LittleBigMouse.ScreenConfig
         public ILittleBigMouseService Service { get; }
     }
 
-    public class LittleBigMouseCallback : ILittleBigMouseCallback
-    {
-        //private readonly LittleBigMouseClientService _service;
-
-        //public LittleBigMouseCallback(LittleBigMouseClientService service)
-        //{
-        //    _service = service;
-        //}
-
-        public void OnStateChange(bool state)
-        {
-//            _service.OnStateChange(state);
-        }
-    }
-
-
-    public interface ILittleBigMouseCallback
-    {
-        void OnStateChange(bool state);
-    }
 
     public interface ILittleBigMouseService
     {
-        Task<bool> LoadConfig();
-        Task<bool> Quit();
-        Task<bool> Start();
-        Task<bool> Stop();
-        Task<bool> LoadAtStartup(bool state=true);
-        Task CommandLine(IList<string> args);
-        Task<bool> Running();
-        Task Update();
+        void LoadConfig();
+        void Quit();
+        void Start();
+        void Stop();
+        void LoadAtStartup(bool state=true);
+        void CommandLine(IList<string> args);
+        void Running();
+        void Update();
     }
 
 }

@@ -85,6 +85,7 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
             .On( e => e.Screen.Monitor.AttachedDisplay.CurrentMode.Position)
             .Update()
         );
+        //TODO : 
         //private readonly IProperty<double> _x = H.Property<double>(c => c
         //    .Set(s => s.Screen.Monitor.MonitorArea.X)
         //    .On( e => e.Screen.Monitor.MonitorArea)

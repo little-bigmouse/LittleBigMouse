@@ -124,7 +124,7 @@ namespace LittleBigMouse.ScreenConfig
             var old = Physical.FixedAspectRatio;
             Physical.FixedAspectRatio = false;
 
-            if (display != null)
+            if (display?.CurrentMode != null)
                 switch ((display.CurrentMode.DisplayOrientation) % 2)
                 {
                     case 0:

@@ -23,7 +23,6 @@
 
 using System.Collections.Generic;
 using System.Reflection;
-using System.ServiceProcess;
 using System.Threading.Tasks;
 using HLab.Sys.Windows.Monitors;
 using LittleBigMouse.ScreenConfig;

@@ -20,13 +20,14 @@
 	  mailto:mathieu@mgth.fr
 	  http://www.mgth.fr
 */
+
 using System;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace LittleBigMouse.Control.Core
+namespace LittleBigMouse.Control
 {
     /// <summary>
     /// Brush that lets you draw vertical linear gradient without banding.

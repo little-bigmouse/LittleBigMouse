@@ -30,7 +30,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 
-namespace LittleBigMouse.Control.Core.Sys
+namespace LittleBigMouse.Control.Sys
 {
     internal class WindowResizer
     {

@@ -20,13 +20,13 @@
 	  mailto:mathieu@mgth.fr
 	  http://www.mgth.fr
 */
+
 using System.Windows.Controls;
 using HLab.Mvvm.Annotations;
 using HLab.Mvvm.Extensions;
-using LittleBigMouse.Control.Core.ScreenFrame;
 using LittleBigMouse.Plugins;
 
-namespace LittleBigMouse.Control.Core.Plugins.Default
+namespace LittleBigMouse.Control.Plugins.Default
 {
     //class DefaultScreenContentView : UserControl, IView<ViewModeDefault, LocationScreenViewModel>, IViewScreenFrameTopLayer
     //{

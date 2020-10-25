@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--This file is NOT compatible with Silverlight-->
+<Viewbox xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Stretch="Uniform">
+  <Canvas Name="svg3064" Width="179.16" Height="64.099998">
+    <Canvas.Resources>
+      <!--Unknown tag: inkscape:perspective-->
+      <!--Unknown tag: inkscape:perspective-->
+    </Canvas.Resources>
+    <!--Unknown tag: sodipodi:namedview-->
+    <!--Unknown tag: metadata-->
+    <Canvas Name="layer1">
+      <Canvas.RenderTransform>
+        <TranslateTransform X="-208.56036" Y="-465.02647"/>
+      </Canvas.RenderTransform>
+      <Canvas Name="g242">
+        <Canvas.RenderTransform>
+          <MatrixTransform Matrix="1.25 0 0 -1.25 355.30814 514.22237"/>
+        </Canvas.RenderTransform>
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path244" Fill="#FF006890">
+          <Path.Data>
+            <PathGeometry Figures="M 0 0 C -6.863 0 -8.325 7.795 -8.325 14.298 -8.325 20.8 -6.863 28.59 0 28.59 6.864 28.59 8.322 20.8 8.322 14.298 8.322 7.795 6.864 0 0 0 m 0 38.672 c -10.835 0 -20.455 -4.807 -23.807 -15.513 l -0.386 0 0 13.667 -16.408 0 0 -25.044 c 0 -6.147 -1.672 -8.969 -6.523 -8.969 -5.116 0 -6.511 3.021 -6.511 8.969 l 0 25.044 -16.233 0 0 -23.316 c 0 -0.882 0.031 -1.745 0.079 -2.563 l -0.339 -0.099 -10.667 25.978 -16.242 0 -19.629 -47.834 18.149 0 9.377 29.096 0.213 0 0.034 0 0.205 0 9.379 -29.096 18.151 0 -3.427 8.36 0.281 0.138 c 3.755 -3.202 9.455 -4.483 17.248 -4.483 13.603 0 20.62 3.976 22.392 14.403 l 0.328 0 C -21.598 -4.678 -11.48 -10.084 0 -10.084 c 13.478 0 25.066 7.424 25.066 24.382 0 16.955 -11.588 24.374 -25.066 24.374" FillRule="NonZero"/>
+          </Path.Data>
+        </Path>
+      </Canvas>
+    </Canvas>
+  </Canvas>
+</Viewbox>

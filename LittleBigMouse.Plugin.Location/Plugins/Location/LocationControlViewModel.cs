@@ -44,6 +44,8 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
         [Import]
         private readonly ILittleBigMouseClientService _service;
 
+
+
         public LocationControlViewModel()
         {
             H.Initialize(this);
@@ -164,7 +166,7 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
                 }
             };
             H.Initialize(this);
-            new Task(async () => Running = await _service.Running()).Start();
+            _service.Running();
             
         }
     }

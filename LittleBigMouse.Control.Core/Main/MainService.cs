@@ -26,7 +26,7 @@ using HLab.DependencyInjection.Annotations;
 using HLab.Mvvm.Annotations;
 using LittleBigMouse.Plugins;
 
-namespace LittleBigMouse.Control.Core.Main
+namespace LittleBigMouse.Control.Main
 {
     [Export(typeof(IMainService)),Singleton]
     public class MainService : IMainService

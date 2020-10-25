@@ -25,14 +25,14 @@ using System.Windows;
 using System.Windows.Input;
 using HLab.Base.Wpf;
 using HLab.Mvvm.Annotations;
-using LittleBigMouse.Control.Core.Sys;
+using LittleBigMouse.Control.Sys;
 
-namespace LittleBigMouse.Control.Core.Main
+namespace LittleBigMouse.Control.Main
 {
     /// <summary>
     /// Interaction logic for Config.xaml
     /// </summary>
-    public partial class MainView : IView<ViewModeDefault,MainViewModel>, IViewClassDefault
+    public partial class MainView : Window,IView<ViewModeDefault,MainViewModel>, IViewClassDefault
     {
 
         private readonly WindowResizer _resizer;

@@ -31,8 +31,8 @@ using System.Windows.Threading;
 using HLab.Mvvm;
 using HLab.Mvvm.Annotations;
 using HLab.Sys.Windows.API;
+using LittleBigMouse.Control;
 using LittleBigMouse.Control.Core;
-using LittleBigMouse.Control.Core.ScreenFrame;
 using LittleBigMouse.Plugins;
 
 namespace LittleBigMouse.Plugin.Location.Plugins.Size

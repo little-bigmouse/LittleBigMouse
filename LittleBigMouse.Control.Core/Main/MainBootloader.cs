@@ -5,7 +5,7 @@ using HLab.DependencyInjection.Annotations;
 using HLab.Mvvm;
 using HLab.Mvvm.Annotations;
 
-namespace LittleBigMouse.Control.Core.Main
+namespace LittleBigMouse.Control.Main
 {
     public class MainBootloader : IBootloader
     {

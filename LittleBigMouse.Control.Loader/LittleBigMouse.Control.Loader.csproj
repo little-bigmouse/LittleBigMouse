@@ -30,32 +30,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\HLab.Sys\HLab.Sys.Argyll\HLab.Sys.Argyll.csproj" />
-    <ProjectReference Include="..\..\HLab\HLab.Core.Annotations\HLab.Core.Annotations.csproj">
-      <Private>true</Private>
-    </ProjectReference>
+    <ProjectReference Include="..\..\HLab\HLab.Core\HLab.Core.csproj" />
     <ProjectReference Include="..\..\HLab\HLab.Mvvm.Wpf\HLab.Mvvm.Wpf.csproj">
       <Private>true</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\HLab\HLab.Notify.Wpf\HLab.Notify.Wpf.csproj">
       <Private>true</Private>
     </ProjectReference>
-    <ProjectReference Include="..\LittleBigMouse.Control.Core\LittleBigMouse.Control.Core.csproj">
-      <Private>true</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\LittleBigMouse.Plugin.Location\LittleBigMouse.Plugin.Location.csproj">
-      <Private>true</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\LittleBigMouse.Plugin.Vcp\LittleBigMouse.Plugin.Vcp.csproj" />
-    <ProjectReference Include="..\LittleBigMouse.ScreenConfig\LittleBigMouse.ScreenConfig.csproj">
-      <Private>true</Private>
-    </ProjectReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Xceed.Wpf.AvalonDock">
-      <HintPath>C:\Users\mathieu.AD\.nuget\packages\extended.wpf.toolkit\3.8.1\lib\net40\Xceed.Wpf.AvalonDock.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>

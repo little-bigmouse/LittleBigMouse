@@ -24,7 +24,9 @@
 using System.Windows.Controls;
 using HLab.Mvvm;
 using HLab.Mvvm.Annotations;
+using LittleBigMouse.Control;
 using LittleBigMouse.Control.Core;
+using LittleBigMouse.Plugins;
 
 namespace LittleBigMouse.Plugin.Location.Plugins.Location
 {

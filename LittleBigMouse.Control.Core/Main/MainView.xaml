@@ -1,13 +1,14 @@
-﻿<Window x:Class="LittleBigMouse.Control.Core.Main.MainView"
+﻿<Window x:Class="LittleBigMouse.Control.Main.MainView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:core="clr-namespace:LittleBigMouse.Control.Core"
         xmlns:annotations="clr-namespace:HLab.Mvvm.Annotations;assembly=HLab.Mvvm.Annotations"
         xmlns:icons="clr-namespace:HLab.Mvvm.Icons;assembly=HLab.Mvvm.Wpf"
         xmlns:mvvm="clr-namespace:HLab.Mvvm;assembly=HLab.Mvvm.Wpf"
-        xmlns:main="clr-namespace:LittleBigMouse.Control.Core.Main"
+        xmlns:local="clr-namespace:LittleBigMouse.Control"
+        xmlns:main="clr-namespace:LittleBigMouse.Control.Main"
+        xmlns:plugins="clr-namespace:LittleBigMouse.Plugins;assembly=LittleBigMouse.Plugins"
         mc:Ignorable="d"
         Icon="../MainIcon.ico"
         Title="Little Big LbmMouse"  
@@ -174,7 +175,7 @@
 
             <Border Grid.Row="2" Grid.Column="0" Background="#C0000000">
                 <mvvm:ViewLocator
-                    ViewClass="{x:Type core:IScreenControlView}"
+                    ViewClass="{x:Type plugins:IScreenControlView}"
                     ViewMode="{x:Type annotations:ViewModeDefault}"
                     Model="{Binding Config}"
                     />
@@ -182,7 +183,7 @@
 
             <Border Grid.Row="3" Grid.Column="0" Background="#C0000000">
                 <mvvm:ViewLocator
-                    ViewClass="{x:Type core:IScreenControlView}"
+                    ViewClass="{x:Type plugins:IScreenControlView}"
                     ViewMode="{x:Type annotations:ViewModeDefault}"
                     Model="{Binding Config}"
                     />

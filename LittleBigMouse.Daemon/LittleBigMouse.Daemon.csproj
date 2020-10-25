@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <UseForms>true</UseForms>
     <Platforms>AnyCPU;x64</Platforms>
@@ -31,14 +31,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\HLab.Sys\HLab.Sys.MouseHooker\HLab.Sys.MouseHooker.csproj" />
     <ProjectReference Include="..\..\HLab.Sys\HLab.Sys.Windows.API\HLab.Sys.Windows.API.csproj" />
     <ProjectReference Include="..\..\HLab.Sys\HLab.Sys.Windows.Monitors\HLab.Sys.Windows.Monitors.csproj" />
     <ProjectReference Include="..\..\HLab.Sys\HLab.Sys.Windows.MonitorVcp\HLab.Sys.Windows.MonitorVcp.csproj" />
     <ProjectReference Include="..\..\HLab\HLab.DependencyInjection.Annotations\HLab.DependencyInjection.Annotations.csproj" />
     <ProjectReference Include="..\..\HLab\HLab.Notify.Wpf\HLab.Notify.Wpf.csproj" />
     <ProjectReference Include="..\..\Lib\NotifyIconWpf\NotifyIconWpf\NotifyIconWpf.csproj" />
-    <ProjectReference Include="..\LittleBigMouse.Plugin.Vcp\LittleBigMouse.Plugin.Vcp.csproj" />
-    <ProjectReference Include="..\LittleBigMouse.Plugins\LittleBigMouse.Plugins.csproj" />
     <ProjectReference Include="..\LittleBigMouse.ScreenConfig\LittleBigMouse.ScreenConfig.csproj" />
   </ItemGroup>
 

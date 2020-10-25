@@ -21,16 +21,16 @@
 	  http://www.mgth.fr
 */
 
-using System;
 using System.Windows;
 using System.Windows.Controls;
 using HLab.Mvvm.Annotations;
+using LittleBigMouse.Plugins;
 
-namespace LittleBigMouse.Control.Core.ScreenFrame
+namespace LittleBigMouse.Control.ScreenFrame
 {
-    public partial class ScreenFrameView : UserControl , IView<ViewModeDefault, ScreenFrameViewModel>, IViewClassDefault
+    public partial class ScreenFrameView : UserControl , IView<ViewModeDefault, ScreenFrameViewModel>, IViewClassDefault, IScreenFrameView
     {
-        public ScreenFrameViewModel ViewModel => DataContext as ScreenFrameViewModel;
+        public IScreenFrameViewModel ViewModel => DataContext as ScreenFrameViewModel;
 
         public ScreenFrameView()
         {

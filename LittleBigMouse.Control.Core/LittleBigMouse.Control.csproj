@@ -1,10 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <Platforms>AnyCPU;x64</Platforms>
+	<StartupObject>LittleBigMouse.Control.App</StartupObject>
     <ApplicationIcon>MainIcon.ico</ApplicationIcon>
+	<ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +17,11 @@
     <None Remove="Icons\IconFullscreen.svg" />
     <None Remove="Icons\IconPinned.svg" />
     <None Remove="Icons\IconUnfullscreen.svg" />
+    <None Remove="MainIcon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Remove="App.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,6 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MahApps.Metro" Version="2.2.0" />
     <PackageReference Include="Microsoft.NETCore.App" Version="2.2.8" />
     <PackageReference Include="System.Runtime" Version="4.3.1" />
   </ItemGroup>
@@ -33,6 +42,10 @@
     <ProjectReference Include="..\..\HLab\HLab.Mvvm.Wpf\HLab.Mvvm.Wpf.csproj" />
     <ProjectReference Include="..\..\HLab\HLab.Mvvm\HLab.Mvvm.csproj" />
     <ProjectReference Include="..\..\HLab\HLab.Notify.PropertyChanged\HLab.Notify.PropertyChanged.csproj" />
+    <ProjectReference Include="..\..\HLab\HLab.Notify.Wpf\HLab.Notify.Wpf.csproj" />
+    <ProjectReference Include="..\LittleBigMouse.Daemon\LittleBigMouse.Daemon.csproj" />
+    <ProjectReference Include="..\LittleBigMouse.Plugin.Location\LittleBigMouse.Plugin.Location.csproj" />
+    <ProjectReference Include="..\LittleBigMouse.Plugin.Vcp\LittleBigMouse.Plugin.Vcp.csproj" />
     <ProjectReference Include="..\LittleBigMouse.Plugins\LittleBigMouse.Plugins.csproj" />
     <ProjectReference Include="..\LittleBigMouse.ScreenConfig\LittleBigMouse.ScreenConfig.csproj" />
   </ItemGroup>
@@ -49,6 +62,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="App.xaml.cs">
+      <SubType>Code</SubType>
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
     <Compile Update="ColorsWindow.xaml.cs">
       <DependentUpon>ColorsWindow.xaml</DependentUpon>
     </Compile>
@@ -79,10 +96,16 @@
     <Page Update="ColorsWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Update="Converters.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Devices\DevicesView.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Devices\DeviceView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Icons.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Main\MainView.xaml">

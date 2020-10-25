@@ -26,7 +26,7 @@ using HLab.Mvvm;
 using HLab.Notify.PropertyChanged;
 using LittleBigMouse.ScreenConfig;
 
-namespace LittleBigMouse.Control.Core.Plugins.Default
+namespace LittleBigMouse.Control.Plugins.Default
 {
     using H = H<DefaultScreenViewModel>;
 

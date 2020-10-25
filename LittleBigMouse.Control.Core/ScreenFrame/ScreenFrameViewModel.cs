@@ -31,26 +31,27 @@ using System.Windows.Media.Imaging;
 using HLab.Mvvm;
 using HLab.Mvvm.Annotations;
 using HLab.Notify.PropertyChanged;
-using LittleBigMouse.Control.Core.Plugins.Debug;
+using LittleBigMouse.Control.Plugins.Debug;
+using LittleBigMouse.Plugins;
 using LittleBigMouse.ScreenConfig;
 using LittleBigMouse.ScreenConfig.Dimensions;
 
-namespace LittleBigMouse.Control.Core.ScreenFrame
+namespace LittleBigMouse.Control.ScreenFrame
 {
     using H = H<ScreenFrameViewModel>;
-    public class ScreenFrameViewModel : ViewModel<Screen>, IMvvmContextProvider
+    public class ScreenFrameViewModel : ViewModel<Screen>, IMvvmContextProvider, IScreenFrameViewModel
     {
         public ScreenFrameViewModel()
         {
             H.Initialize(this);
         }
 
-        public MultiScreensViewModel Presenter
+        public IMultiScreensViewModel Presenter
         {
             get => _presenter.Get();
             set => _presenter.Set(value);
         }
-        private readonly IProperty<MultiScreensViewModel> _presenter = H.Property<MultiScreensViewModel>();
+        private readonly IProperty<IMultiScreensViewModel> _presenter = H.Property<IMultiScreensViewModel>();
 
 
 
@@ -365,6 +366,15 @@ namespace LittleBigMouse.Control.Core.ScreenFrame
                     return (Viewbox)Application.Current.FindResource("LogoViewsonic");
                 case "msg":
                     return (Viewbox)Application.Current.FindResource("LogoMsi");
+                case "gbt":
+                    return (Viewbox)Application.Current.FindResource("LogoAorus");
+                case "ins":
+                    return (Viewbox)Application.Current.FindResource("LogoInsignia");
+                case "auo":
+                    return (Viewbox)Application.Current.FindResource("LogoAUO");
+                case "wac":
+                    return (Viewbox)Application.Current.FindResource("LogoWacom");
+                    
                 default:
                     return (Viewbox)Application.Current.FindResource("LogoLbm");
             }

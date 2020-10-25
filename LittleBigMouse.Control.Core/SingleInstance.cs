@@ -20,19 +20,13 @@
 	  mailto:mathieu@mgth.fr
 	  http://www.mgth.fr
 */
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization.Formatters;
-using System.Security;
-using System.Threading;
-using System.Windows;
-using System.Windows.Threading;
 
-namespace LittleBigMouse.Control.Core
+using System;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
+using System.Security;
+
+namespace LittleBigMouse.Control
 {
     internal enum WM
     {

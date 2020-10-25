@@ -20,12 +20,13 @@
 	  mailto:mathieu@mgth.fr
 	  http://www.mgth.fr
 */
+
 using System.Collections.Generic;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Media;
 
-namespace LittleBigMouse.Control.Core
+namespace LittleBigMouse.Control
 {
     public partial class ColorsWindow : Window
     {

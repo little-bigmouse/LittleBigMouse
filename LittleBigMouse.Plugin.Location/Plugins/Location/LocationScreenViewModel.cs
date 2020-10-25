@@ -27,9 +27,8 @@ using System.Windows.Media;
 using HLab.Mvvm;
 using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
-using LittleBigMouse.Control.Core.Plugins.Debug;
-using LittleBigMouse.Control.Core.ScreenFrame;
 using LittleBigMouse.Plugin.Location.Plugins.Location.Rulers;
+using LittleBigMouse.Plugins;
 using LittleBigMouse.ScreenConfig;
 using RulerPanelView = LittleBigMouse.Plugin.Location.Plugins.Location.Rulers.RulerPanelView;
 using RulerView = LittleBigMouse.Plugin.Location.Plugins.Location.Rulers.RulerView;
@@ -175,12 +174,12 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
             .Update()
         );
 
-        public ScreenFrameViewModel ScreenFrameViewModel
+        public IScreenFrameViewModel ScreenFrameViewModel
         {
             get => _screenFrameViewModel.Get();
             set => _screenFrameViewModel.Set(value);
         }
-        private readonly IProperty<ScreenFrameViewModel> _screenFrameViewModel = H.Property<ScreenFrameViewModel>();
+        private readonly IProperty<IScreenFrameViewModel> _screenFrameViewModel = H.Property<IScreenFrameViewModel>();
 
     }
 }

@@ -37,10 +37,8 @@ using HLab.Mvvm.Annotations;
 using HLab.Mvvm.Extensions;
 using HLab.Sys.Windows.API;
 using LittleBigMouse.Control.Core;
-using LittleBigMouse.Control.Core.ScreenFrame;
 using LittleBigMouse.Plugins;
 using LittleBigMouse.ScreenConfig;
-using MultiScreensView = LittleBigMouse.Control.Core.MultiScreensView;
 
 namespace LittleBigMouse.Plugin.Location.Plugins.Location
 {
@@ -85,8 +83,8 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
         }
 
          private LocationScreenViewModel ViewModel => (DataContext as LocationScreenViewModel);
-         private Panel MainPanel => this.FindVisualParent<MultiScreensView>().GetMainPanel();
-         private Panel BackPanel => this.FindVisualParent<MultiScreensView>().GetMainPanel();
+         private Panel MainPanel => this.FindVisualParent<IMultiScreensView>().GetMainPanel();
+         private Panel BackPanel => this.FindVisualParent<IMultiScreensView>().GetMainPanel();
 
 
 
@@ -147,9 +145,9 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
             //Todo : Plugin.ActivateConfig();
         }
 
-        MultiScreensView Presenter
+        IMultiScreensView Presenter
         {
-            get { return this.FindVisualParent<MultiScreensView>(); }
+            get { return this.FindVisualParent<IMultiScreensView>(); }
         }
 
 

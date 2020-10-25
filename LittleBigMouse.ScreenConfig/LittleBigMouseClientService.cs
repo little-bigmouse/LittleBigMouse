@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO.Pipes;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Documents;
 using HLab.DependencyInjection.Annotations;
 using HLab.Remote;
-using JKang.IpcServiceFramework.Client;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace LittleBigMouse.ScreenConfig
 {
@@ -17,68 +17,80 @@ namespace LittleBigMouse.ScreenConfig
     {
         public event Action<string> StateChanged;
 
-        public void OnStateChange(string state)
+        protected void OnStateChanged(string state)
         {
             StateChanged?.Invoke(state);
         }
 
-        private readonly PipeServer _server;
-
         public LittleBigMouseClientService():base("lbm.daemon")
         {
-            _server = new PipeServer{PipeName = "lbm.control", Command =  CommandLine};
-            _server.Run();
-            SendAsync<bool>("register lbm.control");
         }
 
 
-        private async Task<string> CommandLine(string command)
+
+        public async void LoadConfig() => SendAsync();
+        public async void Start()
         {
-            switch (command)
-            {
-                
-            }
-            return "";
+            var ack = await SendAsync();
+            if(ack=="ACK") OnStateChanged("running");
         }
 
-        public Task<bool> LoadConfig() => SendAsync<bool>();
-        public Task<bool> Start() => SendAsync<bool>();
-
-        public Task<bool> Stop() => SendAsync<bool>();
-
-        public Task Update() => SendAsync();
-        public Task<bool> Quit() => SendAsync<bool>();
-
-        public Task<bool> LoadAtStartup(bool state = true) => SendAsync<bool>();
-
-        public Task CommandLine(IList<string> args) => SendAsync();
-
-        public Task<bool> Running() => SendAsync<bool>();
-
-        protected override bool StartServer()
+        public async void Stop()
         {
-            var args = "";
-            var module = Process.GetCurrentProcess().MainModule;
+            var ack = await SendAsync();
+            if(ack=="ACK") OnStateChanged("stopped");
 
-            var filename = module?.FileName;
-            if (filename == null) return false;
-                
-            filename = filename.Replace(".Control.Loader", ".Daemon").Replace(".vshost", "");
+        }
+
+        public async void Update() => SendAsync();
+        public async void Quit() => SendAsync();
+
+        public async void LoadAtStartup(bool state = true) => SendAsync();
+
+        public async void CommandLine(IList<string> args) => SendAsync();
+
+        public async void Running() => SendAsync();
+
+        private Process _daemonProcess = null;
+        private readonly SemaphoreSlim _startingSemaphore = new SemaphoreSlim(1,1);
+        protected override async Task<bool> StartServerAsync()
+        {
+            await _startingSemaphore.WaitAsync();
             try
             {
-                var process = Process.Start(filename, args);
-                if (process?.Responding ?? false)
+                if (_daemonProcess != null)
                 {
-                    SendAsync<bool>("register=lbm.control");
-                    return true;
+                    if (!_daemonProcess.HasExited && _daemonProcess.Responding) return true;
+                    _daemonProcess = null;
                 }
 
-                return false;
+                var args = "";
+                var module = Process.GetCurrentProcess().MainModule;
+
+                var filename = module?.FileName;
+                if (filename == null) return false;
+
+                filename = filename.Replace(".Control.exe", ".Daemon.exe").Replace(".vshost", "");
+                try
+                {
+                    _daemonProcess = Process.Start(filename, args);
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+                if (_daemonProcess == null) return false;
+                if (!_daemonProcess.Responding) return false;
+                if (_daemonProcess.HasExited) return false;
+                return true;
             }
-            catch (Exception)
+            finally
             {
-                return false;
+                _startingSemaphore.Release();
             }
+
+
         }
 
     }

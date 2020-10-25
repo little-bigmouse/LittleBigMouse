@@ -33,7 +33,7 @@ using HLab.Mvvm.Annotations;
 using HLab.Mvvm.Icons;
 using HLab.Notify.PropertyChanged;
 
-namespace LittleBigMouse.Control.Core.Main
+namespace LittleBigMouse.Control.Main
 {
     using H = H<MainViewModel>;
 

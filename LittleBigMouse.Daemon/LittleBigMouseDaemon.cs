@@ -25,7 +25,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Pipes;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -45,10 +44,10 @@ using Task = System.Threading.Tasks.Task;
 
 namespace LittleBigMouse.Daemon
 {
-   // [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Multiple, InstanceContextMode = InstanceContextMode.Single)]
+    // [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Multiple, InstanceContextMode = InstanceContextMode.Single)]
     class LittleBigMouseDaemon : Application, ILittleBigMouseService
     {
-        private string ServiceName { get; } = "LittleBigMouse_" + System.Security.Principal.WindowsIdentity.GetCurrent().Name.Replace('\\','_');
+        private string ServiceName { get; } = "LittleBigMouse_" + System.Security.Principal.WindowsIdentity.GetCurrent().Name.Replace('\\', '_');
         private MouseEngine _engine;
         private readonly IMonitorsService _monitorsService;
         private Notify _notify;
@@ -67,20 +66,28 @@ namespace LittleBigMouse.Daemon
             _screenConfig = new ScreenConfig.ScreenConfig(_monitorsService);
         }
 
-//       private ILittleBigMouseCallback Callback => OperationContext.Current?.GetCallbackChannel<ILittleBigMouseCallback>();
-//       private ServiceHost _host;
+        //       private ILittleBigMouseCallback Callback => OperationContext.Current?.GetCallbackChannel<ILittleBigMouseCallback>();
+        //       private ServiceHost _host;
 
-        private PipeServer _pipe;
-       public void StartServer(string name)
-       {
-           _pipe = new PipeServer {PipeName = name, Command =  CommandLine};
-           _pipe.Run();
-       }
+        private RemoteServer _server;
+        private void StartServer(string name)
+        {
+            _server = new RemoteServer(name);
+            _server.GotMessage += OnGotMessage;
+            _server.Run();
+        }
 
-       public void StopServer()
-       {
-//           _host.Close();
-       }
+        private void OnGotMessage(object sender, RemoteEventArgs e)
+        {
+            Application.Current.Dispatcher.Invoke(
+                    () => CommandLine(e.Message)
+            );
+        }
+
+        public void StopServer()
+        {
+            //           _host.Close();
+        }
 
         private void OnStartup(object sender, EventArgs exitEventArgs)
         {
@@ -90,7 +97,7 @@ namespace LittleBigMouse.Daemon
 
             _engine.ConfigLoaded += _engine_ConfigLoaded;
 
-           StartServer("lbm.daemon");
+            StartServer("lbm.daemon");
 
             if (_notify != null)
                 _notify.Click += OnNotifyClick;
@@ -99,11 +106,11 @@ namespace LittleBigMouse.Daemon
 
             //_notify.AddMenu("Brightness", Brightness);
 
-            _notify.AddMenu(-1,"Check for update",CheckUpdate);
-            _notify.AddMenu(-1,"Open", Open);
-            _notify.AddMenu(-1,"Start", Start);
-            _notify.AddMenu(-1,"Stop", Stop);
-            _notify.AddMenu(-1,"Exit", Quit);
+            _notify.AddMenu(-1, "Check for update", CheckUpdate);
+            _notify.AddMenu(-1, "Open", Open);
+            _notify.AddMenu(-1, "Start", Start);
+            _notify.AddMenu(-1, "Stop", Stop);
+            _notify.AddMenu(-1, "Exit", Quit);
 
             CommandLine(_args);
             //Start();
@@ -122,10 +129,10 @@ namespace LittleBigMouse.Daemon
 
             foreach (string configName in ScreenConfig.ScreenConfig.ConfigsList)
             {
-                bool chk = configName==_engine.Config?.Id;
+                bool chk = configName == _engine.Config?.Id;
 
                 if (_screenConfig.IsDoableConfig(configName))
-                    _notify.AddMenu(0,configName, MatchConfig, "config", chk);
+                    _notify.AddMenu(0, configName, MatchConfig, "config", chk);
             }
 
         }
@@ -153,7 +160,7 @@ namespace LittleBigMouse.Daemon
             _notify.Hide();
         }
 
-        public async Task CommandLine(IList<string> args)
+        public async void CommandLine(IList<string> args)
         {
             List<string> a = args.ToList();
             foreach (string s in a)
@@ -177,7 +184,7 @@ namespace LittleBigMouse.Daemon
             }
         }
 
-        public async Task<string> CommandLine(string arg)
+        public async Task CommandLine(string arg)
         {
             var args = arg.Split("=");
             switch (args[0].ToLower())
@@ -185,48 +192,56 @@ namespace LittleBigMouse.Daemon
                 case "x":
                 case "exit":
                 case "quit":
-                    return await Quit()?"1":"0";
+                    Quit();
+                    break;
                 case "l":
                 case "load":
-                    return await LoadConfig()?"1":"0";
+                    LoadConfig();
+                    break;
                 case "s":
                 case "start":
-                    return await Start()?"1":"0";
+                    Start();
+                    break;
                 case "p":
                 case "stop":
-                    return await Stop()?"1":"0";
+                    Stop();
+                    break;
                 case "c":
                 case "schedule":
-                    return await LoadAtStartup()?"1":"0";
+                    LoadAtStartup();
+                    break;
                 case "n":
                 case "unschedule":
-                    return await LoadAtStartup(false)?"1":"0";
+                    LoadAtStartup(false);
+                    break;
                 case "u":
                 case "update":
-                    return await CheckUpdateAsync()?"1":"0";
-                case "register":
-                    return await Register(args[1])?"1":"0";
-
+                    CheckUpdateAsync();
+                    break;
             }
-
-            return "?";
         }
 
-        public async Task<bool> Running()
+        public async void Running()
         {
-            return _engine.Hook.Hooked();
+            if (_engine.Hook.Hooked())
+            {
+                await _server.SendMessageAsync("running");
+            }
+            else
+            {
+                _server.SendMessageAsync("stopped");
+            }
         }
 
-        public async Task Update()
+        public async void Update()
         {
             CheckUpdateAsync();
         }
 
-        public async Task<bool> LoadAtStartup(bool state = true)
+        public async void LoadAtStartup(bool state = true)
         {
             if (state) Schedule();
             else Unschedule();
-            return true;
         }
 
         //public void Init()
@@ -234,34 +249,30 @@ namespace LittleBigMouse.Daemon
         //    Callback = OperationContext.Current.GetCallbackChannel<ILittleBigMouseCallback>();
         //}
 
-        public async Task<bool> LoadConfig()
+        public async void LoadConfig()
         {
             _engine.LoadConfig();
             if (_engine.Config.AutoUpdate)
                 CheckUpdateAsync();
-            return true; //TODO : deal with failures
         }
 
         private void Quit(object sender, EventArgs e) { Quit(); }
-        public async Task<bool> Quit()
+        public async void Quit()
         {
-            var stopped = await Stop();
-            if (!stopped) return false;
+            Stop();
             Shutdown();
-            return true;
         }
 
         private async void Start(object sender, EventArgs e)
         {
-            await Start();
+            Start();
             //Callback?.OnStateChange(true);
         }
-        public async Task<bool> Start()
+        public async void Start()
         {
             _engine.Start();
             _notify.SetOn();
-            await SendAsync("running");
-            return true;
+            await _server.SendMessageAsync("running");
         }
 
         private void Stop(object sender, EventArgs e)
@@ -269,17 +280,16 @@ namespace LittleBigMouse.Daemon
             Stop();
             //Callback?.OnStateChange(false);
         }
-        public async Task<bool> Stop()
+        public async void Stop()
         {
             _engine.Stop();
             _notify.SetOff();
-            await SendAsync("stopped");
-            return true;
+            await _server.SendMessageAsync("stopped");
         }
 
         private void Open(object sender, EventArgs eventArgs)
         {
-             Open();
+            Open();
         }
 
         private void CheckUpdate(object sender, EventArgs eventArgs) { CheckUpdateAsync(); }
@@ -369,14 +379,14 @@ namespace LittleBigMouse.Daemon
             td.RegistrationInfo.Description = "Multi-dpi aware monitors mouse crossover";
             td.Triggers.Add(
                 //new BootTrigger());
-                new LogonTrigger{UserId = System.Security.Principal.WindowsIdentity.GetCurrent().Name });
+                new LogonTrigger { UserId = System.Security.Principal.WindowsIdentity.GetCurrent().Name });
 
             //var p = Process.GetCurrentProcess();
             //string filename = p.MainModule.FileName.Replace(".vshost", "");
             var filename = AppDomain.CurrentDomain.BaseDirectory + AppDomain.CurrentDomain.FriendlyName.Replace(".vshost", "");
 
             td.Actions.Add(
-                new ExecAction(filename,"--start", AppDomain.CurrentDomain.BaseDirectory)
+                new ExecAction(filename, "--start", AppDomain.CurrentDomain.BaseDirectory)
             );
 
             td.Principal.RunLevel = TaskRunLevel.Highest;
@@ -393,20 +403,5 @@ namespace LittleBigMouse.Daemon
             ts.RootFolder.DeleteTask(ServiceName, false);
         }
 
-        private readonly Dictionary<string,RemoteClient> _controls = new Dictionary<string, RemoteClient>();
-        public async Task<bool> Register(string name)
-        {
-            if (_controls.ContainsKey(name)) return true;
-            _controls.Add(name,new RemoteClient(name){});
-            return true;
-        }
-
-        public async Task SendAsync(string message)
-        {
-            foreach (var c in _controls)
-            {
-                await c.Value.SendAsync(message);
-            }
-        }
     }
 }
