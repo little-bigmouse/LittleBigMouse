@@ -37,16 +37,15 @@ namespace LittleBigMouse.ScreenConfig
         private readonly IProperty<string> _pnpDeviceName = H.Property<string>();
 
 
-        [TriggerOn(nameof(Physical), "TopBorder")]
-        [TriggerOn(nameof(Physical), "RightBorder")]
-        [TriggerOn(nameof(Physical), "BottomBorder")]
-        [TriggerOn(nameof(Physical), "LeftBorder")]
-        [TriggerOn(nameof(Physical), "Height")]
-        [TriggerOn(nameof(Physical), "Width")]
-        public void SetSaved()
-        {
-            Saved = false;
-        }
+        private ITrigger _ = H.Trigger(c => c
+            .On(e => e.Physical.TopBorder)
+            .On(e => e.Physical.RightBorder)
+            .On(e => e.Physical.BottomBorder)
+            .On(e => e.Physical.LeftBorder)
+            .On(e => e.Physical.Height)
+            .On(e => e.Physical.Width)
+            .Do(e => e.Saved = false)
+        );
 
         [DataMember] public ScreenSizeInMm Physical => _physical.Get();
         private readonly IProperty<ScreenSizeInMm> _physical = H.Property<ScreenSizeInMm>(c => c
