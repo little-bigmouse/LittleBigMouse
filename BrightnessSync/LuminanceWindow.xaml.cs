@@ -20,6 +20,7 @@
 	  mailto:mathieu@mgth.fr
 	  http://www.mgth.fr
 */
+
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -27,18 +28,16 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using HLab.Base.Wpf;
-using HLab.Mvvm.Annotations;
-using LittleBigMouse.ScreenConfig;
 
-namespace LittleBigMouse_Daemon
+namespace BrightnessSync
 {
     /// <summary>
     /// Logique d'interaction pour Luminance.xaml
     /// </summary>
-    public partial class LuminanceWindow : Window, INotifyPropertyChanged
+    public partial class BrightnessWindow : Window, INotifyPropertyChanged
     {
-        public static RoutedEvent AnimShowEvent = EventManager.RegisterRoutedEvent("AnimShow",RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(LuminanceWindow));
-        public static RoutedEvent AnimHideEvent = EventManager.RegisterRoutedEvent("AnimHide", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(LuminanceWindow));
+        public static RoutedEvent AnimShowEvent = EventManager.RegisterRoutedEvent("AnimShow",RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(BrightnessWindow));
+        public static RoutedEvent AnimHideEvent = EventManager.RegisterRoutedEvent("AnimHide", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(BrightnessWindow));
         public event RoutedEventHandler AnimShow
         {
             add => AddHandler(AnimShowEvent, value);
@@ -62,7 +61,7 @@ namespace LittleBigMouse_Daemon
         public Brush BackgroundBrush => new SolidColorBrush(AccentColorSet.ActiveSet["HardwareFlipViewFillPressed"]); //);
         public Brush BorderBrushColor => new SolidColorBrush(AccentColorSet.ActiveSet["ControlScrollbarThumbBorderPressed"]);//; //);
 
-        public LuminanceWindow()
+        public BrightnessWindow()
         {
             
             InitializeComponent();
@@ -96,7 +95,6 @@ namespace LittleBigMouse_Daemon
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
