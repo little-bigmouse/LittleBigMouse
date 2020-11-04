@@ -9,11 +9,21 @@
     <ApplicationIcon>MainIcon.ico</ApplicationIcon>
     <StartupObject>LittleBigMouse.Daemon.Program</StartupObject>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Configurations>Debug;Release;ReleaseDebug</Configurations>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <WarningLevel>0</WarningLevel>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDebug|x64'">
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>false</Optimize>
   </PropertyGroup>
 
   <ItemGroup>
@@ -47,9 +57,6 @@
 
   <ItemGroup>
     <Compile Update="LittleBigMouseService.cs" />
-    <Compile Update="LuminanceWindow.xaml.cs">
-      <DependentUpon>LuminanceWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -80,12 +87,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Page Update="LuminanceWindow.xaml">
-      <SubType>Designer</SubType>
-    </Page>
     <Page Update="Updater\ApplicationUpdaterView.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
+	 <!--Include MSBuild.deps.json and MSBuild.runtimeconfig.json in ContentWithTargetPath so they will be copied to the output folder of projects
+       that reference this one.--> 
+	<Target Name="AddRuntimeDependenciesToContent" Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp'" BeforeTargets="GetCopyToOutputDirectoryItems">
+		<ItemGroup>
+			<ContentWithTargetPath Include="$(ProjectDepsFilePath)" CopyToOutputDirectory="PreserveNewest" TargetPath="$(ProjectDepsFileName)" />
+
+			<ContentWithTargetPath Include="$(ProjectRuntimeConfigFilePath)" CopyToOutputDirectory="PreserveNewest" TargetPath="$(ProjectRuntimeConfigFileName)" />
+		</ItemGroup>
+	</Target>
 
 </Project>
