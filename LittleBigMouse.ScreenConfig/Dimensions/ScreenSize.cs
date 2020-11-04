@@ -99,10 +99,10 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
             }
         }
         private readonly IProperty<Size> _size = H.Property<Size>(c => c
+            .Set(e => new Size(e.Width,e.Height))            
             .On(e => e.Width)
             .On(e => e.Height)
-            .Set(e => new Size(e.Width,e.Height))            
-//            .Update()
+            .Update()
         );
 
         public Point Center => _center.Get();
