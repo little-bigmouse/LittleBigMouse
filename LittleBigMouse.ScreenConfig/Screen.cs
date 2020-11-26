@@ -105,7 +105,7 @@ namespace LittleBigMouse.ScreenConfig
 
         [DataMember] public int Orientation => _orientation.Get();
         private readonly IProperty<int> _orientation = H.Property<int>(c => c
-            .Set(s => s.Monitor.AttachedDisplay?.CurrentMode.DisplayOrientation ?? 0)
+            .Set(s => s.Monitor.AttachedDisplay?.CurrentMode?.DisplayOrientation ?? 0)
             .On(e => e.Monitor.AttachedDisplay.CurrentMode.DisplayOrientation)
             .Update()
         );
@@ -383,7 +383,7 @@ namespace LittleBigMouse.ScreenConfig
 
         public void Load()
         {
-            using (RegistryKey key = OpenGuiLocationRegKey())
+            using (var key = OpenGuiLocationRegKey())
             {
                 if (key != null)
                 {
@@ -395,7 +395,7 @@ namespace LittleBigMouse.ScreenConfig
                 }
             }
 
-            using (RegistryKey key = OpenConfigRegKey(false))
+            using (var key = OpenConfigRegKey(false))
             {
                 if (key != null)
                 {
@@ -411,7 +411,7 @@ namespace LittleBigMouse.ScreenConfig
         {
             ScreenModel.Save(baseKey);
 
-            using (RegistryKey key = OpenGuiLocationRegKey(true))
+            using (var key = OpenGuiLocationRegKey(true))
             {
                 key.SetKey("Left", GuiLocation.Left);
                 key.SetKey("Width", GuiLocation.Width);
@@ -419,12 +419,12 @@ namespace LittleBigMouse.ScreenConfig
                 key.SetKey("Height", GuiLocation.Height);
             }
 
-            using (RegistryKey key = Monitor.OpenMonitorRegKey(true))
+            using (var key = Monitor.OpenMonitorRegKey(true))
             {
                 key?.SetKey("DeviceId", Monitor.DeviceId);
             }
 
-            using (RegistryKey key = OpenConfigRegKey(true))
+            using (var key = OpenConfigRegKey(true))
             {
                 if (key != null)
                 {
