@@ -37,7 +37,7 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
         protected ScreenSize(IScreenSize source)
         {
             Source = source;
-            H.Initialize(this);
+            //H.Initialize(this);
         }
 
         [JsonIgnore]
@@ -114,7 +114,6 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
         );
 
 
-        //[DataMember]
         [DataMember] public Rect Bounds => _bounds.Get();
         private readonly IProperty<Rect> _bounds = H.Property<Rect>(c => c
             .Set(e => new Rect(e.Location,e.Size) )            
