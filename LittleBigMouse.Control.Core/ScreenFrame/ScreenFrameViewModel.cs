@@ -31,7 +31,6 @@ using System.Windows.Media.Imaging;
 using HLab.Mvvm;
 using HLab.Mvvm.Annotations;
 using HLab.Notify.PropertyChanged;
-using LittleBigMouse.Control.Plugins.Debug;
 using LittleBigMouse.Plugins;
 using LittleBigMouse.ScreenConfig;
 using LittleBigMouse.ScreenConfig.Dimensions;

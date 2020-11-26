@@ -22,9 +22,9 @@
 */
 
 using System;
+using System.Text.Json.Serialization;
 using HLab.Notify.PropertyChanged;
 using HLab.Sys.Windows.Monitors;
-using Newtonsoft.Json;
 
 namespace LittleBigMouse.ScreenConfig.Dimensions
 {
@@ -37,9 +37,9 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
     {
         [JsonIgnore]
         public ScreenModel ScreenModel { get; }
-        public ScreenSizeInMm(ScreenModel screen):base(null)
+        public ScreenSizeInMm(ScreenModel screenModel):base(null)
         {
-            ScreenModel = screen;
+            ScreenModel = screenModel;
             H.Initialize(this);
         }
 

@@ -20,15 +20,14 @@
 	  mailto:mathieu@mgth.fr
 	  http://www.mgth.fr
 */
-using Hardcodet.Wpf.TaskbarNotification;
+
 using System;
-using System.Drawing;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
+using Hardcodet.Wpf.TaskbarNotification;
 using LittleBigMouse.Daemon.Properties;
 
-namespace LittleBigMouse_Daemon
+namespace LittleBigMouse.Daemon
 {
     public class Notify //: IDisposable
     {
@@ -39,15 +38,15 @@ namespace LittleBigMouse_Daemon
             _notify = new TaskbarIcon()
             {
                 Visibility = Visibility.Visible,
-                ContextMenu = new System.Windows.Controls.ContextMenu(),
+                ContextMenu = new ContextMenu(),
                 //Icon = (Icon) Application.Current.FindResource("lbm_off")
-        };
+            };
 
             SetOff();
 
             _notify.TrayLeftMouseUp += _notify_TrayLeftMouseUp; ;
             _notify.TrayRightMouseUp += _notify_TrayRightMouseUp;
-         }
+        }
 
 
         public void SetOn()
@@ -70,7 +69,7 @@ namespace LittleBigMouse_Daemon
 
         private void _notify_TrayRightMouseUp(object sender, RoutedEventArgs e)
         {
-             //_notify.ContextMenuStrip.Show( Control.MousePosition);
+            //_notify.ContextMenuStrip.Show( Control.MousePosition);
         }
 
         private void _notify_TrayLeftMouseUp(object sender, RoutedEventArgs e)
@@ -87,9 +86,9 @@ namespace LittleBigMouse_Daemon
         //}
         public delegate void Func();
 
-        public void AddMenu(int pos, string txt, RoutedEventHandler evt, string tag=null, bool chk = false)
+        public void AddMenu(int pos, string txt, RoutedEventHandler evt, string tag = null, bool chk = false)
         {
-            MenuItem item = new MenuItem{};//{ })(txt, null, evt);
+            MenuItem item = new MenuItem { };//{ })(txt, null, evt);
 
             item.Click += evt;
 
@@ -99,10 +98,10 @@ namespace LittleBigMouse_Daemon
 
             item.Tag = tag;
 
-            if(pos<0 || pos>= _notify.ContextMenu.Items.Count) _notify.ContextMenu.Items.Add(item);
+            if (pos < 0 || pos >= _notify.ContextMenu.Items.Count) _notify.ContextMenu.Items.Add(item);
 
-            else _notify.ContextMenu.Items.Insert(pos,item);
-                
+            else _notify.ContextMenu.Items.Insert(pos, item);
+
         }
 
         public void RemoveMenu(string tag)
@@ -111,7 +110,7 @@ namespace LittleBigMouse_Daemon
             while (!done)
             {
                 MenuItem[] items = new MenuItem[_notify.ContextMenu.Items.Count];
-                _notify.ContextMenu.Items.CopyTo(items,0);
+                _notify.ContextMenu.Items.CopyTo(items, 0);
                 done = true;
                 foreach (var i in items)
                 {
