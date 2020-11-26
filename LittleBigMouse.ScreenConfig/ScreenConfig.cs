@@ -45,9 +45,22 @@ namespace LittleBigMouse.ScreenConfig
 {
     using H = H<ScreenConfig>;
 
+    class SystemEventProxy
+    {
+        public event UserPreferenceChangedEventHandler? UserPreferenceChanged;
+
+        public SystemEventProxy()
+        {
+            SystemEvents.UserPreferenceChanged += (sender, args) => UserPreferenceChanged?.Invoke(sender, args);
+        }
+    }
+
+
     [DataContract]
     public class ScreenConfig : NotifierBase
     {
+        private static readonly SystemEventProxy SystemEventProxy = new SystemEventProxy();
+
         [Import]
         public ScreenConfig(IMonitorsService monitorsService)
         {
@@ -57,16 +70,18 @@ namespace LittleBigMouse.ScreenConfig
 
             _wallPaperPath.Set(GetCurrentDesktopWallpaper());
 
-            SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
+            //SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
+
+            NotifyHelper.EventHandlerService.AddHandler<SystemEventProxy,UserPreferenceChangedEventArgs>(SystemEventProxy,"UserPreferenceChanged",SystemEvents_UserPreferenceChanged);
 
             MonitorsOnCollectionChanged(monitorsService.AttachedMonitors,
                 new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, monitorsService.AttachedMonitors.ToList()));
 
-            monitorsService.AttachedMonitors.CollectionChanged += MonitorsOnCollectionChanged;
+            //monitorsService.AttachedMonitors.CollectionChanged += MonitorsOnCollectionChanged;
+            NotifyHelper.EventHandlerService.AddHandler(monitorsService.AttachedMonitors, MonitorsOnCollectionChanged);
         }
 
         internal IMonitorsService MonitorsService { get; }
-
 
 
         [DataMember]
@@ -212,7 +227,7 @@ namespace LittleBigMouse.ScreenConfig
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
+            
 
             Load();
             SetPhysicalAuto(false);
