@@ -4,8 +4,11 @@ using HLab.Sys.Windows.MonitorVcp;
 
 namespace LittleBigMouse.Plugin.Vcp
 {
-    class TestViewModel : N<TestViewModel>
+    using H = H<TestViewModel>;
+
+    class TestViewModel : NotifierBase
     {
+        public TestViewModel() => H.Initialize(this);
         public TestPatternType TestType => _testType.Get();
         private readonly IProperty<TestPatternType> _testType = H.Property<TestPatternType>();
         public Color TestColor => _testColor.Get();

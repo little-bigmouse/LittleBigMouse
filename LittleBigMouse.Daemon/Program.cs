@@ -41,15 +41,17 @@ namespace LittleBigMouse.Daemon
             if (!firstInstance)
             {
                 var client = new RemoteClient("lbm.daemon");
-                client.SendMessageAsync()
-                // LittleBigMouseClient.Client.CommandLine(args); TODO
+                foreach (var arg in args)
+                {
+                    client.SendMessageAsync(arg);
+                }
                 mutex.Close();
                 return;
             }
 
             if (Environment.UserInteractive)
             {
-                var daemon = new LittleBigMouseDaemon(args) {ShutdownMode = ShutdownMode.OnExplicitShutdown};
+                var daemon = new LittleBigMouseDaemon{ ShutdownMode = ShutdownMode.OnExplicitShutdown };
                 daemon.Run();
             }
             else
@@ -65,6 +67,7 @@ namespace LittleBigMouse.Daemon
             }
 
             mutex.Close();
+            Environment.Exit(0);
         }
     }
 }

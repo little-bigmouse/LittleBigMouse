@@ -3,11 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:control="clr-namespace:LittleBigMouse.Control"
              LayoutUpdated="MultiScreensView_OnLayoutUpdated"
              mc:Ignorable="d" 
              d:DesignHeight="300" 
              d:DesignWidth="500"
-             d:DataContext="{d:DesignInstance Type=core:MultiScreensViewModel, IsDesignTimeCreatable=False}"
+             d:DataContext="{d:DesignInstance Type=control:MultiScreensViewModel, IsDesignTimeCreatable=False}"
              >
     <Grid>
         <Grid.Background>

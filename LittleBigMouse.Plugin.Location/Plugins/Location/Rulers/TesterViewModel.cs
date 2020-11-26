@@ -25,8 +25,11 @@ using HLab.Notify.PropertyChanged;
 
 namespace LittleBigMouse.Plugin.Location.Plugins.Location.Rulers
 {
-    public class TesterViewModel : N<TesterViewModel>
+    using H = H<TesterViewModel>;
+    public class TesterViewModel : NotifierBase
     {
+        public TesterViewModel() => H.Initialize(this);
+
         public double LeftInDip
         {
             get => _leftInDip.Get();

@@ -25,6 +25,7 @@ using System.Reflection;
 using System.Windows;
 using HLab.Core;
 using HLab.DependencyInjection;
+using HLab.Notify.PropertyChanged;
 using HLab.Notify.Wpf;
 
 namespace LittleBigMouse.Control
@@ -40,6 +41,8 @@ namespace LittleBigMouse.Control
             var boot = container.Locate<Bootstrapper>();
 
             boot.Container.ExportAssembly(Assembly.GetAssembly(typeof(EventHandlerServiceWpf)));
+            NotifyHelper.EventHandlerService = new EventHandlerServiceWpf();
+
 
             boot.LoadDll("LittleBigMouse.Plugin.Location");
             boot.LoadDll("LittleBigMouse.Plugin.Vcp");

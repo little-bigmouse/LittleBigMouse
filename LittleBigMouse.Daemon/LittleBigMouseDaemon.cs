@@ -27,55 +27,70 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using HLab.Notify;
 using HLab.Notify.PropertyChanged;
 using HLab.Notify.Wpf;
 using HLab.Remote;
 using HLab.Sys.Windows.Monitors;
 using LittleBigMouse.Daemon.Updater;
 using LittleBigMouse.ScreenConfig;
-using LittleBigMouse_Daemon;
 using LittleBigMouse_Daemon.Updater;
 using Microsoft.Win32.TaskScheduler;
 using Task = System.Threading.Tasks.Task;
 
 namespace LittleBigMouse.Daemon
 {
-    // [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Multiple, InstanceContextMode = InstanceContextMode.Single)]
     class LittleBigMouseDaemon : Application, ILittleBigMouseService
     {
         private string ServiceName { get; } = "LittleBigMouse_" + System.Security.Principal.WindowsIdentity.GetCurrent().Name.Replace('\\', '_');
         private MouseEngine _engine;
-        private readonly IMonitorsService _monitorsService;
+        private readonly RemoteServer _remoteServer = new RemoteServer("lbm.daemon");
+        private readonly IMonitorsService _monitorsService = new MonitorsService();
         private Notify _notify;
-        private readonly IList<string> _args;
 
-        public LittleBigMouseDaemon(IList<string> args)
+        public LittleBigMouseDaemon()
         {
             NotifyHelper.EventHandlerService = new EventHandlerServiceWpf();
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
-            Startup += OnStartup;
-            Exit += OnExit;
-            Deactivated += OnDeactivated;
-            _args = args;
-
-            _monitorsService = new MonitorsService();
-            _screenConfig = new ScreenConfig.ScreenConfig(_monitorsService);
         }
 
-        //       private ILittleBigMouseCallback Callback => OperationContext.Current?.GetCallbackChannel<ILittleBigMouseCallback>();
-        //       private ServiceHost _host;
 
-        private RemoteServer _server;
-        private void StartServer(string name)
+        protected override void OnStartup(StartupEventArgs e)
         {
-            _server = new RemoteServer(name);
-            _server.GotMessage += OnGotMessage;
-            _server.Run();
+            _notify = new Notify();
+            _engine = new MouseEngine(_monitorsService);
+
+            _engine.ConfigLoaded += _engine_ConfigLoaded;
+
+            base.OnStartup(e);
+
+            _remoteServer.GotMessage += OnGotMessage;
+            _remoteServer.Run();
+
+            if (_notify != null)
+                _notify.Click += OnNotifyClick;
+
+            UpdateConfig();
+
+            _notify.AddMenu(-1, "Check for update", CheckUpdate);
+            _notify.AddMenu(-1, "Open", Open);
+            _notify.AddMenu(-1, "Start", Start);
+            _notify.AddMenu(-1, "Stop", Stop);
+            _notify.AddMenu(-1, "Exit", Quit);
+
+            CommandLine(e.Args);
         }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            Stop();
+            _remoteServer?.Stop();
+            _notify.Hide();
+
+            base.OnExit(e);
+        }
+
 
         private void OnGotMessage(object sender, RemoteEventArgs e)
         {
@@ -84,44 +99,12 @@ namespace LittleBigMouse.Daemon
             );
         }
 
-        public void StopServer()
-        {
-            //           _host.Close();
-        }
-
-        private void OnStartup(object sender, EventArgs exitEventArgs)
-        {
-
-            _notify = new Notify();
-            _engine = new MouseEngine(_monitorsService);
-
-            _engine.ConfigLoaded += _engine_ConfigLoaded;
-
-            StartServer("lbm.daemon");
-
-            if (_notify != null)
-                _notify.Click += OnNotifyClick;
-
-            UpdateConfig();
-
-            //_notify.AddMenu("Brightness", Brightness);
-
-            _notify.AddMenu(-1, "Check for update", CheckUpdate);
-            _notify.AddMenu(-1, "Open", Open);
-            _notify.AddMenu(-1, "Start", Start);
-            _notify.AddMenu(-1, "Stop", Stop);
-            _notify.AddMenu(-1, "Exit", Quit);
-
-            CommandLine(_args);
-            //Start();
-        }
 
         private void _engine_ConfigLoaded(object sender, EventArgs e)
         {
             UpdateConfig();
         }
 
-        private readonly ScreenConfig.ScreenConfig _screenConfig;
 
         public void UpdateConfig()
         {
@@ -131,8 +114,10 @@ namespace LittleBigMouse.Daemon
             {
                 bool chk = configName == _engine.Config?.Id;
 
-                if (_screenConfig.IsDoableConfig(configName))
+                // TODO : if (_screenConfig!=null && _screenConfig.IsDoableConfig(configName))
+                {
                     _notify.AddMenu(0, configName, MatchConfig, "config", chk);
+                }
             }
 
         }
@@ -140,10 +125,6 @@ namespace LittleBigMouse.Daemon
 
         private void OnNotifyClick(object sender, EventArgs e) { Open(); }
 
-        private void OnDeactivated(object sender, EventArgs eventArgs)
-        {
-            //_brightness?.Hide();
-        }
 
         private void MatchConfig(object sender, EventArgs e)
         {
@@ -153,12 +134,6 @@ namespace LittleBigMouse.Daemon
             //}
         }
 
-        private void OnExit(object sender, ExitEventArgs exitEventArgs)
-        {
-            Stop();
-            StopServer();
-            _notify.Hide();
-        }
 
         public async void CommandLine(IList<string> args)
         {
@@ -223,13 +198,13 @@ namespace LittleBigMouse.Daemon
 
         public async void Running()
         {
-            if (_engine.Hook.Hooked())
+            if (_engine.Running)
             {
-                await _server.SendMessageAsync("running");
+                //await _remoteServer.SendMessageAsync("running");
             }
             else
             {
-                _server.SendMessageAsync("stopped");
+                //_server.SendMessageAsync("stopped");
             }
         }
 
@@ -272,7 +247,7 @@ namespace LittleBigMouse.Daemon
         {
             _engine.Start();
             _notify.SetOn();
-            await _server.SendMessageAsync("running");
+            //await _server.SendMessageAsync("running");
         }
 
         private void Stop(object sender, EventArgs e)
@@ -284,7 +259,7 @@ namespace LittleBigMouse.Daemon
         {
             _engine.Stop();
             _notify.SetOff();
-            await _server.SendMessageAsync("stopped");
+            //await _server.SendMessageAsync("stopped");
         }
 
         private void Open(object sender, EventArgs eventArgs)
@@ -310,7 +285,7 @@ namespace LittleBigMouse.Daemon
 
                 if (updater.Updated)
                 {
-                    Application.Current.Shutdown();
+                    Quit();
                     return true;
                 }
             }
@@ -346,28 +321,6 @@ namespace LittleBigMouse.Daemon
             Process.Start(startInfo);
         }
 
-        /*
-        private readonly LuminanceWindow _brightness = new LuminanceWindow();
-        private void OnNotifyClick(object sender, EventArgs e) { Brightness(); }
-
-        public void Brightness(object sender, EventArgs eventArgs)
-        {
-            Brightness();
-        }
-        private void Brightness()
-        {
-            if (_brightness == null) return;
-
-            if (_brightness.Visibility == Visibility.Visible)
-                _brightness.Hide();
-            else
-            {
-                _brightness.Hook = _engine.Hook;
-                _brightness.Show();
-                
-            }
-        }
-        */
 
         public void Schedule()
         {
@@ -402,6 +355,5 @@ namespace LittleBigMouse.Daemon
             using var ts = new TaskService();
             ts.RootFolder.DeleteTask(ServiceName, false);
         }
-
     }
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
-using HLab.Sys.Windows.API;
 using LittleBigMouse.ScreenConfig;
 
 namespace LittleBigMouse.Daemon
@@ -36,11 +35,11 @@ namespace LittleBigMouse.Daemon
         private readonly Matrix _px2Mm;
         private readonly Matrix _mm2Px;
 
-        public Screen Screen { get; }
+        //public Screen Screen { get; }
 
         public Zone(Screen screen,Zone main = null,double translateX=0, double translateY = 0)
         {
-            Screen = screen;
+            //Screen = screen;
 
             main ??= this;
 
@@ -95,10 +94,10 @@ namespace LittleBigMouse.Daemon
         public Point InsidePx(Point px)
         {
             if (px.X < Px.X) px.X = Px.X;
-            else if (px.X >= Px.Right) px.X = Px.Right - 1;
+            else if (px.X > Px.Right - 1.0) px.X = Px.Right - 1.0;
 
             if (px.Y < Px.Y) px.Y = Px.Y;
-            else if (px.Y >= Px.Bottom) px.Y = Px.Bottom - 1;
+            else if (px.Y > Px.Bottom - 1.0) px.Y = Px.Bottom - 1.0;
 
             return px;
         }

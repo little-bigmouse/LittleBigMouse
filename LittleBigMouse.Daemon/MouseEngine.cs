@@ -31,8 +31,8 @@ using System.Windows;
 using HLab.DependencyInjection.Annotations;
 using HLab.Sys.MouseHooker;
 using HLab.Sys.Windows.Monitors;
-using HLab.Sys.Windows.MonitorVcp;
 using Microsoft.Win32;
+using static System.Double;
 using NativeMethods = HLab.Sys.Windows.API.NativeMethods;
 
 //using static HLab.Windows.API.NativeMethods;
@@ -44,11 +44,14 @@ namespace LittleBigMouse.Daemon
     {
         public ScreenConfig.ScreenConfig Config { get; private set; }
 
-        private Zones _zones;
+        public event EventHandler ConfigLoaded;
 
-        private double _initMouseSpeed;
+        private readonly IMonitorsService _monitorService;
+        private Zones _zones;
+        private Action _stopAction = null;
+
         //public readonly IMouseHooker Hook = new MouseHookerWinEvent();
-        public readonly IMouseHooker Hook = new MouseHookerWindowsHook();
+        private readonly IMouseHooker _hook = new MouseHookerWindowsHook();
 
 
         public void Quit()
@@ -64,107 +67,108 @@ namespace LittleBigMouse.Daemon
 
             if (Config == null || !Config.Enabled) return;
 
-            using (RegistryKey key = ScreenConfig.ScreenConfig.OpenRootRegKey(true))
-            {
-                string ms = key.GetValue("InitialMouseSpeed", string.Empty).ToString();
-
-                if (string.IsNullOrEmpty(ms))
-                {
-                    _initMouseSpeed = LbmMouse.MouseSpeed;
-                    key.SetValue("InitialMouseSpeed", _initMouseSpeed.ToString(CultureInfo.InvariantCulture),
-                        RegistryValueKind.String);
-                }
-                else
-                    double.TryParse(ms, out _initMouseSpeed);
-
-                using (var savekey = key.CreateSubKey("InitialCursor"))
-                {
-                    if (savekey?.ValueCount == 0)
-                    {
-                        LbmMouse.SaveCursor(savekey);
-                    }
-                }
-            }
 
             Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.RealTime;
 
 
-
             if (Config.AdjustPointer)
+            {
+                using (var key = ScreenConfig.ScreenConfig.OpenRootRegKey(true))
+                {
+                    using (var saveKey = key.CreateSubKey("InitialCursor"))
+                    {
+                        if (saveKey?.ValueCount == 0)
+                        {
+                            LbmMouse.SaveCursor(saveKey);
+                        }
+                    }
+                }
+
                 ZoneChanged += AdjustPointer;
 
+                _stopAction += () =>
+                {
+                    ZoneChanged -= AdjustPointer;
+                    using (var key = ScreenConfig.ScreenConfig.OpenRootRegKey())
+                    {
+                        using var saveKey = key.OpenSubKey("InitialCursor");
+                        if (saveKey != null) LbmMouse.RestoreCursor(saveKey);
+
+                        key.DeleteSubKey("InitialCursor");
+                    }
+                };
+            }
+
             if (Config.AdjustSpeed)
+            {
+                double initialMouseSpeed;
+
+                using (var key = ScreenConfig.ScreenConfig.OpenRootRegKey(true))
+                {
+                    var ms = key.GetValue("InitialMouseSpeed", string.Empty).ToString();
+
+                    if (string.IsNullOrEmpty(ms))
+                    {
+                        initialMouseSpeed = LbmMouse.MouseSpeed;
+                        key.SetValue("InitialMouseSpeed", initialMouseSpeed.ToString(CultureInfo.InvariantCulture),
+                            RegistryValueKind.String);
+                    }
+                    else
+                        _ = TryParse(ms, out initialMouseSpeed);
+                }
+
                 ZoneChanged += AdjustSpeed;
 
+                _stopAction += () =>
+                {
+                    ZoneChanged -= AdjustSpeed;
+                    LbmMouse.MouseSpeed = initialMouseSpeed;
+                    using var key = ScreenConfig.ScreenConfig.OpenRootRegKey(true);
+                    key.DeleteValue("InitialMouseSpeed");
+                };
+            }
+
             if (Config.HomeCinema)
+            {
                 ZoneChanged += HomeCinema;
+                _stopAction += () => ZoneChanged -= HomeCinema;
+            }
 
-            Hook.MouseMove += OnMouseMoveExtFirst;
+            _hook.SetMouseMoveAction(OnMouseMoveExtFirst);
 
-            Hook.Hook();
+            _hook.Hook();
         }
+
 
         public void Stop()
         {
-            // TODO : if (!Hook.Enabled) return;
+            _stopAction?.Invoke();
+            _stopAction = null;
 
-            if (Config == null) return;
+            _hook.UnHook();
+            _hook.SetMouseMoveAction(null);
 
+            _zones = null;
 
-            if (Config.AdjustPointer)
-                ZoneChanged -= AdjustPointer;
-
-            if (Config.AdjustSpeed)
-                ZoneChanged -= AdjustSpeed;
-
-            if (Config.HomeCinema)
-                ZoneChanged -= HomeCinema;
-
-            Hook.UnHook();
-
-            if (Config == null) return;
-
-            if (Config.AdjustSpeed)
+            if (Config != null)
             {
-                LbmMouse.MouseSpeed = _initMouseSpeed;
-                using (var key = ScreenConfig.ScreenConfig.OpenRootRegKey(true))
-                {
-                    key.DeleteValue("InitialMouseSpeed");
-                }
-            }
-
-            if (Config.AdjustPointer)
-            {
-                using (var key = ScreenConfig.ScreenConfig.OpenRootRegKey())
-                {
-                    using (RegistryKey savekey = key.OpenSubKey("InitialCursor"))
-                    {
-                        if (savekey != null)
-                        {
-                            LbmMouse.RestoreCursor(savekey);
-                        }
-                    }
-                    key.DeleteSubKey("InitialCursor");
-                }
+                //Config.Dispose();
+                Config = null;
             }
 
             Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.Normal;
         }
 
 
-        public void LoadConfig(ScreenConfig.ScreenConfig config)
-        {
-            Config = config;
-            ConfigLoaded?.Invoke(config, null);
-        }
-
-        public event EventHandler ConfigLoaded;
-
-        private readonly IMonitorsService _monitorService;
 
         public void LoadConfig()
         {
-            LoadConfig(new ScreenConfig.ScreenConfig(_monitorService));
+            if (Config != null)
+            {
+                //Config.Dispose();
+                Config = null;
+            }
+            Config = new ScreenConfig.ScreenConfig(_monitorService);
 
             _zones = new Zones();
             foreach (var screen in Config.AllScreens)
@@ -175,52 +179,33 @@ namespace LittleBigMouse.Daemon
 
             if (Config.LoopX)
             {
-                foreach (var screen in Config.AllScreens)
-                {
-                    var main = _zones.Main.FirstOrDefault(e => ReferenceEquals(e.Screen, screen));
-                    _zones.Add(new Zone(screen, main, -Config.InMmOutsideBounds.Width, 0));
-                    _zones.Add(new Zone(screen, main, Config.InMmOutsideBounds.Width, 0));
-                }
+                // TODO 
+                //foreach (var screen in Config.AllScreens)
+                //{
+                //    var main = _zones.Main.FirstOrDefault(e => ReferenceEquals(e.Screen, screen));
+                //    _zones.Add(new Zone(screen, main, -Config.InMmOutsideBounds.Width, 0));
+                //    _zones.Add(new Zone(screen, main, Config.InMmOutsideBounds.Width, 0));
+                //}
             }
 
             if (Config.LoopY)
             {
-                foreach (var screen in Config.AllScreens)
-                {
-                    var main = _zones.Main.FirstOrDefault(e => ReferenceEquals(e.Screen, screen));
-                    _zones.Add(new Zone(screen, main, 0, -Config.InMmOutsideBounds.Height));
-                    _zones.Add(new Zone(screen, main, 0, Config.InMmOutsideBounds.Height));
-                }
+                // TODO
+                //foreach (var screen in Config.AllScreens)
+                //{
+                //    var main = _zones.Main.FirstOrDefault(e => ReferenceEquals(e.Screen, screen));
+                //    _zones.Add(new Zone(screen, main, 0, -Config.InMmOutsideBounds.Height));
+                //    _zones.Add(new Zone(screen, main, 0, Config.InMmOutsideBounds.Height));
+                //}
             }
+
+            ConfigLoaded?.Invoke(Config, new EventArgs());
+
         }
 
         private readonly Stopwatch _timer = new Stopwatch();
         private int _count = -10;
 
-        //private void OnMouseMoveExt(object sender, MouseEventExtArgs e)
-        //{
-        //    //_timer.Start();
-        //    //try
-        //    //{
-        //    if (e.Clicked) return;
-        //    var pIn = new Point(e.X, e.Y);
-
-        //    if (_oldZone.ContainsPx(pIn))
-        //    {
-        //        _oldPoint = pIn;
-        //        e.Handled = false;
-        //        return;
-        //    }
-
-        //    e.Handled = _handler(pIn);
-
-        //    //}
-        //    //finally
-        //    //{
-        //    //    _timer.Stop();
-        //    //    _count++;               
-        //    //}
-        //}
 
         private void PrintResult()
         {
@@ -229,7 +214,6 @@ namespace LittleBigMouse.Daemon
         }
 
 
-        private EventHandler<HookMouseEventArg> _handler;
         private Point _oldPoint;
         private Zone _oldZone;
 
@@ -241,16 +225,16 @@ namespace LittleBigMouse.Daemon
 
         private void OnMouseMoveExtFirst(object sender, HookMouseEventArg e)
         {
-            Hook.MouseMove -= OnMouseMoveExtFirst;
-            _oldPoint = e.Point; //new Point(e.X,e.Y);
-            //_oldScreenRect = Config.ScreenFromPixel(_oldPoint).InPixel.Bounds;
+            _oldPoint = e.Point;
+
             _oldZone = _zones.FromPx(_oldPoint);
 
+            if (_oldZone == null) return; // TODO : this could indicate a problem with the config
 
             if (Config.AllowCornerCrossing)
-                Hook.MouseMove += MouseMoveCross;
+                _hook.SetMouseMoveAction(MouseMoveCross);
             else
-                Hook.MouseMove += MouseMoveStraight;
+                _hook.SetMouseMoveAction(MouseMoveStraight);
         }
 
         public event EventHandler<ZoneChangeEventArgs> ZoneChanged;
@@ -327,7 +311,7 @@ namespace LittleBigMouse.Daemon
                 return;
             }
 
-            Debug.WriteLine("Leaving zone");
+            Debug.WriteLine($"Leaving zone : {pIn}");
 
             //Point oldpInMm = _oldZone.Px2Mm(_oldPoint);
             Point pInMm = _oldZone.Px2Mm(pIn);
@@ -416,7 +400,7 @@ namespace LittleBigMouse.Daemon
 
             if (zoneOut == null)
             {
-                Debug.WriteLine("No zone found : " + pIn);
+                Debug.WriteLine($"No zone found : {pIn}");
 
                 var r = new NativeMethods.RECT((int) _oldZone.Px.Left, (int) _oldZone.Px.Top, (int) _oldZone.Px.Right,
                     (int) _oldZone.Px.Bottom);
@@ -432,11 +416,11 @@ namespace LittleBigMouse.Daemon
             else
             {
                 var pMm = new Point(pInMm.X + minDx, pInMm.Y + minDy);
-                Debug.WriteLine("mm : " + pMm.ToString());
+                Debug.WriteLine($"mm : {pMm}");
                 var pOut = zoneOut.Mm2Px(pMm);
-                Debug.WriteLine("px : " + pOut.ToString());
+                Debug.WriteLine($"px : {pOut}");
                 pOut = zoneOut.InsidePx(pOut);
-                Debug.WriteLine("px : " + pOut.ToString());
+                Debug.WriteLine($"px : {pOut}");
                 _oldZone = zoneOut.Main;
                 _oldPoint = pOut;
 
@@ -571,7 +555,7 @@ namespace LittleBigMouse.Daemon
             Zone zoneOut = null;
 
             var trip = new Segment(pInMmOld, pInMm);
-            var minDist = double.PositiveInfinity;
+            var minDist = PositiveInfinity;
 
             var pOutInMm = pInMm;
 
@@ -644,8 +628,9 @@ namespace LittleBigMouse.Daemon
 
         private void HomeCinema(object sender, ZoneChangeEventArgs args)
         {
-            args.OldZone.Screen.Monitor.Vcp().Power = false;
-            args.NewZone.Screen.Monitor.Vcp().Power = true;
+            // TODO
+            //args.OldZone.Screen.Monitor.Vcp().Power = false;
+            //args.NewZone.Screen.Monitor.Vcp().Power = true;
         }
 
 
@@ -653,6 +638,8 @@ namespace LittleBigMouse.Daemon
         {
             Config.MatchConfig(configId);
         }
+
+        public bool Running => _hook.Hooked();
     }
 }
 
