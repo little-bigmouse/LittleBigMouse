@@ -21,9 +21,11 @@
 	  http://www.mgth.fr
 */
 
+using System.Windows.Input;
 using HLab.Core.Annotations;
 using HLab.DependencyInjection.Annotations;
 using HLab.Mvvm.Annotations;
+using HLab.Notify.PropertyChanged;
 using LittleBigMouse.Plugins;
 
 namespace LittleBigMouse.Plugin.Location.Plugins.Location
@@ -42,9 +44,18 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Location
 
         public void Load(IBootContext bootstrapper)
         {
-            _mainService.AddButton("Icons/IconLocation","Location",
-                ()=> _mainService.SetViewMode<ViewModeScreenLocation>(),
-                ()=> _mainService.SetViewMode<ViewModeDefault>());
+            _mainService.AddButton(new NCommand<bool>(b =>
+                {
+                    if (b)
+                        _mainService.SetViewMode<ViewModeScreenLocation>();
+                    else
+                        _mainService.SetViewMode<ViewModeDefault>();
+                })
+                {
+                    IconPath = "Icons/IconLocation", 
+                    ToolTipText = "Location"
+                }
+            );
         }
 
     }

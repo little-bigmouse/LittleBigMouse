@@ -24,6 +24,7 @@
 using HLab.Core.Annotations;
 using HLab.DependencyInjection.Annotations;
 using HLab.Mvvm.Annotations;
+using HLab.Notify.PropertyChanged;
 using LittleBigMouse.Plugins;
 
 namespace LittleBigMouse.Plugin.Vcp
@@ -41,9 +42,18 @@ namespace LittleBigMouse.Plugin.Vcp
 
         public void Load(IBootContext bootstrapper)
         {
-            _mainService.AddButton("Icons/IconVcp","Vcp control",
-                () => _mainService.SetViewMode<ViewModeScreenVcp>(),
-                () => _mainService.SetViewMode<ViewModeDefault>());
+            _mainService.AddButton(new NCommand<bool>(b =>
+                {
+                    if (b)
+                        _mainService.SetViewMode<ViewModeScreenVcp>();
+                    else
+                        _mainService.SetViewMode<ViewModeDefault>();
+                })
+                {
+                    IconPath = "Icons/IconVcp", 
+                    ToolTipText = "Vcp control"
+                }
+            );
         }
 
     }

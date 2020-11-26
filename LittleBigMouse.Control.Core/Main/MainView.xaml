@@ -138,7 +138,11 @@
                     <ColumnDefinition/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <ContentControl Grid.Column="0" Content="{Binding ButtonPanel}" Background="Black"/>
+                <main:ButtonPanel 
+                    Grid.Column="0" 
+                    Commands="{Binding Commands}"
+                    Background="Black"
+                    />
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
 
                     <ToggleButton IsChecked="{Binding Config.Pinned}">

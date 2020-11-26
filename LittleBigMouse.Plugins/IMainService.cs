@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using HLab.Mvvm.Annotations;
 using LittleBigMouse.ScreenConfig;
 using LittleBigMouse.ScreenConfig.Dimensions;
@@ -32,7 +33,7 @@ namespace LittleBigMouse.Plugins
 
     public interface IMainService
     {
-        void AddButton(string iconPath, string toolTip, Action activate, Action deactivate);
+        void AddButton(ICommand cmd);
         void SetViewMode(Type viewMode);
         void SetViewMode<T>() where T:ViewMode;
     }

@@ -24,6 +24,7 @@
 using HLab.Core.Annotations;
 using HLab.DependencyInjection.Annotations;
 using HLab.Mvvm.Annotations;
+using HLab.Notify.PropertyChanged;
 using LittleBigMouse.Plugins;
 
 namespace LittleBigMouse.Plugin.Location.Plugins.Size
@@ -41,9 +42,18 @@ namespace LittleBigMouse.Plugin.Location.Plugins.Size
 
         public void Load(IBootContext bootstrapper)
         {
-            _mainService.AddButton("Icons/IconSize","Size",
-                () => _mainService.SetViewMode<ViewModeScreenSize>(),
-                () => _mainService.SetViewMode<ViewModeDefault>());
+            _mainService.AddButton(new NCommand<bool>(b =>
+                {
+                    if (b)
+                        _mainService.SetViewMode<ViewModeScreenSize>();
+                    else
+                        _mainService.SetViewMode<ViewModeDefault>();
+                })
+                {
+                    IconPath = "Icons/IconSize", 
+                    ToolTipText = "Size"
+                }
+            );
         }
     }
 

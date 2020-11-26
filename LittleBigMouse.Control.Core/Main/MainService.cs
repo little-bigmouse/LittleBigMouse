@@ -22,6 +22,7 @@
 */
 
 using System;
+using System.Windows.Input;
 using HLab.DependencyInjection.Annotations;
 using HLab.Mvvm.Annotations;
 using LittleBigMouse.Plugins;
@@ -41,8 +42,8 @@ namespace LittleBigMouse.Control.Main
            Config = config;
         }
 
-        public void AddButton(string iconPath, string toolTip, Action activate, Action deactivate) =>
-            MainViewModel.AddButton(iconPath, toolTip, activate, deactivate);
+        public void AddButton(ICommand cmd) =>
+            MainViewModel.AddButton(cmd);
 
         public void SetViewMode(Type viewMode)
         {

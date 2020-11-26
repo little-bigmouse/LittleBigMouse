@@ -22,6 +22,7 @@
 */
 
 using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -49,12 +50,12 @@ namespace LittleBigMouse.Control.Main
 
         public IIconService IconService { get; }
 
-        private readonly IProperty<ScreenConfig.ScreenConfig> _config = H.Property<ScreenConfig.ScreenConfig>();
         public ScreenConfig.ScreenConfig Config
         {
             get => _config.Get();
             set => _config.Set(value);
         }
+        private readonly IProperty<ScreenConfig.ScreenConfig> _config = H.Property<ScreenConfig.ScreenConfig>();
 
         public IPresenterViewModel Presenter
         {
@@ -120,43 +121,12 @@ namespace LittleBigMouse.Control.Main
             Orientation = Orientation.Horizontal,
         };
 
-        public void AddButton(string iconPath, string toolTip, Action activate, Action deactivate)
+        public ObservableCollection<ICommand> Commands { get; } = new ObservableCollection<ICommand>();
+
+        public void AddButton(ICommand cmd)
         {
-            var content = new IconView {Path = iconPath};
-            AddButton(content, toolTip, activate, deactivate);
+            Commands.Add(cmd);
         }
 
-        public void AddButton(object content, string toolTip, Action activate, Action deactivate)
-        {
-            var tb = new ToggleButton
-            {
-                ToolTip = toolTip,
-                Height = 40,
-                Width = 40,
-                //Background = new SolidColorBrush(Colors.Black),
-                Margin = new Thickness(5),
-                Padding = new Thickness(5),
-                //BorderBrush = new SolidColorBrush(Colors.Black),
-                //Style = (Style)MainView.Resources["ButtonStyle"],
-                Content = content,
-            };
-
-            tb.Checked += (sender, args) =>
-            {
-                foreach (var other in ButtonPanel.Children.OfType<ToggleButton>().Where(e => !ReferenceEquals(e,tb)))
-                {
-                    other.IsChecked = false;
-                }
-
-                activate();
-            };
-
-            tb.Unchecked += (sender, args) =>
-            {
-                deactivate();
-            };
-
-            ButtonPanel.Children.Add(tb);
-        }
     }
 }
