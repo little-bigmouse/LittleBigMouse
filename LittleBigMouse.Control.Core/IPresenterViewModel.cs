@@ -29,7 +29,6 @@ namespace LittleBigMouse.Control
 {
     public interface IPresenterViewModel : INotifyPropertyChanged
     {
-
         MainViewModel MainViewModel { get; }
         Type ViewMode { get; set; }
 

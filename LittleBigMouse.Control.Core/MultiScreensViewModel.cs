@@ -79,7 +79,11 @@ namespace LittleBigMouse.Control
             .Update()
         );
 
-        public IScreenRatio VisualRatio { get; } = new ScreenRatioValue(1.0);
+        //public IScreenRatio VisualRatio { get; } = new ScreenRatioValue(1.0);
+        public IScreenRatio VisualRatio => _visualRatio.Get();
+
+        public IProperty<IScreenRatio> _visualRatio = H.Property<IScreenRatio>(c => c.Default((IScreenRatio)new ScreenRatioValue(1.0)));
+
         public void ConfigureMvvmContext(IMvvmContext ctx)
         {
             ctx.AddCreator<ScreenFrameViewModel>(vm => vm.Presenter = this);

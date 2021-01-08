@@ -107,8 +107,8 @@ namespace LittleBigMouse.ScreenConfig
         {
             get
             {
-                using var rootkey = OpenRootRegKey();
-                using var key = rootkey?.OpenSubKey("configs");
+                using var rootKey = OpenRootRegKey();
+                using var key = rootKey?.OpenSubKey("configs");
                 if (key == null) return new List<string>();
                 return key?.GetSubKeyNames();
             }
@@ -875,46 +875,42 @@ namespace LittleBigMouse.ScreenConfig
 
         public bool IsScheduled()
         {
-            using (var ts = new TaskService())
-            {
-                return ts.RootFolder.GetTasks(new Regex(ServiceName)).Any();
-            }
+            using var ts = new TaskService();
+            return ts.RootFolder.GetTasks(new Regex(ServiceName)).Any();
         }
 
 
         public bool Schedule()
         {
             Unschedule();
-            using (var ts = new TaskService())
+            using var ts = new TaskService();
+            ts.RootFolder.DeleteTask(ServiceName, false);
+
+            var td = ts.NewTask();
+            td.RegistrationInfo.Description = "Multi-dpi aware monitors mouse crossover";
+            td.Triggers.Add(
+                //new BootTrigger());
+                new LogonTrigger { UserId = System.Security.Principal.WindowsIdentity.GetCurrent().Name });
+
+
+            td.Actions.Add(
+                new ExecAction(DaemonExe, "--start", AppDomain.CurrentDomain.BaseDirectory)
+            );
+
+            td.Principal.RunLevel = TaskRunLevel.Highest;
+            td.Settings.DisallowStartIfOnBatteries = false;
+            td.Settings.DisallowStartOnRemoteAppSession = true;
+            td.Settings.StopIfGoingOnBatteries = false;
+            td.Settings.ExecutionTimeLimit = TimeSpan.Zero;
+            try
             {
-                ts.RootFolder.DeleteTask(ServiceName, false);
-
-                var td = ts.NewTask();
-                td.RegistrationInfo.Description = "Multi-dpi aware monitors mouse crossover";
-                td.Triggers.Add(
-                    //new BootTrigger());
-                    new LogonTrigger { UserId = System.Security.Principal.WindowsIdentity.GetCurrent().Name });
-
-
-                td.Actions.Add(
-                    new ExecAction(DaemonExe, "--start", AppDomain.CurrentDomain.BaseDirectory)
-                );
-
-                td.Principal.RunLevel = TaskRunLevel.Highest;
-                td.Settings.DisallowStartIfOnBatteries = false;
-                td.Settings.DisallowStartOnRemoteAppSession = true;
-                td.Settings.StopIfGoingOnBatteries = false;
-                td.Settings.ExecutionTimeLimit = TimeSpan.Zero;
-                try
-                {
-                    ts.RootFolder.RegisterTaskDefinition(ServiceName, td);
-                    return true;
-                }
-                catch (UnauthorizedAccessException  e)
-                {
-                    MessageBox.Show("Unable to register startup task");
-                    return false;
-                }
+                ts.RootFolder.RegisterTaskDefinition(ServiceName, td);
+                return true;
+            }
+            catch (UnauthorizedAccessException  e)
+            {
+                MessageBox.Show("Unable to register startup task");
+                return false;
             }
         }
 

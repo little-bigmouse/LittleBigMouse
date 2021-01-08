@@ -148,9 +148,10 @@ namespace LittleBigMouse.Control.ScreenFrame
         public IScreenSize Rotated => _rotated.Get();
         private readonly IProperty<IScreenSize> _rotated = H.Property<IScreenSize>(c => c
             .NotNull(e => e.Model)
+            .NotNull(e => e.Presenter)
             .Set(e =>
             {
-                if (e.Presenter == null) return e.Model.InMm;
+                //if (e.Presenter == null) return null;//e.Model.InMm;
                 return e.Model.InMm.ScaleWithLocation(e.Presenter.VisualRatio);
             })
             .On(e => e.Presenter.VisualRatio)
@@ -163,12 +164,12 @@ namespace LittleBigMouse.Control.ScreenFrame
         private readonly IProperty<IScreenSize> _unrotated = H.Property<IScreenSize>(c => c
             .Set(e =>
             {
-                if (e.Presenter == null) return e.Model.InMmU;
+                if (e.Presenter == null) return null;//e.Model.InMmU;
                 return e.Model.InMmU.ScaleWithLocation(e.Presenter.VisualRatio);
             })
             .On(e => e.Presenter.VisualRatio)
             .On(e => e.Model.InMmU)
-            .On(e => e.Model.Orientation)
+//            .On(e => e.Model.Orientation)
             .Update()
         );
 
@@ -203,6 +204,7 @@ namespace LittleBigMouse.Control.ScreenFrame
 
         public Image WallPaper => _wallPaper.Get();
         private readonly IProperty<Image> _wallPaper = H.Property<Image>(c => c
+            .NotNull(e => e.Model)
             .Set(e =>
             {
                 try

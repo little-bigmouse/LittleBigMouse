@@ -21,17 +21,13 @@
 	  http://www.mgth.fr
 */
 
-using System;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using HLab.DependencyInjection.Annotations;
 using HLab.Mvvm;
 using HLab.Mvvm.Annotations;
-using HLab.Mvvm.Icons;
 using HLab.Notify.PropertyChanged;
 
 namespace LittleBigMouse.Control.Main

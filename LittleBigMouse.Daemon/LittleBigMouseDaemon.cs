@@ -318,7 +318,14 @@ namespace LittleBigMouse.Daemon
                 UseShellExecute = false
             };
 
-            Process.Start(startInfo);
+            try
+            {
+                Process.Start(startInfo);
+            }
+            catch(FileNotFoundException)
+            {
+                //TODO
+            }
         }
 
 
