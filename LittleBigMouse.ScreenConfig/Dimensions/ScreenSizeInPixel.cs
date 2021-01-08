@@ -46,7 +46,7 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
             set => throw new NotImplementedException();
         }
         private readonly IProperty<double> _width = H.Property<double>(c => c
-            .Set(e => e.Screen.Monitor.AttachedDisplay?.CurrentMode.Pels.Width??0)
+            .Set(e => e.Screen.Monitor.AttachedDisplay?.CurrentMode?.Pels.Width??0)
             .On(e => e.Screen.Monitor.AttachedDisplay.CurrentMode)
             .Update()
         );
@@ -65,7 +65,7 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
             set => throw new NotImplementedException();
         }
         private readonly IProperty<double> _height = H.Property<double>(c => c
-            .Set(e => e.Screen.Monitor.AttachedDisplay?.CurrentMode.Pels.Height??0)
+            .Set(e => e.Screen.Monitor.AttachedDisplay?.CurrentMode?.Pels.Height??0)
             .On(e => e.Screen.Monitor.AttachedDisplay.CurrentMode.Pels)
             .Update()
         );
@@ -81,7 +81,7 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
             set => throw new NotImplementedException();
         }
         private readonly IProperty<double> _x = H.Property<double>(c => c
-            .Set(e => e.Screen.Monitor.AttachedDisplay.CurrentMode.Position.X)
+            .Set(e => e.Screen.Monitor.AttachedDisplay.CurrentMode?.Position.X??0)
             .On( e => e.Screen.Monitor.AttachedDisplay.CurrentMode.Position)
             .Update()
         );
@@ -98,7 +98,8 @@ namespace LittleBigMouse.ScreenConfig.Dimensions
             set => throw new NotImplementedException();
         }
         private readonly IProperty<double> _y = H.Property<double>(c => c
-            .Set(e => e.Screen.Monitor.AttachedDisplay.CurrentMode.Position.Y)
+                // TODO BUG : //Root/BasicDisplay CurrentMode is null
+            .Set(e => e.Screen.Monitor.AttachedDisplay.CurrentMode?.Position.Y??0)
             .On(e => e.Screen.Monitor.AttachedDisplay.CurrentMode.Position)
             .Update()
         );
